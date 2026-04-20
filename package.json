@@ -1,18 +1,19 @@
 {
-  "name": "@jungvonmatt/cursor-toolkit",
+  "name": "@jungvonmatt/agent-toolkit",
   "homepage": "https://jvm.tech",
-  "version": "0.4.6",
-  "description": "Reusable Cursor rules, prompts, and workflows for AI-assisted development.",
+  "version": "0.5.1",
+  "description": "Reusable Agent skills, rules, prompts, and workflows for AI-assisted development.",
   "private": true,
   "keywords": [
     "ai",
     "agents",
     "devex",
     "cursor",
+    "vscode",
     "toolkit"
   ],
   "repository": {
     "type": "git",
-    "url": "https://github.com/jungvonmatt/cursor-toolkit.git"
+    "url": "https://github.com/jungvonmatt/agent-toolkit.git"
   }
 }
