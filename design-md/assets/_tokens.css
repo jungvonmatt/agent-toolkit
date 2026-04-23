@@ -1,0 +1,76 @@
+/* ============================================================
+   JvM CI 2026 — Design Tokens & Base Styles
+   Canvas: 1920 × 1080 px (16:9)
+   ============================================================ */
+
+/* --- Custom properties (Figma variable names kept for compat) --- */
+:root {
+  --jvm_dark-green: #0a342d;
+  --jvm_green: #00eb73;
+
+  --color-primary:    #0a342d;
+  --color-accent:     #00eb73;
+  --color-surface:    #ffffff;
+
+  --font-headline: 'Carloschi Headline', sans-serif;
+  --font-body:     'Carloschi', sans-serif;
+
+  --weight-black:   900;
+  --weight-bold:    700;
+  --weight-regular: 400;
+  --weight-book:    300;
+}
+
+/* --- Fonts (supply .woff2 files at these paths) --- */
+@font-face {
+  font-family: 'Carloschi Headline';
+  font-weight: 900;
+  font-style: normal;
+  src: url('../fonts/CarloschiHeadline-Black.woff2') format('woff2');
+}
+@font-face {
+  font-family: 'Carloschi';
+  font-weight: 300;
+  font-style: normal;
+  src: url('../fonts/Carloschi-Book.woff2') format('woff2');
+}
+@font-face {
+  font-family: 'Carloschi';
+  font-weight: 400;
+  font-style: normal;
+  src: url('../fonts/Carloschi-Regular.woff2') format('woff2');
+}
+@font-face {
+  font-family: 'Carloschi';
+  font-weight: 700;
+  font-style: normal;
+  src: url('../fonts/Carloschi-Bold.woff2') format('woff2');
+}
+
+/* --- Slide canvas --- */
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+html, body { width: 1920px; height: 1080px; overflow: hidden; }
+
+.slide {
+  position: relative;
+  width: 1920px;
+  height: 1080px;
+  overflow: hidden;
+  background: var(--color-surface);
+  font-family: var(--font-body);
+  font-style: normal;
+}
+
+/* --- Slot placeholder styling (stripped at render time) --- */
+[data-slot]::before {
+  content: attr(data-slot);
+  position: absolute;
+  top: 0; left: 0;
+  font-size: 12px;
+  background: rgba(0,235,115,0.15);
+  color: #0a342d;
+  padding: 2px 4px;
+  pointer-events: none;
+  z-index: 9999;
+}
