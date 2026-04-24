@@ -10,16 +10,16 @@ npx skills add jungvonmatt/agent-toolkit/skills/jvm-design-system --global
 
 ## Usage
 
-Run once per project to set it up:
+Run once per workspace/project/repository to set it up:
 
 ```text
-Bootstrap the JvM design system into this project.
+/jvm-design 
 ```
 
 Or with an explicit path:
 
 ```text
-Bootstrap the JvM design system into ./my-project
+/jvm-design ./my-project
 ```
 
 After bootstrapping, the skill is no longer needed. Agents read `DESIGN.md` at the project root automatically.
