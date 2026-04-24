@@ -5,7 +5,7 @@ Bootstraps a project with the Jung von Matt CI 2026 design system — copies `DE
 ## Install
 
 ```bash
-npx skills add jungvonmatt/agent-toolkit/skills/jvm-design-system --global
+npx skills add jungvonmatt/agent-toolkit/skills/jvm-design --global
 ```
 
 ## Usage
