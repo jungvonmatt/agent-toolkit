@@ -1,6 +1,5 @@
 /* ============================================================
    JvM CI 2026 — Design Tokens & Base Styles
-   Canvas: 1920 × 1080 px (16:9)
    ============================================================ */
 
 /* --- Custom properties (Figma variable names kept for compat) --- */
@@ -47,30 +46,3 @@
   src: url('../fonts/Carloschi-Bold.woff2') format('woff2');
 }
 
-/* --- Slide canvas --- */
-*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
-
-html, body { width: 1920px; height: 1080px; overflow: hidden; }
-
-.slide {
-  position: relative;
-  width: 1920px;
-  height: 1080px;
-  overflow: hidden;
-  background: var(--color-surface);
-  font-family: var(--font-body);
-  font-style: normal;
-}
-
-/* --- Slot placeholder styling (stripped at render time) --- */
-[data-slot]::before {
-  content: attr(data-slot);
-  position: absolute;
-  top: 0; left: 0;
-  font-size: 12px;
-  background: rgba(0,235,115,0.15);
-  color: #0a342d;
-  padding: 2px 4px;
-  pointer-events: none;
-  z-index: 9999;
-}
