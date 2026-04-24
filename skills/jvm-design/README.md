@@ -1,4 +1,4 @@
-# jvm-design-system
+# JVM Design Bootstrap Skill
 
 Bootstraps a project with the Jung von Matt CI 2026 design system — copies `DESIGN.md`, brand assets, and fonts into the project root so agents auto-discover them without needing this skill at runtime.
 
