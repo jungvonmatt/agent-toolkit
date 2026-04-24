@@ -4,7 +4,7 @@
 <meta charset="utf-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1" />
 <title>OMR Aftershow — Jung von Matt</title>
-<link rel="stylesheet" href="assets/_tokens.css" />
+<link rel="stylesheet" href="../assets/_tokens.css" />
 <style>
   /* ================================================================
      OMR Aftershow Booking — JvM CI 2026
@@ -236,7 +236,6 @@
     font-family: var(--font-headline);
     font-size: 32px;
     color: var(--color-accent);
-    -webkit-text-stroke: 1px var(--color-primary);
   }
   .act__name {
     font-family: var(--font-headline);
@@ -427,15 +426,7 @@
     gap: var(--gutter);
     align-items: end;
   }
-  .venue__name { grid-column: span 12; }
-  .venue__name h2 {
-    font-family: var(--font-headline);
-    font-weight: 900;
-    text-transform: uppercase;
-    font-size: clamp(80px, 16vw, 280px);
-    line-height: 0.88;
-    color: var(--color-accent);
-  }
+  .venue__name { grid-column: span 4; }
   .venue__details { grid-column: span 4; }
   .venue__details p { font-size: 18px; line-height: 1.5; color: rgba(10,52,45,0.78); margin-bottom: 16px; }
   .venue__map { grid-column: 6 / span 7; aspect-ratio: 16/10; background: var(--color-primary); position: relative; overflow: hidden; }
@@ -509,7 +500,7 @@
   <!-- ================ HERO ================ -->
   <section class="hero">
     <div class="hero__deco" aria-hidden="true">2026</div>
-    <img src="assets/horse-green.svg" alt="" class="hero__horse" />
+    <img src="../assets/horse-green.svg" alt="" class="hero__horse" />
 
     <p class="hero__eyebrow">OMR 2026 · Hamburg · Aftershow</p>
     <h1 class="hero__title">
@@ -691,39 +682,11 @@
   <section id="venue" class="section section--light">
     <p class="section__label">— The Venue —</p>
     <div class="venue">
-      <div class="venue__name"><h2>UEBEL &amp;<br/>GEFÄHRLICH</h2></div>
+      <div class="venue__name"><h2 class="section__heading">UEBEL &amp;<br/>GEFÄHRLICH</h2></div>
       <div class="venue__details">
         <p><strong>Feldstraße 66, 20359 Hamburg</strong><br/>Top floor of the WWII flak bunker on St. Pauli — concrete, neon and a 360° city view from the rooftop terrace.</p>
         <p>10 min walk from Reeperbahn. U-Bahn Feldstraße (U3) directly at the door. Limited parking.</p>
         <a href="#" class="btn" style="margin-top:8px">Open in Maps ↗</a>
-      </div>
-      <div class="venue__map" aria-hidden="true">
-        <svg viewBox="0 0 800 500" preserveAspectRatio="xMidYMid slice">
-          <!-- abstract street grid -->
-          <g stroke="rgba(0,235,115,0.15)" stroke-width="1" fill="none">
-            <path d="M0 80 L800 60"/>
-            <path d="M0 160 L800 140"/>
-            <path d="M0 250 L800 240"/>
-            <path d="M0 340 L800 360"/>
-            <path d="M0 430 L800 460"/>
-            <path d="M120 0 L100 500"/>
-            <path d="M260 0 L240 500"/>
-            <path d="M420 0 L400 500"/>
-            <path d="M560 0 L580 500"/>
-            <path d="M700 0 L720 500"/>
-          </g>
-          <g stroke="rgba(0,235,115,0.45)" stroke-width="2" fill="none">
-            <path d="M40 260 Q 240 180 420 250 T 780 280"/>
-            <path d="M380 0 L400 500"/>
-          </g>
-          <!-- pin -->
-          <g transform="translate(400 250)">
-            <circle r="60" fill="rgba(0,235,115,0.10)"/>
-            <circle r="28" fill="rgba(0,235,115,0.25)"/>
-            <circle r="10" fill="#00eb73"/>
-          </g>
-          <text x="420" y="248" font-family="Carloschi" font-size="14" letter-spacing="2" fill="#00eb73">UEBEL &amp; GEFÄHRLICH</text>
-        </svg>
       </div>
     </div>
   </section>

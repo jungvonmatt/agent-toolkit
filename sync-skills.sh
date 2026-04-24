@@ -1,4 +1,5 @@
 #!/usr/bin/env bash
+# For local development mostly. Use npx skills xyz to install individual skills instead.
 set -euo pipefail
 
 SKILLS_SRC="$(cd "$(dirname "$0")/skills" && pwd)"
