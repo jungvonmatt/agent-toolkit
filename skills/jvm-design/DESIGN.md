@@ -1,6 +1,6 @@
 ---
 version: alpha
-name: Jung von Matt 2026 DESIGN.md
+name: Jung von Matt 2026 DESIGN
 description: Jung von Matt design system — bold agency CI for use across agents, tools, and deliverables.
 colors:
   primary: "#0a342d"
