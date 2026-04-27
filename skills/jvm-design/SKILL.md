@@ -33,7 +33,7 @@ cp -r fonts $PROJECT_ROOT/fonts
 
 Confirm these files exist in the project root:
 - `DESIGN.md` — design system spec with YAML tokens + rationale prose
-- `assets/_tokens.css` — CSS custom properties for all tokens + `@font-face` declarations
+- `assets/tokens.css` — CSS custom properties for all tokens + `@font-face` declarations
 - `assets/JvM_Logo.svg`, `assets/horse-green.svg`, `assets/horse-white.svg` — brand assets
 - `fonts/Carloschi*.woff2` — all Carloschi weight variants
 
@@ -41,7 +41,7 @@ Confirm these files exist in the project root:
 
 Tell the developer:
 - The design system is now bootstrapped. Agents will read `DESIGN.md` automatically.
-- Use `assets/_tokens.css` as the CSS foundation for any web project.
+- Use `assets/tokens.css` as the CSS foundation for any web project.
 - Do not import external fonts — Carloschi is self-hosted in `./fonts`.
 - This skill is no longer needed; the project is self-contained.
 

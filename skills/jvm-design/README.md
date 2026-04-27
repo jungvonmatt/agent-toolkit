@@ -34,7 +34,7 @@ After bootstrapping, the skill is no longer needed. Agents read `DESIGN.md` at t
 | Resource | Destination | Purpose |
 |---|---|---|
 | `DESIGN.md` | `$PROJECT_ROOT/DESIGN.md` | Design system spec — auto-discovered by agents |
-| `assets/_tokens.css` | `$PROJECT_ROOT/assets/_tokens.css` | CSS custom properties + `@font-face` declarations |
+| `assets/tokens.css` | `$PROJECT_ROOT/assets/tokens.css` | CSS custom properties + `@font-face` declarations |
 | `assets/*.svg` | `$PROJECT_ROOT/assets/` | JvM logo and brand mark variants |
 | `fonts/Carloschi*.woff2` | `$PROJECT_ROOT/fonts/` | Self-hosted Carloschi typeface |
 

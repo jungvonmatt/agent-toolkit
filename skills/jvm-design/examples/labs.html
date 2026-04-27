@@ -4,8 +4,492 @@
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <title>Jung von Matt TECH — Labs</title>
-    <link rel="stylesheet" href="../assets/_tokens.css" />
-    <link rel="stylesheet" href="../styles.css" />
+    <link rel="stylesheet" href="../assets/tokens.css" />
+    <style>
+      /* ============================================================
+   Jung von Matt TECH — Labs
+   Light-themed one-pager.
+   Conventions follow examples/design-system.html and
+   examples/omr-aftershow-booking.html.
+   ============================================================ */
+
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+html, body { background: var(--color-surface); color: var(--color-primary); }
+body {
+  font-family: var(--font-body);
+  font-weight: var(--weight-regular);
+  font-size: 16px;
+  line-height: 1.5;
+  -webkit-font-smoothing: antialiased;
+  text-rendering: optimizeLegibility;
+  overflow-x: hidden;
+}
+
+a { color: inherit; text-decoration: none; }
+button { font: inherit; color: inherit; background: none; border: 0; cursor: pointer; }
+img, svg { display: block; max-width: 100%; }
+ul, ol { list-style: none; }
+
+/* ------------------------------------------------------------
+   Page rhythm
+   ------------------------------------------------------------ */
+:root {
+  --page-margin: clamp(24px, 4vw, 57px);
+  --content-gap: 40px;
+  --section-gap: 80px;
+  --gutter: 16px;
+}
+
+/* ------------------------------------------------------------
+   Typography primitives
+   ------------------------------------------------------------ */
+.eyebrow,
+.section-label,
+.card-tag,
+.stat-label,
+.foot-legal {
+  font-family: var(--font-body);
+  font-weight: var(--weight-regular);
+  text-transform: uppercase;
+  letter-spacing: 0.2em;
+  line-height: 1.2;
+  font-size: 14px;
+  color: var(--color-primary);
+}
+
+.eyebrow       { font-size: 16px; }
+.section-label { font-size: 16px; }
+.card-tag      { font-size: 12px; }
+.foot-legal    { font-size: 12px; opacity: 0.6; }
+
+.display {
+  font-family: var(--font-headline);
+  font-weight: var(--weight-black);
+  text-transform: uppercase;
+  letter-spacing: 0;
+  line-height: 0.91;
+  font-size: clamp(72px, 14vw, 220px);
+  color: var(--color-primary);
+}
+.display-accent { color: var(--color-accent); }
+
+.headline {
+  font-family: var(--font-headline);
+  font-weight: var(--weight-black);
+  text-transform: uppercase;
+  letter-spacing: 0;
+  line-height: 1.01;
+  font-size: clamp(40px, 6vw, 90px);
+  color: var(--color-primary);
+}
+
+.body {
+  font-family: var(--font-body);
+  font-weight: var(--weight-book);
+  font-size: 18px;
+  line-height: 1.5;
+  max-width: 60ch;
+  color: var(--color-primary);
+}
+
+/* ------------------------------------------------------------
+   Buttons
+   ------------------------------------------------------------ */
+.btn {
+  display: inline-block;
+  font-family: var(--font-body);
+  font-weight: var(--weight-regular);
+  font-size: 16px;
+  text-transform: uppercase;
+  letter-spacing: 0.2em;
+  padding: 18px 40px;
+  border: 0;
+  border-radius: 0;
+  cursor: pointer;
+  text-decoration: none;
+  transition: background-color 120ms linear, color 120ms linear, box-shadow 120ms linear;
+}
+
+.btn-primary {
+  background: var(--color-accent);
+  color: var(--color-primary);
+}
+.btn-primary:hover {
+  background: var(--color-surface);
+  color: var(--color-primary);
+  box-shadow: inset 0 0 0 1px var(--color-primary);
+}
+
+.btn-ghost {
+  background: transparent;
+  color: var(--color-primary);
+  box-shadow: inset 0 0 0 1px rgba(10,52,45,0.4);
+}
+.btn-ghost:hover {
+  color: var(--color-accent);
+  box-shadow: inset 0 0 0 1px var(--color-accent);
+}
+
+.btn-lg { padding: 24px 64px; font-size: 16px; }
+
+/* ------------------------------------------------------------
+   Header
+   ------------------------------------------------------------ */
+.site-header {
+  position: sticky;
+  top: 0;
+  z-index: 50;
+  display: grid;
+  grid-template-columns: 1fr auto 1fr;
+  align-items: center;
+  gap: 24px;
+  padding: 24px var(--page-margin);
+  background: var(--color-surface);
+}
+
+.nav-left {
+  display: flex;
+  gap: 32px;
+  align-items: center;
+}
+.nav-left a {
+  font-size: 16px;
+  text-transform: uppercase;
+  letter-spacing: 0.2em;
+  color: var(--color-primary);
+  transition: color 120ms linear;
+}
+.nav-left a:hover { color: var(--color-accent); }
+
+.brand { justify-self: center; }
+.brand img {
+  height: 34px;
+  width: auto;
+}
+@media (min-width: 768px) {
+  .brand img { height: 44px; }
+}
+
+.nav-right {
+  justify-self: end;
+  display: flex;
+  gap: 16px;
+  align-items: center;
+}
+
+/* ------------------------------------------------------------
+   Hero
+   ------------------------------------------------------------ */
+.hero {
+  position: relative;
+  padding: clamp(80px, 12vw, 160px) var(--page-margin) clamp(60px, 8vw, 120px);
+  background: var(--color-surface);
+  overflow: hidden;
+}
+
+.hero .vrule {
+  position: absolute;
+  left: var(--page-margin);
+  top: 0;
+  bottom: 0;
+  width: 1px;
+  background: var(--color-accent);
+  opacity: 0.25;
+}
+
+.hero .eyebrow {
+  display: block;
+  margin-bottom: var(--content-gap);
+  color: var(--color-accent);
+}
+
+.hero-meta {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: var(--content-gap);
+  margin-top: clamp(40px, 6vw, 80px);
+  max-width: 880px;
+}
+
+.hero-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 16px;
+  align-items: center;
+}
+
+/* ------------------------------------------------------------
+   Stats strip (dark module)
+   ------------------------------------------------------------ */
+.stats {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: var(--content-gap);
+  padding: clamp(60px, 8vw, 120px) var(--page-margin);
+  background: var(--color-primary);
+  color: #fff;
+}
+
+@media (min-width: 768px) {
+  .stats { grid-template-columns: repeat(4, 1fr); }
+}
+
+.stat {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.stat-value {
+  font-family: var(--font-headline);
+  font-weight: var(--weight-black);
+  font-size: clamp(64px, 8vw, 120px);
+  line-height: 1.01;
+  letter-spacing: 0;
+  color: var(--color-accent);
+}
+
+.stat .stat-label { color: rgba(255,255,255,0.6); }
+
+/* ------------------------------------------------------------
+   Section shell (light)
+   ------------------------------------------------------------ */
+.section {
+  padding: clamp(60px, 8vw, 120px) var(--page-margin);
+  background: var(--color-surface);
+}
+
+.section .section-label { display: block; margin-bottom: var(--content-gap); }
+.section .headline      { margin-bottom: clamp(48px, 6vw, 80px); }
+
+/* ------------------------------------------------------------
+   Grid helpers
+   ------------------------------------------------------------ */
+.grid {
+  display: grid;
+  gap: var(--gutter);
+}
+
+.grid-3 { grid-template-columns: 1fr; }
+
+@media (min-width: 720px) {
+  .grid-3 { grid-template-columns: repeat(2, 1fr); }
+}
+@media (min-width: 1080px) {
+  .grid-3 { grid-template-columns: repeat(3, 1fr); }
+}
+
+/* ------------------------------------------------------------
+   Cards (experiments)
+   Hairline border + accent tag, mirrors .card-selector
+   from examples/design-system.html.
+   ------------------------------------------------------------ */
+.card {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  padding: 32px;
+  background: transparent;
+  color: var(--color-primary);
+  box-shadow: inset 0 0 0 1px rgba(10,52,45,0.15);
+  border-radius: 0;
+  transition: background-color 120ms linear, box-shadow 120ms linear;
+}
+.card:hover {
+  background: rgba(0,235,115,0.06);
+  box-shadow: inset 0 0 0 1px rgba(0,235,115,0.5);
+}
+
+.card-tag { color: var(--color-accent); }
+
+.card-title {
+  font-family: var(--font-headline);
+  font-weight: var(--weight-black);
+  text-transform: uppercase;
+  letter-spacing: 0;
+  line-height: 1.05;
+  font-size: clamp(28px, 3vw, 36px);
+  color: var(--color-primary);
+}
+
+.card-text {
+  font-family: var(--font-body);
+  font-weight: var(--weight-book);
+  font-size: 16px;
+  line-height: 1.5;
+  color: rgba(10,52,45,0.78);
+}
+
+.card-link {
+  margin-top: auto;
+  font-family: var(--font-body);
+  font-weight: var(--weight-regular);
+  font-size: 14px;
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+  color: var(--color-primary);
+  transition: color 120ms linear, transform 120ms linear;
+}
+.card:hover .card-link { color: var(--color-accent); transform: translateX(4px); }
+
+/* ------------------------------------------------------------
+   Repo list (open source)
+   Mirrors the .act row pattern from omr-aftershow-booking.html.
+   ------------------------------------------------------------ */
+.repo-list {
+  display: flex;
+  flex-direction: column;
+}
+
+.repo {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 16px;
+  padding: 28px 0;
+  align-items: baseline;
+  transition: transform 120ms linear;
+}
+.repo + .repo { box-shadow: 0 -1px 0 rgba(10,52,45,0.12); }
+
+@media (min-width: 768px) {
+  .repo {
+    grid-template-columns: 1fr auto auto;
+    gap: 32px;
+    align-items: center;
+  }
+}
+
+.repo:hover { transform: translateX(8px); }
+.repo:hover .repo-name,
+.repo:hover .repo-link { color: var(--color-accent); }
+
+.repo-main {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  min-width: 0;
+}
+
+.repo-name {
+  font-family: var(--font-headline);
+  font-weight: var(--weight-black);
+  text-transform: uppercase;
+  letter-spacing: 0;
+  line-height: 1.05;
+  font-size: clamp(24px, 2.4vw, 36px);
+  color: var(--color-primary);
+  transition: color 120ms linear;
+}
+.repo-name span { color: var(--color-accent); }
+
+.repo-desc {
+  font-family: var(--font-body);
+  font-weight: var(--weight-book);
+  font-size: 16px;
+  line-height: 1.5;
+  color: rgba(10,52,45,0.78);
+}
+
+.repo-meta {
+  display: flex;
+  align-items: center;
+  gap: 24px;
+  font-family: var(--font-body);
+  font-weight: var(--weight-regular);
+  font-size: 14px;
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+  color: rgba(10,52,45,0.6);
+}
+.repo-meta .lang  { color: var(--color-primary); }
+.repo-meta .stars { color: var(--color-accent); font-variant-numeric: tabular-nums; }
+
+.repo-link {
+  font-family: var(--font-headline);
+  font-weight: var(--weight-black);
+  font-size: 28px;
+  line-height: 1;
+  color: var(--color-primary);
+  transition: color 120ms linear;
+}
+
+/* ------------------------------------------------------------
+   About / Manifesto
+   ------------------------------------------------------------ */
+.about-grid {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: var(--content-gap);
+  max-width: 1200px;
+}
+
+@media (min-width: 880px) {
+  .about-grid { grid-template-columns: 1fr 1fr; gap: var(--section-gap); }
+}
+
+/* ------------------------------------------------------------
+   Contact CTA (dark module)
+   ------------------------------------------------------------ */
+.cta {
+  padding: clamp(60px, 8vw, 120px) var(--page-margin);
+  background: var(--color-primary);
+  color: #fff;
+}
+
+.cta .section-label,
+.cta .headline { color: #fff; }
+.cta .section-label { display: block; margin-bottom: var(--content-gap); color: var(--color-accent); }
+.cta .headline     { margin-bottom: clamp(48px, 6vw, 80px); }
+
+/* ------------------------------------------------------------
+   Footer (light)
+   ------------------------------------------------------------ */
+.site-footer {
+  padding: 80px var(--page-margin) 40px;
+  background: var(--color-surface);
+  color: var(--color-primary);
+  display: grid;
+  gap: 64px;
+}
+
+.foot-row {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: var(--content-gap);
+  align-items: center;
+}
+
+@media (min-width: 768px) {
+  .foot-row {
+    grid-template-columns: auto 1fr;
+    gap: var(--section-gap);
+  }
+}
+
+.foot-brand img { height: 44px; width: auto; }
+
+.foot-nav {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 32px;
+  justify-content: flex-start;
+}
+@media (min-width: 768px) {
+  .foot-nav { justify-content: flex-end; }
+}
+
+.foot-nav a {
+  font-size: 16px;
+  text-transform: uppercase;
+  letter-spacing: 0.2em;
+  color: var(--color-primary);
+  transition: color 120ms linear;
+}
+.foot-nav a:hover { color: var(--color-accent); }
+
+.foot-legal { display: block; }
+    </style>
   </head>
   <body data-theme="light">
     <!-- ========== HEADER ========== -->
