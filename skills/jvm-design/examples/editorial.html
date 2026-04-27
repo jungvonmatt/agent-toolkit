@@ -1,0 +1,1282 @@
+<!doctype html>
+<html lang="en" data-theme-mode="dark">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>The Agentic Enterprise — JvM Quarterly</title>
+    <meta
+      name="description"
+      content="JvM Quarterly — an editorial on the agentic enterprise, the new operating system of business."
+    />
+    <link rel="stylesheet" href="../assets/tokens.css" />
+    <link rel="icon" href="../assets/horse-green.svg" type="image/svg+xml" />
+    <style>
+      /* ============================================================
+       JvM Quarterly — Editorial Blog
+       ============================================================ */
+      *,
+      *::before,
+      *::after {
+        box-sizing: border-box;
+      }
+      html,
+      body {
+        margin: 0;
+        padding: 0;
+      }
+      html {
+        scroll-behavior: smooth;
+      }
+
+      :root {
+        --page-margin: clamp(24px, 4vw, 57px);
+        --section-gap: clamp(64px, 9vw, 140px);
+        --content-gap: 40px;
+        --gutter: 16px;
+        --measure: 64ch;
+
+        /* Theme: dark (default) */
+        --bg: var(--color-primary);
+        --fg: #ffffff;
+        --fg-muted: rgba(255, 255, 255, 0.62);
+        --fg-faint: rgba(255, 255, 255, 0.18);
+        --rule: rgba(255, 255, 255, 0.12);
+        --accent: var(--color-accent);
+        --logo-fill: #ffffff;
+        --on-accent: var(--color-primary);
+      }
+
+      html[data-theme-mode="light"] {
+        --bg: var(--color-surface);
+        --fg: var(--color-primary);
+        --fg-muted: rgba(10, 52, 45, 0.66);
+        --fg-faint: rgba(10, 52, 45, 0.18);
+        --rule: rgba(10, 52, 45, 0.12);
+        --accent: var(--color-accent);
+        --logo-fill: var(--color-primary);
+        --on-accent: var(--color-primary);
+      }
+
+      body {
+        background: var(--bg);
+        color: var(--fg);
+        font-family: var(--font-body);
+        font-weight: var(--weight-regular);
+        font-size: 16px;
+        line-height: 1.5;
+        letter-spacing: 0;
+        -webkit-font-smoothing: antialiased;
+        text-rendering: optimizeLegibility;
+        transition:
+          background-color 0.35s ease,
+          color 0.35s ease;
+      }
+
+      img,
+      svg {
+        display: block;
+        max-width: 100%;
+      }
+      a {
+        color: inherit;
+        text-decoration: none;
+      }
+      button {
+        font: inherit;
+        color: inherit;
+        background: none;
+        border: 0;
+        padding: 0;
+        cursor: pointer;
+      }
+
+      /* ---------- Typography ---------- */
+      .display,
+      .headline,
+      .kicker,
+      .label {
+        font-family: var(--font-headline);
+        text-transform: uppercase;
+        letter-spacing: 0;
+        font-weight: var(--weight-black);
+      }
+      .label,
+      .kicker {
+        font-family: var(--font-body);
+        font-weight: var(--weight-regular);
+        letter-spacing: 0.2em;
+        font-size: 13px;
+        line-height: 1.2;
+      }
+      .label-lg {
+        font-size: 16px;
+        letter-spacing: 0.2em;
+        text-transform: uppercase;
+        font-family: var(--font-body);
+        font-weight: var(--weight-regular);
+      }
+
+      .display {
+        font-size: clamp(72px, 14vw, 240px);
+        line-height: 0.92;
+      }
+      .headline {
+        font-size: clamp(40px, 6vw, 90px);
+        line-height: 1;
+      }
+      .h2 {
+        font-family: var(--font-headline);
+        font-weight: var(--weight-black);
+        text-transform: uppercase;
+        font-size: clamp(28px, 3.6vw, 52px);
+        line-height: 1.05;
+        margin: 0;
+      }
+      .lede {
+        font-family: var(--font-body);
+        font-weight: var(--weight-book);
+        font-size: clamp(20px, 1.8vw, 28px);
+        line-height: 1.35;
+        max-width: var(--measure);
+      }
+
+      /* ---------- Header ---------- */
+      .site-header {
+        position: sticky;
+        top: 0;
+        z-index: 50;
+        backdrop-filter: blur(12px);
+        background: color-mix(in srgb, var(--bg) 82%, transparent);
+        border-bottom: 1px solid var(--rule);
+      }
+      .header-grid {
+        display: grid;
+        grid-template-columns: 1fr auto 1fr;
+        align-items: center;
+        gap: 24px;
+        padding: 18px var(--page-margin);
+      }
+      .nav-left,
+      .nav-right {
+        display: flex;
+        align-items: center;
+        gap: 28px;
+        font-family: var(--font-body);
+        font-size: 14px;
+        letter-spacing: 0.2em;
+        text-transform: uppercase;
+      }
+      .nav-right {
+        justify-content: flex-end;
+      }
+      .nav-left a,
+      .nav-right a {
+        opacity: 0.85;
+        transition: opacity 0.2s;
+      }
+      .nav-left a:hover,
+      .nav-right a:hover {
+        opacity: 1;
+        color: var(--accent);
+      }
+      .brand {
+        display: flex;
+        align-items: center;
+        gap: 14px;
+      }
+      .brand img {
+        height: 28px;
+        width: auto;
+      }
+      .brand .quarterly {
+        font-family: var(--font-body);
+        font-weight: var(--weight-regular);
+        letter-spacing: 0.3em;
+        text-transform: uppercase;
+        font-size: 11px;
+        color: var(--fg-muted);
+        padding-left: 14px;
+        border-left: 1px solid var(--rule);
+      }
+
+      /* Color the logo via mask so it adapts to theme */
+      .brand .logo {
+        width: auto;
+        height: 28px;
+        background-color: var(--logo-fill);
+        -webkit-mask: url("assets/logo.svg") no-repeat center / contain;
+        mask: url("assets/logo.svg") no-repeat center / contain;
+        aspect-ratio: 1417 / 283;
+      }
+
+      /* ---------- Theme toggle ---------- */
+      .theme-toggle {
+        display: inline-flex;
+        align-items: center;
+        gap: 10px;
+        padding: 10px 16px;
+        border: 1px solid var(--fg-faint);
+        font-family: var(--font-body);
+        font-size: 12px;
+        letter-spacing: 0.2em;
+        text-transform: uppercase;
+        transition:
+          border-color 0.2s,
+          color 0.2s,
+          background 0.2s;
+      }
+      .theme-toggle:hover {
+        border-color: var(--accent);
+        color: var(--accent);
+      }
+      .theme-toggle .dot {
+        width: 10px;
+        height: 10px;
+        background: var(--accent);
+        display: inline-block;
+      }
+      .theme-toggle .mode-label {
+        min-width: 4.5ch;
+        text-align: left;
+      }
+
+      /* ---------- Issue strip ---------- */
+      .issue-strip {
+        display: flex;
+        justify-content: space-between;
+        align-items: baseline;
+        gap: 24px;
+        flex-wrap: wrap;
+        padding: 20px var(--page-margin);
+        border-bottom: 1px solid var(--rule);
+        font-family: var(--font-body);
+        font-size: 12px;
+        letter-spacing: 0.25em;
+        text-transform: uppercase;
+        color: var(--fg-muted);
+      }
+      .issue-strip strong {
+        color: var(--fg);
+        font-weight: var(--weight-regular);
+      }
+      .issue-strip .ticker {
+        color: var(--accent);
+      }
+
+      /* ---------- Hero ---------- */
+      .hero {
+        padding: clamp(40px, 6vw, 96px) var(--page-margin)
+          clamp(40px, 6vw, 96px);
+        position: relative;
+        overflow: hidden;
+      }
+      .hero-grid {
+        display: grid;
+        grid-template-columns: minmax(0, 1fr);
+        gap: var(--content-gap);
+      }
+      .hero .kicker-row {
+        display: flex;
+        gap: 24px;
+        flex-wrap: wrap;
+        color: var(--fg-muted);
+        font-family: var(--font-body);
+        font-size: 12px;
+        letter-spacing: 0.25em;
+        text-transform: uppercase;
+      }
+      .hero .kicker-row .accent {
+        color: var(--accent);
+      }
+      .hero h1 {
+        margin: 0;
+        font-family: var(--font-headline);
+        font-weight: var(--weight-black);
+        text-transform: uppercase;
+        font-size: clamp(56px, 11vw, 200px);
+        line-height: 0.92;
+        letter-spacing: 0;
+      }
+      .hero h1 em {
+        font-style: normal;
+        color: var(--accent);
+      }
+      .hero-meta {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+        gap: 32px;
+        padding-top: 32px;
+        border-top: 1px solid var(--rule);
+      }
+      .meta-block .k {
+        font-family: var(--font-body);
+        font-size: 11px;
+        letter-spacing: 0.25em;
+        text-transform: uppercase;
+        color: var(--fg-muted);
+        margin-bottom: 8px;
+      }
+      .meta-block .v {
+        font-family: var(--font-body);
+        font-size: 16px;
+        line-height: 1.4;
+      }
+
+      /* Decorative side wordmark */
+      .side-mark {
+        position: absolute;
+        right: calc(var(--page-margin) * -0.2);
+        top: 50%;
+        transform: translateY(-50%) rotate(90deg);
+        transform-origin: right center;
+        font-family: var(--font-headline);
+        font-weight: var(--weight-black);
+        text-transform: uppercase;
+        font-size: clamp(80px, 12vw, 180px);
+        line-height: 1;
+        color: var(--accent);
+        opacity: 0.07;
+        pointer-events: none;
+        white-space: nowrap;
+      }
+
+      /* ---------- Featured visual ---------- */
+      .feature-visual {
+        position: relative;
+        margin: 0 var(--page-margin) var(--section-gap);
+        aspect-ratio: 16 / 7;
+        background: var(--color-primary);
+        overflow: hidden;
+      }
+      html[data-theme-mode="light"] .feature-visual {
+        background: var(--color-primary);
+      }
+      .feature-visual .grid-bg {
+        position: absolute;
+        inset: 0;
+        background-image:
+          linear-gradient(
+            to right,
+            rgba(0, 235, 115, 0.08) 1px,
+            transparent 1px
+          ),
+          linear-gradient(
+            to bottom,
+            rgba(0, 235, 115, 0.08) 1px,
+            transparent 1px
+          );
+        background-size: 64px 64px;
+      }
+      .feature-visual .agent-cluster {
+        position: absolute;
+        inset: 0;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+      }
+      .feature-visual .agent-cluster svg {
+        width: min(80%, 900px);
+        height: auto;
+      }
+      .feature-visual .feature-caption {
+        position: absolute;
+        left: 24px;
+        bottom: 18px;
+        right: 24px;
+        display: flex;
+        justify-content: space-between;
+        gap: 24px;
+        flex-wrap: wrap;
+        color: rgba(255, 255, 255, 0.7);
+        font-family: var(--font-body);
+        font-size: 11px;
+        letter-spacing: 0.25em;
+        text-transform: uppercase;
+      }
+      .feature-visual .feature-caption strong {
+        color: var(--color-accent);
+        font-weight: var(--weight-regular);
+      }
+
+      /* ---------- Article body ---------- */
+      .article {
+        display: grid;
+        grid-template-columns: 1fr;
+        gap: var(--content-gap);
+        padding: 0 var(--page-margin) var(--section-gap);
+        max-width: 1400px;
+        margin: 0 auto;
+      }
+      @media (min-width: 960px) {
+        .article {
+          grid-template-columns: minmax(0, 220px) minmax(0, 1fr) minmax(
+              0,
+              220px
+            );
+          gap: 56px;
+        }
+      }
+      .article-aside {
+        font-family: var(--font-body);
+        font-size: 13px;
+        line-height: 1.5;
+        color: var(--fg-muted);
+      }
+      .article-aside .label {
+        color: var(--fg);
+        font-size: 11px;
+        margin-bottom: 12px;
+      }
+      .article-aside ol {
+        list-style: none;
+        counter-reset: toc;
+        padding: 0;
+        margin: 0;
+      }
+      .article-aside li {
+        counter-increment: toc;
+        display: grid;
+        grid-template-columns: 32px 1fr;
+        gap: 8px;
+        padding: 10px 0;
+        border-top: 1px solid var(--rule);
+      }
+      .article-aside li:last-child {
+        border-bottom: 1px solid var(--rule);
+      }
+      .article-aside li::before {
+        content: counter(toc, decimal-leading-zero);
+        color: var(--accent);
+        font-size: 11px;
+        letter-spacing: 0.2em;
+      }
+      .article-aside li a:hover {
+        color: var(--accent);
+      }
+
+      .article-aside.right .pull {
+        font-family: var(--font-headline);
+        font-weight: var(--weight-black);
+        text-transform: uppercase;
+        font-size: 28px;
+        line-height: 1;
+        color: var(--fg);
+        margin: 0 0 12px;
+      }
+      .article-aside.right .pull em {
+        font-style: normal;
+        color: var(--accent);
+      }
+
+      .prose {
+        max-width: var(--measure);
+        font-family: var(--font-body);
+        font-weight: var(--weight-regular);
+        font-size: clamp(17px, 1.2vw, 19px);
+        line-height: 1.65;
+      }
+      .prose > * + * {
+        margin-top: 1.4em;
+      }
+      .prose h2 {
+        font-family: var(--font-headline);
+        font-weight: var(--weight-black);
+        text-transform: uppercase;
+        font-size: clamp(28px, 3.4vw, 44px);
+        line-height: 1.05;
+        margin-top: 2em;
+        margin-bottom: 0.6em;
+        scroll-margin-top: 120px;
+      }
+      .prose h2::before {
+        content: "§ " counter(section, decimal-leading-zero);
+        counter-increment: section;
+        display: block;
+        font-family: var(--font-body);
+        font-weight: var(--weight-regular);
+        font-size: 12px;
+        letter-spacing: 0.25em;
+        color: var(--accent);
+        margin-bottom: 14px;
+      }
+      .prose {
+        counter-reset: section;
+      }
+
+      .prose .dropcap::first-letter {
+        font-family: var(--font-headline);
+        font-weight: var(--weight-black);
+        float: left;
+        font-size: 7em;
+        line-height: 0.85;
+        padding: 6px 14px 0 0;
+        color: var(--accent);
+        text-transform: uppercase;
+      }
+
+      .prose blockquote {
+        margin: 2em 0;
+        padding: 0;
+        border: 0;
+        font-family: var(--font-headline);
+        font-weight: var(--weight-black);
+        text-transform: uppercase;
+        font-size: clamp(28px, 3.4vw, 48px);
+        line-height: 1.05;
+        color: var(--fg);
+      }
+      .prose blockquote::before {
+        content: "“";
+        display: block;
+        color: var(--accent);
+        font-size: 1.1em;
+        line-height: 0.6;
+      }
+      .prose blockquote cite {
+        display: block;
+        margin-top: 18px;
+        font-family: var(--font-body);
+        font-style: normal;
+        font-weight: var(--weight-regular);
+        font-size: 12px;
+        letter-spacing: 0.25em;
+        text-transform: uppercase;
+        color: var(--fg-muted);
+      }
+
+      .prose ul {
+        list-style: none;
+        padding: 0;
+      }
+      .prose ul li {
+        position: relative;
+        padding-left: 28px;
+        margin-top: 0.6em;
+      }
+      .prose ul li::before {
+        content: "";
+        position: absolute;
+        left: 0;
+        top: 0.7em;
+        width: 14px;
+        height: 2px;
+        background: var(--accent);
+      }
+
+      .prose strong {
+        color: var(--accent);
+        font-weight: var(--weight-regular);
+      }
+
+      .figure-inline {
+        margin: 2.4em 0;
+        padding: 28px;
+        background: color-mix(in srgb, var(--accent) 8%, transparent);
+        border-left: 2px solid var(--accent);
+      }
+      .figure-inline .figure-label {
+        font-family: var(--font-body);
+        font-size: 11px;
+        letter-spacing: 0.25em;
+        text-transform: uppercase;
+        color: var(--accent);
+        margin-bottom: 12px;
+      }
+      .figure-inline .figure-stat {
+        font-family: var(--font-headline);
+        font-weight: var(--weight-black);
+        text-transform: uppercase;
+        font-size: clamp(48px, 7vw, 96px);
+        line-height: 0.95;
+        color: var(--fg);
+      }
+      .figure-inline .figure-caption {
+        font-size: 14px;
+        color: var(--fg-muted);
+        margin-top: 10px;
+        max-width: 50ch;
+      }
+
+      /* ---------- Author block ---------- */
+      .author-block {
+        max-width: 1400px;
+        margin: 0 auto;
+        padding: 56px var(--page-margin);
+        border-top: 1px solid var(--rule);
+        border-bottom: 1px solid var(--rule);
+        display: grid;
+        grid-template-columns: auto 1fr;
+        gap: 28px;
+        align-items: center;
+      }
+      .author-avatar {
+        width: 96px;
+        height: 96px;
+        background: var(--accent);
+        color: var(--color-primary);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-family: var(--font-headline);
+        font-weight: var(--weight-black);
+        font-size: 40px;
+        text-transform: uppercase;
+      }
+      .author-meta .role {
+        font-family: var(--font-body);
+        font-size: 11px;
+        letter-spacing: 0.25em;
+        text-transform: uppercase;
+        color: var(--fg-muted);
+        margin-bottom: 6px;
+      }
+      .author-meta .name {
+        font-family: var(--font-headline);
+        font-weight: var(--weight-black);
+        text-transform: uppercase;
+        font-size: clamp(28px, 3vw, 40px);
+        line-height: 1;
+      }
+      .author-meta .bio {
+        margin-top: 10px;
+        max-width: 60ch;
+        color: var(--fg-muted);
+        font-size: 14px;
+      }
+
+      /* ---------- More articles ---------- */
+      .more-section {
+        padding: var(--section-gap) var(--page-margin);
+      }
+      .more-head {
+        display: flex;
+        justify-content: space-between;
+        align-items: baseline;
+        gap: 24px;
+        flex-wrap: wrap;
+        margin-bottom: 48px;
+      }
+      .more-head h2 {
+        margin: 0;
+        font-family: var(--font-headline);
+        font-weight: var(--weight-black);
+        text-transform: uppercase;
+        font-size: clamp(40px, 6vw, 84px);
+        line-height: 0.95;
+      }
+      .more-head .label {
+        color: var(--accent);
+      }
+
+      .article-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+        gap: 32px;
+      }
+      .card {
+        display: flex;
+        flex-direction: column;
+        gap: 14px;
+        padding-top: 20px;
+        border-top: 2px solid var(--fg);
+        transition: border-color 0.2s;
+      }
+      .card:hover {
+        border-color: var(--accent);
+      }
+      .card .meta {
+        display: flex;
+        justify-content: space-between;
+        font-family: var(--font-body);
+        font-size: 11px;
+        letter-spacing: 0.25em;
+        text-transform: uppercase;
+        color: var(--fg-muted);
+      }
+      .card .meta .cat {
+        color: var(--accent);
+      }
+      .card .ttl {
+        font-family: var(--font-headline);
+        font-weight: var(--weight-black);
+        text-transform: uppercase;
+        font-size: clamp(22px, 2vw, 30px);
+        line-height: 1.05;
+      }
+      .card .ex {
+        font-size: 14px;
+        color: var(--fg-muted);
+        line-height: 1.5;
+      }
+      .card:hover .ttl {
+        color: var(--accent);
+      }
+
+      /* ---------- Footer ---------- */
+      .site-footer {
+        padding: 80px var(--page-margin) 40px;
+        border-top: 1px solid var(--rule);
+      }
+      .footer-mark {
+        font-family: var(--font-headline);
+        font-weight: var(--weight-black);
+        text-transform: uppercase;
+        font-size: clamp(80px, 18vw, 280px);
+        line-height: 0.85;
+        color: var(--accent);
+        letter-spacing: 0;
+        margin: 0 0 60px;
+        word-break: break-word;
+      }
+      .footer-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+        gap: 40px;
+        padding-bottom: 40px;
+        border-bottom: 1px solid var(--rule);
+      }
+      .footer-col .label {
+        display: block;
+        margin-bottom: 16px;
+        color: var(--fg-muted);
+        font-size: 11px;
+      }
+      .footer-col ul {
+        list-style: none;
+        margin: 0;
+        padding: 0;
+      }
+      .footer-col li {
+        padding: 6px 0;
+        font-size: 14px;
+      }
+      .footer-col li a:hover {
+        color: var(--accent);
+      }
+      .footer-bottom {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        gap: 24px;
+        flex-wrap: wrap;
+        padding-top: 24px;
+        font-family: var(--font-body);
+        font-size: 11px;
+        letter-spacing: 0.25em;
+        text-transform: uppercase;
+        color: var(--fg-muted);
+      }
+
+      /* ---------- Reading progress bar ---------- */
+      .progress {
+        position: fixed;
+        left: 0;
+        top: 0;
+        height: 2px;
+        width: 0;
+        background: var(--accent);
+        z-index: 100;
+        transition: width 0.1s linear;
+      }
+
+      /* ---------- Responsive ---------- */
+      @media (max-width: 720px) {
+        .nav-left {
+          display: none;
+        }
+        .brand .quarterly {
+          display: none;
+        }
+        .author-block {
+          grid-template-columns: 1fr;
+        }
+        .feature-visual {
+          aspect-ratio: 4 / 5;
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <div class="progress" id="progress" aria-hidden="true"></div>
+
+    <!-- ============================ HEADER ============================ -->
+    <header class="site-header" data-theme="dark">
+      <div class="header-grid">
+        <nav class="nav-left" aria-label="Primary">
+          <a href="#">Issues</a>
+          <a href="#">Topics</a>
+          <a href="#">Studio</a>
+        </nav>
+        <a href="/" class="brand" aria-label="Jung von Matt — Quarterly">
+          <span class="logo" role="img" aria-label="Jung von Matt"></span>
+          <span class="quarterly">Quarterly</span>
+        </a>
+        <div class="nav-right">
+          <a href="#">Subscribe</a>
+          <button
+            class="theme-toggle"
+            id="themeToggle"
+            aria-label="Toggle color theme"
+          >
+            <span class="dot" aria-hidden="true"></span>
+            <span class="mode-label" id="modeLabel">Dark</span>
+          </button>
+        </div>
+      </div>
+    </header>
+
+    <!-- ============================ ISSUE STRIP ============================ -->
+    <div class="issue-strip">
+      <span><strong>Issue N° 14</strong> &nbsp;·&nbsp; Spring 2026</span>
+      <span class="ticker">Now Reading — The Agentic Enterprise</span>
+      <span>14 min</span>
+    </div>
+
+    <!-- ============================ HERO ============================ -->
+    <section class="hero">
+      <div class="side-mark" aria-hidden="true">Agentic</div>
+      <div class="hero-grid">
+        <div class="kicker-row">
+          <span class="accent">Cover Story</span>
+          <span>Strategy</span>
+          <span>April 28, 2026</span>
+        </div>
+        <h1>The<br />Agentic<br /><em>Enterprise.</em></h1>
+        <p class="lede">
+          The org chart is dissolving. In its place: a living mesh of human
+          judgement and autonomous software, negotiating goals in real time. We
+          spent six months inside the companies rebuilding themselves around it
+          — and found a new operating model already taking hold.
+        </p>
+        <div class="hero-meta">
+          <div class="meta-block">
+            <div class="k">Author</div>
+            <div class="v">Lena Feldmann<br />Editor-in-Chief</div>
+          </div>
+          <div class="meta-block">
+            <div class="k">Photography</div>
+            <div class="v">Mika Brandt</div>
+          </div>
+          <div class="meta-block">
+            <div class="k">Issue</div>
+            <div class="v">N° 14 &middot; Spring 2026</div>
+          </div>
+          <div class="meta-block">
+            <div class="k">Reading time</div>
+            <div class="v">14 minutes</div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ============================ FEATURE VISUAL ============================ -->
+    <figure
+      class="feature-visual"
+      aria-label="Diagram: an agent mesh negotiating with a human node at the center"
+    >
+      <div class="grid-bg" aria-hidden="true"></div>
+      <div class="agent-cluster" aria-hidden="true">
+        <svg viewBox="0 0 900 400" xmlns="http://www.w3.org/2000/svg">
+          <defs>
+            <pattern
+              id="dots"
+              width="8"
+              height="8"
+              patternUnits="userSpaceOnUse"
+            >
+              <circle cx="1" cy="1" r="1" fill="#00eb73" opacity="0.35" />
+            </pattern>
+          </defs>
+          <!-- connecting lines -->
+          <g stroke="#00eb73" stroke-width="1" opacity="0.55" fill="none">
+            <line x1="450" y1="200" x2="120" y2="80" />
+            <line x1="450" y1="200" x2="780" y2="80" />
+            <line x1="450" y1="200" x2="120" y2="320" />
+            <line x1="450" y1="200" x2="780" y2="320" />
+            <line x1="450" y1="200" x2="250" y2="200" />
+            <line x1="450" y1="200" x2="650" y2="200" />
+            <line x1="450" y1="200" x2="450" y2="40" />
+            <line x1="450" y1="200" x2="450" y2="360" />
+          </g>
+          <!-- outer agent nodes -->
+          <g fill="#00eb73">
+            <rect x="106" y="66" width="28" height="28" />
+            <rect x="766" y="66" width="28" height="28" />
+            <rect x="106" y="306" width="28" height="28" />
+            <rect x="766" y="306" width="28" height="28" />
+            <rect x="236" y="186" width="28" height="28" />
+            <rect x="636" y="186" width="28" height="28" />
+            <rect x="436" y="26" width="28" height="28" />
+            <rect x="436" y="346" width="28" height="28" />
+          </g>
+          <!-- center human node -->
+          <g>
+            <rect
+              x="410"
+              y="160"
+              width="80"
+              height="80"
+              fill="none"
+              stroke="#ffffff"
+              stroke-width="2"
+            />
+            <rect x="410" y="160" width="80" height="80" fill="url(#dots)" />
+            <text
+              x="450"
+              y="208"
+              text-anchor="middle"
+              font-family="Carloschi Headline, sans-serif"
+              font-weight="900"
+              font-size="20"
+              fill="#ffffff"
+              letter-spacing="0"
+            >
+              YOU
+            </text>
+          </g>
+          <!-- node labels -->
+          <g
+            font-family="Carloschi, sans-serif"
+            font-size="10"
+            fill="#ffffff"
+            opacity="0.7"
+            letter-spacing="2"
+            text-transform="uppercase"
+          >
+            <text x="120" y="58" text-anchor="middle">RESEARCH</text>
+            <text x="780" y="58" text-anchor="middle">SUPPLY</text>
+            <text x="120" y="358" text-anchor="middle">FINANCE</text>
+            <text x="780" y="358" text-anchor="middle">LEGAL</text>
+            <text x="250" y="178" text-anchor="middle">DESIGN</text>
+            <text x="650" y="178" text-anchor="middle">OPS</text>
+            <text x="450" y="20" text-anchor="middle">STRATEGY</text>
+            <text x="450" y="386" text-anchor="middle">CUSTOMER</text>
+          </g>
+        </svg>
+      </div>
+      <figcaption class="feature-caption">
+        <span
+          ><strong>Fig. 01</strong> — The Mesh: a human node negotiating with
+          eight delegated agents.</span
+        >
+        <span>Source — JvM Strategy, 2026</span>
+      </figcaption>
+    </figure>
+
+    <!-- ============================ ARTICLE ============================ -->
+    <article class="article">
+      <aside class="article-aside left">
+        <div class="label">Contents</div>
+        <ol>
+          <li><a href="#chapter-1">The end of the workflow</a></li>
+          <li><a href="#chapter-2">From tools to teammates</a></li>
+          <li><a href="#chapter-3">The negotiation layer</a></li>
+          <li><a href="#chapter-4">A new managerial craft</a></li>
+          <li><a href="#chapter-5">What we learned</a></li>
+        </ol>
+      </aside>
+
+      <div class="prose">
+        <p class="dropcap">
+          For thirty years, the dream of digital business was the workflow — a
+          tidy sequence of steps, each one automated, measured, and improved.
+          The agentic enterprise breaks that frame entirely. Instead of a
+          pipeline, picture a marketplace: dozens of autonomous agents bidding
+          on objectives, escalating only the trade-offs that genuinely require a
+          human verdict. The work no longer flows. It
+          <strong>negotiates</strong>.
+        </p>
+
+        <p>
+          Walk into the operations centre of a Berlin-based logistics company we
+          visited last winter and you will not see dashboards. You will see
+          goals. A wall of them, written in plain language:
+          <em
+            >reduce return rate in DACH by 4% without compromising delivery
+            promise</em
+          >. Beneath each goal is a quiet swarm of agents — pricing, routing,
+          customer comms, supplier negotiation — working the problem in
+          parallel, surfacing tensions, and handing the sharpest ones to the
+          four humans on duty.
+        </p>
+
+        <h2 id="chapter-1">The end of the workflow</h2>
+        <p>
+          The workflow assumed that work could be specified in advance. The
+          agentic enterprise assumes only the <strong>outcome</strong> can be
+          specified — the path is rediscovered every minute. This is more than a
+          technical upgrade. It is a categorical shift in what an organisation
+          <em>is</em>.
+        </p>
+
+        <blockquote>
+          We stopped writing processes.<br />
+          We started writing intentions.
+          <cite>— Helena Brand, COO, Vossloh Logistik</cite>
+        </blockquote>
+
+        <h2 id="chapter-2">From tools to teammates</h2>
+        <p>
+          Software used to wait for instructions. Agents do not. They open
+          tickets, draft contracts, schedule calls, refuse tasks they consider
+          out of scope, and ask their human counterparts for clarification when
+          goals collide. The interface metaphor of the last decade — a button
+          you press — is being replaced by something closer to a conversation
+          across a desk.
+        </p>
+
+        <p>Three behaviours mark the shift:</p>
+        <ul>
+          <li>
+            <strong>Initiative.</strong> Agents propose work, not just execute
+            it.
+          </li>
+          <li>
+            <strong>Memory.</strong> They carry context across sessions,
+            projects, and quarters.
+          </li>
+          <li>
+            <strong>Accountability.</strong> Every decision is signed, traced,
+            and reviewable.
+          </li>
+        </ul>
+
+        <div class="figure-inline">
+          <div class="figure-label">Field data — N° 14</div>
+          <div class="figure-stat">61%</div>
+          <div class="figure-caption">
+            of operational decisions in surveyed firms are now initiated by an
+            agent rather than a human, up from 4% two years ago.
+          </div>
+        </div>
+
+        <h2 id="chapter-3">The negotiation layer</h2>
+        <p>
+          The most underappreciated invention of the agentic enterprise is not
+          the agent itself, but the <strong>negotiation layer</strong> beneath
+          it — a shared protocol through which agents declare goals, expose
+          constraints, and broker compromises. Companies that have built this
+          layer well move with the coherence of a single mind. Companies that
+          have not, drown in contradiction.
+        </p>
+
+        <blockquote>
+          The org chart was a map of who reports to whom.<br />
+          The mesh is a map of who negotiates with whom.
+        </blockquote>
+
+        <h2 id="chapter-4">A new managerial craft</h2>
+        <p>
+          Managing an agent team is unlike managing a human one, but not in the
+          ways we expected. The hard part is not delegation — agents accept work
+          gladly. The hard part is <strong>intention</strong>: writing goals
+          that are precise enough to act on and humane enough to live with. The
+          new managerial craft is, essentially, editorial.
+        </p>
+
+        <p>
+          At the agencies and brands we work with, the role we increasingly
+          recognise is the <em>intention designer</em> — half strategist, half
+          writer, wholly accountable for the goals the mesh pursues on the
+          company's behalf.
+        </p>
+
+        <h2 id="chapter-5">What we learned</h2>
+        <p>
+          The agentic enterprise is not a future state. It is an operating model
+          already in production at the most curious companies in Europe. It will
+          not arrive as a vendor announcement. It will arrive as a quiet shift
+          in the meeting you are in next week — the moment someone says,
+          <em>let's ask the agent to take a first pass</em>, and no one looks
+          surprised.
+        </p>
+
+        <p>
+          That is the moment the org chart dissolves. What replaces it is more
+          alive, more responsive, and — if we design it well — more deeply human
+          than the bureaucracy we are leaving behind.
+        </p>
+      </div>
+
+      <aside class="article-aside right">
+        <div class="label">In this issue</div>
+        <p class="pull">
+          A new operating model is <em>quietly taking hold</em>.
+        </p>
+        <p>
+          Field reporting from twelve companies across Berlin, Hamburg,
+          Stockholm and Zürich. Photography by Mika Brandt. Diagrams by JvM
+          Strategy.
+        </p>
+        <p style="margin-top: 24px; color: var(--fg)">
+          <a
+            href="#"
+            style="border-bottom: 1px solid var(--accent); padding-bottom: 2px"
+            >Download the full report →</a
+          >
+        </p>
+      </aside>
+    </article>
+
+    <!-- ============================ AUTHOR ============================ -->
+    <section class="author-block">
+      <div class="author-avatar" aria-hidden="true">LF</div>
+      <div class="author-meta">
+        <div class="role">Editor-in-Chief — JvM Quarterly</div>
+        <div class="name">Lena Feldmann</div>
+        <p class="bio">
+          Lena writes about how organisations are rebuilt from the inside out.
+          Previously: <em>Brand Eins</em>, <em>Wired DE</em>. She lives between
+          Hamburg and Lisbon.
+        </p>
+      </div>
+    </section>
+
+    <!-- ============================ MORE ============================ -->
+    <section class="more-section">
+      <header class="more-head">
+        <h2>Continue Reading.</h2>
+        <span class="label">Issue N° 14 — More</span>
+      </header>
+      <div class="article-grid">
+        <a href="#" class="card">
+          <div class="meta">
+            <span class="cat">Strategy</span><span>9 min</span>
+          </div>
+          <div class="ttl">The Quiet Death of the Roadmap.</div>
+          <div class="ex">
+            Why the most adaptive teams have stopped planning in quarters and
+            started planning in intentions.
+          </div>
+        </a>
+        <a href="#" class="card">
+          <div class="meta">
+            <span class="cat">Craft</span><span>6 min</span>
+          </div>
+          <div class="ttl">Writing for Machines That Listen.</div>
+          <div class="ex">
+            A new editorial discipline emerges as briefs become prompts and
+            prompts become products.
+          </div>
+        </a>
+        <a href="#" class="card">
+          <div class="meta">
+            <span class="cat">Field Notes</span><span>11 min</span>
+          </div>
+          <div class="ttl">Inside an Agent-First Newsroom.</div>
+          <div class="ex">
+            How a 14-person editorial team in Stockholm publishes the volume of
+            a 200-person one — without losing its voice.
+          </div>
+        </a>
+        <a href="#" class="card">
+          <div class="meta">
+            <span class="cat">Opinion</span><span>4 min</span>
+          </div>
+          <div class="ttl">Against the Dashboard.</div>
+          <div class="ex">
+            The dashboard taught us to watch. The mesh teaches us to converse. A
+            short polemic.
+          </div>
+        </a>
+      </div>
+    </section>
+
+    <!-- ============================ FOOTER ============================ -->
+    <footer class="site-footer">
+      <div class="footer-mark">Quarterly.</div>
+      <div class="footer-grid">
+        <div class="footer-col">
+          <span class="label">Magazine</span>
+          <ul>
+            <li><a href="#">Current issue</a></li>
+            <li><a href="#">Archive</a></li>
+            <li><a href="#">Authors</a></li>
+            <li><a href="#">Subscribe</a></li>
+          </ul>
+        </div>
+        <div class="footer-col">
+          <span class="label">Topics</span>
+          <ul>
+            <li><a href="#">Strategy</a></li>
+            <li><a href="#">Craft</a></li>
+            <li><a href="#">Field Notes</a></li>
+            <li><a href="#">Opinion</a></li>
+          </ul>
+        </div>
+        <div class="footer-col">
+          <span class="label">Studio</span>
+          <ul>
+            <li><a href="#">About JvM</a></li>
+            <li><a href="#">Work with us</a></li>
+            <li><a href="#">Careers</a></li>
+            <li><a href="#">Press</a></li>
+          </ul>
+        </div>
+        <div class="footer-col">
+          <span class="label">Letter</span>
+          <ul>
+            <li>A monthly note from the editors.</li>
+            <li style="margin-top: 12px">
+              <a
+                href="#"
+                style="
+                  border-bottom: 1px solid var(--accent);
+                  padding-bottom: 2px;
+                "
+                >Sign up →</a
+              >
+            </li>
+          </ul>
+        </div>
+      </div>
+      <div class="footer-bottom">
+        <span>© 2026 Jung von Matt — All rights reserved.</span>
+        <span>Hamburg · Berlin · Zürich · Stockholm</span>
+        <span>Imprint · Privacy</span>
+      </div>
+    </footer>
+
+    <script>
+      // ---------- Theme toggle (with persistence + system preference) ----------
+      (function () {
+        const root = document.documentElement;
+        const btn = document.getElementById("themeToggle");
+        const lbl = document.getElementById("modeLabel");
+        const KEY = "jvm-theme";
+
+        const saved = localStorage.getItem(KEY);
+        const prefersLight = window.matchMedia(
+          "(prefers-color-scheme: light)",
+        ).matches;
+        const initial = saved || (prefersLight ? "light" : "dark");
+        apply(initial);
+
+        btn.addEventListener("click", () => {
+          const next =
+            root.getAttribute("data-theme-mode") === "dark" ? "light" : "dark";
+          apply(next);
+          localStorage.setItem(KEY, next);
+        });
+
+        function apply(mode) {
+          root.setAttribute("data-theme-mode", mode);
+          lbl.textContent = mode === "dark" ? "Dark" : "Light";
+        }
+      })();
+
+      // ---------- Reading progress ----------
+      (function () {
+        const bar = document.getElementById("progress");
+        function update() {
+          const h = document.documentElement;
+          const scrolled = h.scrollTop;
+          const max = h.scrollHeight - h.clientHeight;
+          bar.style.width = max > 0 ? (scrolled / max) * 100 + "%" : "0%";
+        }
+        document.addEventListener("scroll", update, { passive: true });
+        update();
+      })();
+    </script>
+  </body>
+</html>
