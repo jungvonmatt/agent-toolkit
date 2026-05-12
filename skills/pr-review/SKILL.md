@@ -50,6 +50,7 @@ Use all relevant skills that are available in the environment.
 - Use for runtime/browser validation (if available): `chrome-devtools` or `browser-testing-with-devtools`.
 - Use conditionally: `a11y-debugging` only when UI, markup, interaction, or form changes are present in the diff.
 - Read [`references/review-checklist.md`](references/review-checklist.md) for detailed criteria.
+- **Track which skills were unavailable.** For each skill that could not be loaded, record its name and the review aspect it covers. This list is used in step 6.
 
 ### 4. Execute the review
 
@@ -74,6 +75,24 @@ Use all relevant skills that are available in the environment.
   - concise recommendation
   - short example when useful
 - If no major issues are found, state that explicitly and still list residual risks or test gaps.
+- If any companion skills were unavailable, append a **⚠ Missing Skills** section at the end of the report. For each missing skill, state which review aspect was skipped and provide the install command for its source repository:
+
+  | Source                               | Install                                                    |
+  | ------------------------------------ | ---------------------------------------------------------- |
+  | `addyosmani/agent-skills`            | `npx skills@latest add addyosmani/agent-skills`            |
+  | `ChromeDevTools/chrome-devtools-mcp` | `npx skills@latest add ChromeDevTools/chrome-devtools-mcp` |
+  | `nucliweb/webperf-snippets`          | `npx skills@latest add nucliweb/webperf-snippets`          |
+
+  Example:
+
+  > **⚠ Missing Skills**
+  >
+  > The following skills were not available. The listed review aspects were skipped or performed with reduced depth.
+  >
+  > | Skill            | Source                               | Skipped aspect                                   | Install                                                    |
+  > | ---------------- | ------------------------------------ | ------------------------------------------------ | ---------------------------------------------------------- |
+  > | `best-practices` | `addyosmani/agent-skills`            | Security, compatibility, and code-quality checks | `npx skills@latest add addyosmani/agent-skills`            |
+  > | `a11y-debugging` | `ChromeDevTools/chrome-devtools-mcp` | Accessibility audit                              | `npx skills@latest add ChromeDevTools/chrome-devtools-mcp` |
 
 ## Guardrails
 
