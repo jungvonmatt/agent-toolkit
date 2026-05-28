@@ -71,6 +71,25 @@ Example checkpoint output:
 - Check test quality and missing test coverage for changed behavior.
 - If a Jira ticket exists, map implementation against each requirement and flag mismatches.
 
+#### Verification discipline (non-negotiable)
+
+A review's value lives entirely in the gap between "looks correct" and "proven correct." The most damaging misses come from closing that gap with a confident assumption instead of a cheap check. Before you assert **or dismiss** any finding, run the check — never the assumption.
+
+**Red-flag thoughts → required action.** If you catch yourself thinking the left column, you are rationalizing. Do the right column before proceeding.
+
+| Thought | Required action |
+|---|---|
+| "The error handling looks fine." | "Looks fine" ≠ verified. For every external/dependency call inside an error path, open the callee's signature or source and confirm its **failure mode**. An awaited call does **not** guarantee rejection — many helpers (incl. SCAYLE `@scayle/*`) catch internally and resolve a sentinel (`{}`, `null`, or a `{ [key]: false }` map) instead of throwing. Trace the failure across the seam before calling the handling correct. |
+| "This static-analysis finding is probably a false positive." | Disprove it with one `grep`/read before dismissing. The tool already read the code; the burden is on **you** to prove it wrong, not to wave it away. (Unused-export finding → grep the symbol and check whether consumers use the **named** vs the **default** export — they are different symbols.) |
+| "That duplication / dead code is probably just tests or fixtures." | Don't attribute — locate. Open the tool's `file:line` pairs and read both sites before assigning severity. An unverified attribution is a guess wearing a finding's clothes. |
+| "I'll trust our code here and move on." | Skepticism is directional. Be **most** suspicious of our own code at integration seams (calls into libraries, RPCs, the dependency boundary) and **respect** static-tool findings inside their wheelhouse (unused exports, duplication, reachability). The classic failure is doing the reverse — credulous toward our code, dismissive toward the tool. |
+
+**Boundary-contract rule.** For each external call introduced or relied on in the diff — especially inside `try/catch`, `.then/.catch`, or any success/failure branch — write down what the callee returns *on failure* and confirm the caller handles that exact mode. Never infer the contract from the function's name.
+
+**Evidence hygiene.** Never `| tail`, `| head`, or otherwise truncate tool output you intend to reason from (fallow JSON, test results, type errors). Truncation silently drops the verdict/attribution block and invites narrative backfill. Pipe to a file and read the full verdict, or read it in full.
+
+**No narrative substitution.** When you cannot verify a claim, the output is the literal word **"unverified"** in the report — never a plausible-sounding attribution presented as fact. "Probably X" is not a finding.
+
 ### 5. Run runtime checks
 
 **Runtime checks are MANDATORY when the diff touches any UI surface** — `.vue`, `.tsx`, `.jsx`, `.css`, `.scss`, `.html`, layout files, route components, middleware affecting rendered pages, or i18n keys consumed by templates. "The gap is statically determinable" is **not** a valid reason to skip runtime — running the app may surface regressions, console errors, network failures, or accessibility issues that static review cannot.
@@ -133,4 +152,5 @@ Do not proceed to §6 until each line is resolved. If §3 or §5 has a ❌, fix 
 - Do not use destructive git commands.
 - Do not claim checks that were not run.
 - Do not skip Jira alignment when a ticket is provided.
+- Do not present an unverified assumption as a finding **or** as a dismissal. Run the `grep`/read/contract check first (see §4 Verification discipline). A dismissed true-positive is as costly as a missed bug.
 - A skill counts as "missing" only when its name is absent from the available-skills system reminder AND its MCP tools (if any) are absent from the deferred-tool list. An available skill that you simply chose not to invoke is **not** missing — it is a skipped check and must be reported under "Verification checkpoint" with an explicit reason, not under "⚠ Missing Skills."
