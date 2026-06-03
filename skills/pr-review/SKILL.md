@@ -1,6 +1,6 @@
 ---
 name: pr-review
-description: Comprehensive pull request review for the current branch against a configurable target branch with severity-ranked findings, Jira requirement traceability, conditional accessibility checks, and deep performance analysis. Use when validating merge readiness, auditing regressions, preparing actionable review feedback, or checking implementation quality without changing code.
+description: Comprehensive pull request review for the current branch against a configurable target branch, enriched with the remote GitLab/GitHub merge request context (description, target branch, reviewers, discussion) when one can be located, plus severity-ranked findings, Jira requirement traceability, conditional accessibility checks, and deep performance analysis. Use when validating merge readiness, auditing regressions, preparing actionable review feedback, or checking implementation quality without changing code.
 ---
 
 # PR Review Against Target Branch
@@ -12,7 +12,29 @@ Keep the review read-only: do not modify code.
 
 ### 1. Establish the review baseline
 
-- Confirm the active branch and determine the diff target (the "target branch").
+First locate the remote merge request (§1a), then resolve the diff target from it (§1b).
+
+#### 1a. Locate the remote merge request (best-effort enrichment)
+
+Always try to find the branch's open merge request / pull request and pull its metadata. The remote MR is the authoritative source for the **target branch** and supplies reviewer-facing context the local diff cannot — the MR **description**, intended scope, labels, reviewers, and discussion threads. Keep this strictly **read-only**.
+
+1. Detect the host: `git remote get-url origin` (look for `gitlab` vs `github`).
+2. Find the MR/PR for the current branch — **prefer the MCP server, read-only**:
+   - **GitLab** — use the `glab` MCP tools: `mcp__glab__glab_mr_for` or `mcp__glab__glab_mr_view` (current branch), or `mcp__glab__glab_mr_list` filtered by source branch; `mcp__glab__glab_mr_diff` for the server-side diff. (Skim the project's `gitlab-mcp` skill before first use.) Only fall back to the `glab` CLI if the MCP server is not connected.
+   - **GitHub** — use a connected GitHub MCP server if one is available; otherwise fall back to the `gh` CLI: `gh pr view --json number,title,body,baseRefName,headRefName,state,isDraft,labels,reviewRequests,url,comments` (or `gh pr list --head <branch> --json ...`).
+3. If auto-detection finds nothing, try to source the MR/PR URL from Jira: ask for the ticket key (reuse the answer for §2), read the issue (`getJiraIssue`, plus its development panel / remote links / description), and extract any GitLab MR or GitHub PR link. Then open it with the matching MCP tool (`mcp__glab__glab_mr_view <url|iid>`, or the GitHub MCP / `gh pr view <url>`).
+4. If Jira yields no link, ask once:
+   `I couldn't find a merge request for this branch. Do you have the MR/PR URL? (Leave it blank to review the local branch only.)`
+5. When an MR/PR is found, record: title, **description/body**, **target (base) branch**, source branch, state/draft, labels, reviewers, linked issues, and open discussion threads. Carry the description into requirement traceability (§4 + reporting template) alongside any Jira ticket, and use its target branch as the diff target in §1b.
+
+**If no MR/PR can be located** — auto-detection fails, Jira has no link, and the user provides none — skip remote enrichment entirely and review the local branch **exactly as the rest of this skill describes** (resolve the target branch by asking, per §1b). The remote step is purely additive: its absence must never block or alter the local review.
+
+Never invoke write/manage `glab`/`gh` operations here (no approve, merge, comment, note, label, push, rebase) — only `view` / `list` / `diff` reads.
+
+#### 1b. Resolve the diff target
+
+- If §1a located an MR/PR, use its target (base) branch as the diff target and state it explicitly — do not ask.
+- Otherwise, confirm the active branch and determine the diff target (the "target branch").
 - If the user did not pass a target branch in the prompt, ask first before doing anything else:
   `Which target branch should I review against? (e.g. main, develop, integration)`
 - Only after the user has answered (or explicitly provided one in the prompt), continue.
@@ -40,6 +62,8 @@ pnpx fallow audit --base <target> --format json --quiet --explain
 
 - Ask once at the beginning:
   `Is there a Jira ticket for this change? If yes, please share the key or link.`
+- If §1a could not auto-detect the MR/PR, reuse this Jira ticket to look for an MR/PR link (development panel / remote links / description) and apply the §1a enrichment if one is found.
+- Treat the located MR's **description** as a requirements source on equal footing with the Jira ticket — map the implementation against both in §4 traceability, and use the MR description as the primary source when no Jira ticket exists.
 - Ask for a runtime URL only if browser checks are needed and the default is not valid:
   `Should I use https://localhost:3000 or is there a different local setup?`
 
@@ -69,7 +93,7 @@ Example checkpoint output:
 - Prioritize findings that can cause regressions, broken behavior, security issues, or poor user experience.
 - Put special focus on performance risks.
 - Check test quality and missing test coverage for changed behavior.
-- If a Jira ticket exists, map implementation against each requirement and flag mismatches.
+- If a Jira ticket and/or a located MR description exists, map the implementation against each stated requirement and flag mismatches. Also flag where the diff diverges from the MR description's declared scope or contradicts an unresolved review discussion thread.
 
 #### Verification discipline (non-negotiable)
 
@@ -109,6 +133,7 @@ When mandatory:
 
 **Verification checkpoint — required before §6.** Print a one-line status for each prior step before writing the report:
 
+- §1 Remote MR located: ✅ found (note: source — auto / Jira / user, URL, target branch) / ⚠ none found, reviewing local branch only
 - §1 Baseline established: ✅ / ❌ (note: target branch, fallow verdict)
 - §2 Jira ticket: ✅ provided / ⚠ none / ❌ requested but unavailable
 - §3 Skill discovery checklist completed: ✅ / ❌
@@ -150,7 +175,9 @@ Do not proceed to §6 until each line is resolved. If §3 or §5 has a ❌, fix 
 
 - Do not make any code changes.
 - Do not use destructive git commands.
+- Keep all remote MR/PR access read-only via the MCP server: GitLab `mcp__glab__glab_mr_view` / `glab_mr_for` / `glab_mr_list` / `glab_mr_diff` (or the GitHub MCP / `gh ... view|list`). Never invoke a mutating tool — `mcp__glab__glab_mr_merge`, `glab_mr_approve`, `glab_mr_note`, `glab_mr_update`, `glab_mr_rebase`, or any write/manage equivalent (consistent with the project's GitLab read-only boundary).
 - Do not claim checks that were not run.
-- Do not skip Jira alignment when a ticket is provided.
+- Do not skip Jira alignment when a ticket is provided, or MR-description alignment when an MR was located.
+- The remote MR step is best-effort: if no MR/PR can be located or the user declines to provide one, fall back to the local-branch review unchanged — do not block on it.
 - Do not present an unverified assumption as a finding **or** as a dismissal. Run the `grep`/read/contract check first (see §4 Verification discipline). A dismissed true-positive is as costly as a missed bug.
 - A skill counts as "missing" only when its name is absent from the available-skills system reminder AND its MCP tools (if any) are absent from the deferred-tool list. An available skill that you simply chose not to invoke is **not** missing — it is a skipped check and must be reported under "Verification checkpoint" with an explicit reason, not under "⚠ Missing Skills."
