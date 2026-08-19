@@ -7,12 +7,14 @@ Use this checklist to keep the review comprehensive and consistent.
 - Verify changed logic for edge cases, null handling, and error paths.
 - Check API contract compatibility and data shape assumptions.
 - Confirm behavior remains backward compatible where required.
+- Record the evidence used for each material conclusion; use `unverified` when it cannot be established.
 
 ## Security and robustness
 
 - Check input validation and output encoding.
 - Check auth, permission, and data exposure risks.
 - Check secrets, tokens, and sensitive logging.
+- Inspect failure contracts at external and dependency boundaries; do not assume awaited calls reject.
 
 ## Performance focus (high priority)
 
@@ -22,6 +24,7 @@ Use this checklist to keep the review comprehensive and consistent.
 - Check network behavior: unnecessary requests, no caching, duplicate calls.
 - Check server-side query patterns (N+1, missing limits, missing indexes assumptions).
 - Check rendering risks: layout thrashing, large DOM updates, heavy synchronous work.
+- Distinguish measured performance evidence from static inference and record skipped measurements.
 
 ## Accessibility decision rule
 
@@ -45,11 +48,28 @@ When running a11y checks, cover at least:
 - focus visibility and trapped focus
 - color contrast in touched UI areas
 
-## Jira requirement traceability
+Record the accessibility status as `passed`, `findings`, `skipped — <reason>`,
+or `unavailable — <reason>`. Do not treat an unavailable audit as a clean pass.
 
-When a Jira ticket is provided, create a mini matrix:
+## Verification coverage
+
+For every applicable check, record exactly one status:
+
+- `passed` — the check ran successfully and its complete output was read
+- `findings` — the check ran and produced actionable findings
+- `skipped — <reason>` — the check was deliberately inapplicable or could not be run
+- `unavailable — <reason>` — the required tool or provider was not available
+
+Before assigning `Ready`, confirm that all required checks are `passed` and
+that the target branch and diff source were verified.
+
+## Requirement traceability
+
+When PR/MR or ticket requirements are available, including an explicitly
+provided ticket during a local pre-PR review, create a mini matrix:
 
 - Requirement
+- Source provider and reference
 - Evidence in implementation (file/function/test)
 - Status (`Met`, `Partially Met`, `Not Met`)
 - Gap or follow-up
