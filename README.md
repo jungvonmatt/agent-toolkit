@@ -1,63 +1,90 @@
 # Agent Toolkit
 
-Reusable Agent skills, rules prompts, and workflows for AI-assisted development as used at Jung von Matt TECH.
-
-> **Tip**: View this README with `⌘+Shift+V` in Agent/VSC for better formatting.
+Reusable agent skills, rules, prompts, and workflows for AI-assisted development as used at Jung von Matt TECH.
 
 ## Quick Start
 
+Install all skills with the [skills CLI](https://github.com/vercel-labs/skills) — works with Claude Code, Cursor, Copilot, Codex, Cline, and more:
+
 ```bash
-# Clone into your project or a central location
-git clone https://github.com/jungvonmatt/agent-toolkit.git
-# Copy full dir or cherry pick into your target repo or home dir .agents
-cp -r ${PATH_TO_TOOLKIT}/* .agents
+npx skills add jungvonmatt/agent-toolkit              # install all skills
+npx skills add jungvonmatt/agent-toolkit --list        # browse before installing
 ```
 
-**What's included:**
+Or grab individual skills:
 
-- Agent Rules: Development standards and AI guidance
-- Prompts: Story creation, commit messages, PR descriptions
-- MCP Servers: Optional tools for extended AI capabilities
-- Workflows: Agent documentation on using Git and story-based development
+```bash
+npx skills add jungvonmatt/agent-toolkit --skill start-ticket
+npx skills add jungvonmatt/agent-toolkit --skill pr-review
+```
+
+All skills are namespaced under `jvm-skills` to avoid conflicts with other skill packs.
+
+> **Manual install:** Clone the repo and run `./sync-skills.sh` to copy skills into `~/.agents/skills/`.
 
 ## Skills
 
-Skills are reusable agent workflows packaged as `SKILL.md` files. Install them into your project using:
+| Skill | Description |
+| --- | --- |
+| `start-ticket` | Turns a ticket (Jira, Asana, Linear, GitHub/GitLab Issues) into a ready-to-execute implementation plan — fetches the ticket, pulls design specs, explores the codebase, pressure-tests the requirement, and writes a plan. |
+| `pr-review` | Comprehensive pull request review against a configurable target branch with severity-ranked findings, Jira traceability, accessibility checks, and performance analysis. |
+| `repo-diagnostics` | Git-based diagnostics that reveal churn hotspots, bus factor, bug clustering, commit velocity, and crisis patterns — before reading any code. |
+| `jvm-design` | Bootstraps a project with the Jung von Matt CI 2026 design system by copying `DESIGN.md`, brand assets, and fonts into the project root. |
+| `figma-design-md` | Analyzes a Figma project URL and synthesizes the design language into a semantic `DESIGN.md` file. |
+
+### Commands (Claude Code)
+
+| Command | Description |
+| --- | --- |
+| `/jvm-skills:start-ticket` | Fetch a ticket and produce a ready-to-execute plan |
+| `/jvm-skills:review` | Review the current PR/MR for merge readiness |
+| `/jvm-skills:repo-diagnostics` | Run git-based repository diagnostics |
+| `/jvm-skills:design` | Bootstrap the JvM CI 2026 design system into a project |
+| `/jvm-skills:design-md` | Extract a DESIGN.md from a Figma project |
+
+### Companion Skills
+
+Some skills route to companion skills from external sources. They degrade gracefully — they still work without them, loading only the companions present in the workspace.
 
 ```bash
-npx skills@latest add jungvonmatt/agent-toolkit
+# General-purpose skills (planning, spec-driven-development, security, performance …)
+npx skills add addyosmani/agent-skills
+
+# Chrome DevTools skills (a11y-debugging, network, performance traces …)
+npx skills add ChromeDevTools/chrome-devtools-mcp
+
+# Web performance skills (Core Web Vitals, loading, interaction, media …)
+npx skills add nucliweb/webperf-snippets
 ```
 
-| Skill              | Description                                                                                                                                                              |
-| ------------------ | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
-| `start-ticket`     | Turns a ticket (Jira, Asana, Linear, GitHub/GitLab Issues) into a ready-to-execute implementation plan — fetches the ticket, pulls design specs, explores the codebase, pressure-tests the requirement, and writes a plan in Simplified Technical English. |
-| `pr-review`        | Comprehensive pull request review against a configurable target branch with severity-ranked findings, Jira traceability, accessibility checks, and performance analysis. |
-| `repo-diagnostics` | Git-based diagnostics that reveal churn hotspots, bus factor, bug clustering, commit velocity, and crisis patterns — before reading any code.                            |
-| `jvm-design`       | Bootstraps a project with the Jung von Matt CI 2026 design system by copying `DESIGN.md`, brand assets, and fonts into the project root.                                 |
-| `design-md`        | Analyzes a Figma project URL and synthesizes the design language into a semantic `DESIGN.md` file.                                                                       |
+> **`start-ticket`** routes to `planning-and-task-breakdown`, and conditionally to `spec-driven-development`, `doubt-driven-development`, `interview-me`, `security-and-hardening`, and `performance-optimization` from `addyosmani/agent-skills`.
 
-Some skills in this toolkit depend on companion skills from external sources. Install them as needed:
+## Recommended Third-Party Sources
 
-```bash
-# General-purpose agent skills (planning-and-task-breakdown, spec-driven-development,
-# doubt-driven-development, security-and-hardening, performance-optimization …)
-npx skills@latest add addyosmani/agent-skills
+We don't try to cover everything ourselves. These are the skill packs and MCP servers we rely on across our projects — though not every project uses all of them. We pick what fits the stack and the task. Some of our skills reference companions from these packs but work fine without them.
 
-# Chrome DevTools skills (a11y-debugging, network, performance traces, …)
-npx skills@latest add ChromeDevTools/chrome-devtools-mcp
+### Skills
 
-# Web performance skills (Core Web Vitals, loading, interaction, media, …)
-npx skills@latest add nucliweb/webperf-snippets
-```
+| Repository | Description | Classification |
+| --- | --- | --- |
+| [addyosmani/agent-skills](https://github.com/addyosmani/agent-skills) | Full-lifecycle engineering skills from spec to ship. | Engineering |
+| [mattpocock/skills](https://github.com/mattpocock/skills) | Alignment-first workflow with grilling, domain modeling, and TDD. | Engineering |
+| [obra/superpowers](https://github.com/obra/superpowers) | Development methodology with subagent orchestration and git worktrees. | Methodology |
+| [GoogleChrome/modern-web-guidance](https://github.com/GoogleChrome/modern-web-guidance) | Modern web platform features and best practices by the Chrome and Edge teams. | Web Platform |
+| [nucliweb/webperf-snippets](https://github.com/nucliweb/webperf-snippets) | DevTools snippets for measuring and debugging Core Web Vitals. | Performance |
+| [vercel-labs/agent-skills](https://github.com/vercel-labs/agent-skills) | React/Next.js performance, Vercel deployment, and the `npx skills` CLI. | React, Vercel |
+| [antfu/skills](https://github.com/antfu/skills) | Auto-generated skills for the Vue/Vite ecosystem. | Vue, Tooling |
 
-> **`start-ticket` depends on `addyosmani/agent-skills`.** It routes to `planning-and-task-breakdown` (plan output), and conditionally to `spec-driven-development`, `doubt-driven-development`, `interview-me`, `security-and-hardening`, and `performance-optimization`. Install `addyosmani/agent-skills` for the full workflow. The skill degrades gracefully — it still runs without them, loading only the companions present in the workspace. Its own `references/` (including a self-contained `definition-of-done.md`) ship inside the skill folder, so no shared `references/` install is required.
+### MCP Servers
 
-> **Chrome DevTools MCP** — the Chrome DevTools skills require the MCP server to be running. See the [setup guide](https://github.com/ChromeDevTools/chrome-devtools-mcp) for installation instructions.
+| Server | Repository | Description |
+| --- | --- | --- |
+| Chrome DevTools | [ChromeDevTools/chrome-devtools-mcp](https://github.com/ChromeDevTools/chrome-devtools-mcp) | Browser automation, performance traces, Lighthouse audits, and screenshots. |
+| Atlassian | [sooperset/mcp-atlassian](https://github.com/sooperset/mcp-atlassian) | Jira and Confluence access for Cloud and Server/Data Center. |
+| GitHub | [github/github-mcp-server](https://github.com/github/github-mcp-server) | Official GitHub MCP server for repos, issues, PRs, and code search. |
+| Figma | [GLips/Figma-Context-MCP](https://github.com/GLips/Figma-Context-MCP) | Figma design data and image downloads for one-shot implementation. |
+| Context7 | [upstash/context7](https://github.com/upstash/context7) | Up-to-date, version-specific library documentation as context for coding agents. |
 
 ## Contributing
 
-Contributions welcome! See [Contributing Guide](docs/CONTRIBUTING.md) for guidelines.
-
-## Credits
-
-Some of the recipes and prompts in this toolkit are inspired by or adapted from [Context7](https://context7.com) and [Playbooks](https://playbooks.com).
+Contributions welcome! See [Contributing Guide](CONTRIBUTING.md) for guidelines.
