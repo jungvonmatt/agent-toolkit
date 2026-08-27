@@ -1,6 +1,6 @@
 # design-md
 
-Reverse-engineers a design system from any source — Figma file, live website, screenshot, or existing tokens — and produces a spec-compliant `DESIGN.md` with tiered tokens. Follows the [DESIGN.md spec](https://github.com/google-labs-code/design.md).
+Reverse-engineers a design system from any source — Figma file, live website, screenshot, or existing tokens — and produces a spec-compliant `DESIGN.md` with 3-tier tokens (Primitive → Semantic → Component). Follows the [DESIGN.md spec](https://github.com/google-labs-code/design.md).
 
 Replaces the previous `figma-design-md` skill with a unified, source-agnostic approach.
 
@@ -34,9 +34,10 @@ The agent will:
 
 1. Detect the source type (Figma, website, screenshot, tokens, existing DESIGN.md).
 2. Extract design tokens using the appropriate tool (Figma MCP, chrome-devtools MCP, visual analysis).
-3. Organize tokens into semantic and component tiers.
+3. Organize tokens into three tiers: Primitive (raw hex) → Semantic (functional roles) → Component (UI atoms).
 4. Write a spec-compliant DESIGN.md with evocative prose.
 5. Validate with `npx @google/design.md lint`.
+6. Ensure adoption: register in agent config, export tokens to framework format, embed a design guard.
 
 ## Output
 
