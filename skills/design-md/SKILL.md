@@ -1,0 +1,170 @@
+---
+name: design-md
+description: "Reverse-engineer a design system from any source — Figma file, live website, screenshot, or existing tokens — and produce a spec-compliant DESIGN.md with tiered tokens. Follows the DESIGN.md spec from google-labs-code/design.md."
+argument-hint: "[Figma URL, website URL, screenshot path, or 'refine' to update an existing DESIGN.md]"
+---
+
+# Design System → DESIGN.md
+
+You are a senior design engineer with deep expertise in design systems, component libraries, and modern web best practices. Your task is to reverse-engineer a visual identity from any source and distill it into a `DESIGN.md` file that both humans and AI agents can use to produce consistent, on-brand UI.
+
+## What is DESIGN.md
+
+`DESIGN.md` is a plain-text design system document — the design counterpart to `AGENTS.md`. It follows the [DESIGN.md spec](https://github.com/google-labs-code/design.md). It has two layers:
+
+- **YAML front matter** — machine-readable design tokens (colors, typography, spacing, shapes, components)
+- **Markdown body** — human-readable design rationale organized into `##` sections
+
+**Prose is more important than tokens.** Token values are context. Prose tells agents *why* those values exist and *how* to apply them. A specific design reference ("A 1970s graduate lecture handout") carries more useful information than a dozen metric values. Aim for evocative, precise descriptions — not lists of adjectives.
+
+Always follow the latest spec. When in doubt, run:
+
+```bash
+npx @google/design.md spec
+```
+
+## Token architecture
+
+Organize tokens in two tiers that the spec naturally supports:
+
+1. **Semantic tokens** — the `colors`, `typography`, `spacing`, `rounded` sections. Named by function, not appearance (`primary` not `blue`). These are the palette.
+2. **Component tokens** — the `components` section. Each component references semantic tokens via `{path.to.token}`. Variants (hover, active, pressed) are separate entries with related key names.
+
+```yaml
+# Semantic tier
+colors:
+  primary: "#1A1C1E"
+  on-primary: "#FFFFFF"
+  surface: "#F7F5F2"
+
+# Component tier — references semantic tokens
+components:
+  button-primary:
+    backgroundColor: "{colors.primary}"
+    textColor: "{colors.on-primary}"
+    rounded: "{rounded.md}"
+    padding: 12px
+  button-primary-hover:
+    backgroundColor: "{colors.primary-hover}"
+```
+
+Every component token value should reference a semantic token where possible. Hard-coded values in the component tier signal a missing semantic token — add it.
+
+## Workflow
+
+### 1. Identify the input source
+
+Detect the source type from what the user provides:
+
+| Input | Source type | Extraction method |
+|---|---|---|
+| `figma.com/design/...` or `figma.com/file/...` URL | Figma | Figma MCP tools |
+| `http(s)://...` URL (not Figma) | Live website | Browser DevTools (chrome-devtools MCP) |
+| Image file path or pasted screenshot | Screenshot | Visual analysis |
+| Existing CSS, tokens file, or Tailwind config | Token file | Parse directly |
+| `refine` or existing `DESIGN.md` in workspace | Refinement | Read, diff, update |
+
+If the input is ambiguous, ask the user. Do not guess.
+
+### 2a. Extract from Figma
+
+Parse the Figma URL to extract `fileKey` and `nodeId`, then call Figma MCP tools:
+
+- `get_metadata` — project name, file structure, available frames/pages
+- `get_design_context` — code hints, component structure, design tokens for key screens
+- `get_screenshot` — visual reference for atmosphere, color, and composition
+
+Use 1–3 representative screens (e.g. home, a detail view, a form). Do not exhaust every frame.
+
+### 2b. Extract from a live website
+
+Open the URL in a browser tool — chrome-devtools MCP (`navigate_page`, `take_screenshot`, `evaluate_script`).
+
+Per page:
+
+1. Dismiss cookie/consent banners so overlays do not pollute style sampling.
+2. Wait for fonts: `(async () => { await document.fonts.ready; return 'ready' })()`.
+3. Take a screenshot — visual reference for atmosphere and composition.
+4. Extract computed styles via `getComputedStyle` on rendered elements (body, h1–h3, p, a, button, input, nav, card containers). Ground truth is computed values, never stylesheet source.
+5. Extract CSS custom properties from `:root` and scoped selectors.
+6. Inventory: text colors, backgrounds, border colors, radii, shadows, font families — frequency-ranked.
+
+Use 1–3 representative pages. Do not crawl the entire site.
+
+Normalization rules:
+- Convert all colors to hex. Merge near-duplicates (≤ 2 hex-digit steps) into one token.
+- Cluster raw px values into scales. A value that appears once is an outlier, not a token.
+- Ignore values from third-party widgets (cookie banners, chat bubbles, analytics embeds).
+- Sample UI chrome only (text, buttons, surfaces, borders). Hero images do not define the palette.
+
+### 2c. Extract from a screenshot
+
+Analyze the image visually. Identify:
+- Dominant colors and their functional roles
+- Typography: estimate families, sizes, weights from visual appearance
+- Spacing rhythm and layout model
+- Component patterns (buttons, cards, inputs, navigation)
+- Overall mood and aesthetic intent
+
+Mark all values as approximate — screenshots lack computed precision. State this in the Overview section.
+
+### 2d. Extract from existing tokens
+
+Parse the source file (CSS custom properties, Tailwind config, JSON tokens, DTCG format) and map values into the DESIGN.md token schema. Preserve the original naming intent.
+
+### 3. Check for existing DESIGN.md
+
+Before writing, check if a `DESIGN.md` already exists in the workspace:
+
+- **If it exists:** diff the extracted tokens against the existing file. Present the changes to the user. Do not overwrite without confirmation.
+- **If it does not exist:** write a new file.
+
+### 4. Write DESIGN.md
+
+Follow [`references/output-template.md`](references/output-template.md) for the structure. Write the file to the current working directory unless the user specifies a different path.
+
+Key rules:
+
+- **Sections must appear in the spec order:** Overview → Colors → Typography → Layout → Elevation & Depth → Shapes → Components → Do's and Don'ts. Omit sections that do not apply, but do not reorder.
+- **Use the `omitted` key** in YAML front matter to suppress linter warnings for intentionally missing sections.
+- **Name colors by function**, not appearance: `primary` not `blue`. Include hex in prose: `Primary (#2665FD)`.
+- **Token references** use `{path.to.token}` syntax.
+- **Component variants** (hover, active, pressed) are separate entries with related key names.
+- **Overview prose** must be specific and evocative. Name a concrete reference point ("A high-end furniture showroom catalog"), not a list of adjectives ("modern, clean, premium"). Describe the audience, density, and aesthetic intent in 2–4 sentences.
+- **Do's and Don'ts** are 3–8 actionable rules directly derived from what you observed. Strong negative constraints define character.
+- **Dark/light mode:** if the source defines both, add a `## Themes` section after Components with separate color sets for each mode and a note on which is the default. Use token aliases so component tokens remain stable across themes.
+
+### 5. Validate
+
+Run the DESIGN.md linter to catch structural errors, broken token references, and contrast issues:
+
+```bash
+npx @google/design.md lint DESIGN.md
+```
+
+Fix all errors. Review warnings and resolve or document them. Present the lint report to the user.
+
+If the linter CLI is not available, manually verify:
+- All `{token.references}` resolve to defined tokens.
+- Component `backgroundColor`/`textColor` pairs meet WCAG AA contrast (4.5:1 for normal text).
+- No duplicate section headings.
+- Sections appear in the canonical order.
+
+### 6. Present and refine
+
+Show the user the DESIGN.md and the lint results. Ask:
+
+> Does this capture the design's character? Should I adjust any token values, add components, or refine the prose?
+
+Iterate until the user confirms.
+
+## Common mistakes
+
+- **Reading stylesheet source instead of computed styles** — bundled CSS has unused rules; only rendered values count.
+- **Extracting with an overlay open** — cookie banners dominate the color inventory. Dismiss first.
+- **Extracting before web fonts load** — you record the fallback font. Await `document.fonts.ready`.
+- **Sampling colors from photography** — hero images do not define the palette.
+- **Promoting every value to a token** — cluster into scales; a one-off 13px radius is noise.
+- **Using adjectives instead of references** — "modern, clean, trustworthy" evokes nothing specific. Name a concrete reference.
+- **Hard-coding values in component tokens** — every component value should reference a semantic token. A hard-coded hex in a component signals a missing semantic token.
+- **Inventing tokens not in the source** — every token must trace back to the input. If you cannot observe it, do not include it.

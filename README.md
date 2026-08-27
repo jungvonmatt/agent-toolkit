@@ -31,7 +31,7 @@ All skills are namespaced under `jvm-skills` to avoid conflicts with other skill
 | `pr-review` | Comprehensive pull request review against a configurable target branch with severity-ranked findings, Jira traceability, accessibility checks, and performance analysis. |
 | `repo-diagnostics` | Git-based diagnostics that reveal churn hotspots, bus factor, bug clustering, commit velocity, and crisis patterns — before reading any code. |
 | `jvm-design` | Bootstraps a project with the Jung von Matt CI 2026 design system by copying `DESIGN.md`, brand assets, and fonts into the project root. |
-| `figma-design-md` | Analyzes a Figma project URL and synthesizes the design language into a semantic `DESIGN.md` file. |
+| `design-md` | Reverse-engineers a design system from any source (Figma, live website, screenshot, or tokens) into a spec-compliant `DESIGN.md` with tiered tokens. |
 
 ### Commands (Claude Code)
 
@@ -42,7 +42,7 @@ All skills are namespaced under `jvm-skills` to avoid conflicts with other skill
 | `/jvm-skills:review` | Review the current PR/MR for merge readiness |
 | `/jvm-skills:repo-diagnostics` | Run git-based repository diagnostics |
 | `/jvm-skills:design` | Bootstrap the JvM CI 2026 design system into a project |
-| `/jvm-skills:design-md` | Extract a DESIGN.md from a Figma project |
+| `/jvm-skills:design-md` | Reverse-engineer a DESIGN.md from any design source |
 
 ### Companion Skills
 
