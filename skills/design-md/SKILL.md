@@ -175,6 +175,50 @@ Show the user the DESIGN.md and the lint results. Ask:
 
 Iterate until the user confirms.
 
+### 7. Ensure adoption
+
+After the DESIGN.md is finalized, make sure it is consumed — not just written.
+
+**a) Register in agent config**
+
+Check for agent instruction files in the workspace. If one exists, verify it references `DESIGN.md`. If not, add a reference.
+
+| File | What to add |
+|---|---|
+| `AGENTS.md` | `Read DESIGN.md before any UI work. Use its tokens and prose as the single source of truth for colors, typography, spacing, shapes, and component styles.` |
+| `CLAUDE.md` | Same instruction |
+| `.cursor/rules` | Same instruction |
+| `.github/copilot-instructions.md` | Same instruction |
+
+Only touch the first agent config file found. Do not create one if none exists — suggest the user creates one instead. Ask before modifying.
+
+**b) Export tokens to the framework**
+
+If the project uses a CSS framework, export the tokens so they are enforced at the code level — not just in the prompt:
+
+```bash
+# Tailwind v4 (CSS custom properties)
+npx @google/design.md export --format css-tailwind DESIGN.md > design-tokens.css
+
+# Tailwind v3 (JSON theme config)
+npx @google/design.md export --format json-tailwind DESIGN.md > tailwind.theme.json
+
+# W3C Design Tokens (DTCG)
+npx @google/design.md export --format dtcg DESIGN.md > tokens.json
+```
+
+Choose the format that matches the project's stack. If the project already has a theme config, diff against it and present changes — do not overwrite without confirmation.
+
+If the export CLI is not available, skip this step and note that the user can export manually.
+
+**c) Add a design guard note**
+
+Add this instruction to the DESIGN.md prose (at the end of the Overview section):
+
+> **For agents:** Before writing any CSS, component styles, or UI code, read this file and use its tokens. Do not introduce colors, font sizes, spacing values, or border radii that are not defined here. If you need a value that does not exist, add it as a primitive token first, map it to a semantic token, then reference it.
+
+This turns the DESIGN.md itself into a self-enforcing instruction.
+
 ## Common mistakes
 
 - **Reading stylesheet source instead of computed styles** — bundled CSS has unused rules; only rendered values count.
