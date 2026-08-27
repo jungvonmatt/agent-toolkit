@@ -27,6 +27,7 @@ All skills are namespaced under `jvm-skills` to avoid conflicts with other skill
 | Skill | Description |
 | --- | --- |
 | `start-ticket` | Turns a ticket (Jira, Asana, Linear, GitHub/GitLab Issues) into a ready-to-execute implementation plan — fetches the ticket, pulls design specs, explores the codebase, pressure-tests the requirement, and writes a plan. |
+| `write-ticket` | Turns a raw idea, bug report, or feature request into a development-ready ticket — acts as a product coach that finds weak spots, refines requirements with the author, and publishes directly to Jira, GitHub, GitLab, Linear, or Asana. |
 | `pr-review` | Comprehensive pull request review against a configurable target branch with severity-ranked findings, Jira traceability, accessibility checks, and performance analysis. |
 | `repo-diagnostics` | Git-based diagnostics that reveal churn hotspots, bus factor, bug clustering, commit velocity, and crisis patterns — before reading any code. |
 | `jvm-design` | Bootstraps a project with the Jung von Matt CI 2026 design system by copying `DESIGN.md`, brand assets, and fonts into the project root. |
@@ -37,6 +38,7 @@ All skills are namespaced under `jvm-skills` to avoid conflicts with other skill
 | Command | Description |
 | --- | --- |
 | `/jvm-skills:start-ticket` | Fetch a ticket and produce a ready-to-execute plan |
+| `/jvm-skills:write-ticket` | Turn a raw idea into a development-ready ticket |
 | `/jvm-skills:review` | Review the current PR/MR for merge readiness |
 | `/jvm-skills:repo-diagnostics` | Run git-based repository diagnostics |
 | `/jvm-skills:design` | Bootstrap the JvM CI 2026 design system into a project |
