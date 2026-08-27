@@ -99,13 +99,19 @@ contract:
 pnpx fallow audit --base <target> --format json --quiet --explain
 ```
 
+Fallow does not need to be pre-installed. The `pnpx` (or `npx`) runner fetches
+it on demand from the registry. Always execute the command above; never skip
+Fallow because it is "not installed" or "not found" — the package runner
+handles that. Only report `Fallow: unavailable — <exact reason>` when the
+command itself exits with an error (e.g., registry unreachable, DNS failure,
+invalid output).
+
 Capture stdout, stderr, and the exit status. Parse the full stdout as JSON only
-when the command succeeds and the output is valid. If Fallow fails, is
-unavailable, or emits invalid JSON, report `Fallow: unavailable — <exact reason>`
-and do not interpret missing output as a clean result. Report the verdict and
-introduced findings only; inherited findings are context, not branch findings.
-Verify suspected unused exports, duplication, or reachability with a targeted
-search before reporting or dismissing them.
+when the command succeeds and the output is valid. Do not interpret missing
+output as a clean result. Report the verdict and introduced findings only;
+inherited findings are context, not branch findings. Verify suspected unused
+exports, duplication, or reachability with a targeted search before reporting
+or dismissing them.
 
 ### 3. Classify the repository and diff
 
@@ -167,7 +173,13 @@ test results, and type errors. If a material claim cannot be verified, write
 
 ### 5. Verify
 
-Run the narrowest available checks for the changed slice: tests, typecheck, lint, build, and relevant package commands. Never claim a check passed unless its complete output was executed and read.
+Run the narrowest available checks for the changed slice: tests, typecheck,
+lint, build, and relevant package commands. Always execute each command to
+completion and capture its full output — even when the process reports errors,
+setup failures, or non-zero exit codes. Do not abort a check because an early
+stage (e.g., framework bootstrap, module resolution, network fetch during
+setup) produces an error; let the command finish and report the actual output.
+Never claim a check passed unless its complete output was executed and read.
 
 For any UI surface, runtime checks are mandatory when the app can be started:
 
