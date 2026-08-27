@@ -13,15 +13,25 @@ omitted:                          # optional — suppress linter warnings
   - section: <section name>
     reason: "<why this section is not applicable>"
 colors:
-  primary: "#hex"
-  on-primary: "#hex"              # text/icon color on primary surfaces
-  secondary: "#hex"
-  on-secondary: "#hex"
-  tertiary: "#hex"                # accent / interaction color
-  neutral: "#hex"
-  surface: "#hex"                 # page/card background
-  on-surface: "#hex"              # default text on surface
-  error: "#hex"
+  # Primitive tier — raw values, named by shade
+  blue-600: "#hex"
+  blue-700: "#hex"
+  neutral-50: "#hex"
+  neutral-900: "#hex"
+  white: "#FFFFFF"
+  red-500: "#hex"
+
+  # Semantic tier — functional roles, reference primitives
+  primary: "{colors.blue-600}"
+  primary-hover: "{colors.blue-700}"
+  on-primary: "{colors.white}"
+  secondary: "{colors.<primitive>}"
+  on-secondary: "{colors.<primitive>}"
+  tertiary: "{colors.<primitive>}"
+  neutral: "{colors.<primitive>}"
+  surface: "{colors.neutral-50}"
+  on-surface: "{colors.neutral-900}"
+  error: "{colors.red-500}"
 typography:
   headline-display:
     fontFamily: <Family>
@@ -62,6 +72,7 @@ spacing:
   gutter: 24px
   margin: 32px
 components:
+  # Component tier — references semantic tokens only
   button-primary:
     backgroundColor: "{colors.primary}"
     textColor: "{colors.on-primary}"
@@ -141,8 +152,9 @@ components:
 ## Template rules
 
 - Every token in YAML front matter must be grounded in observed evidence from the source. Do not invent tokens.
-- Component tokens reference semantic tokens via `{path.to.token}`. Avoid hard-coded values in the component tier.
-- Prose names colors by function (`primary`), not appearance (`blue`). Include hex in prose for human reference.
+- Colors use a three-tier architecture: primitives (raw hex, named by shade) → semantic (functional roles, reference primitives) → components (reference semantic tokens).
+- Hard-coded hex values belong only in the primitive tier. Semantic and component tiers use `{path.to.token}` references.
+- Prose names colors by their semantic role (`primary`), not their primitive name (`blue-600`) or appearance (`blue`). Include hex for human reference.
 - The Overview section names a concrete reference point, not adjectives. "A high-end furniture showroom catalog" > "modern, clean, premium".
 - Do's and Don'ts are directly derived from what you observed, not generic best practices.
 - Sections appear in the canonical order. Omitted sections use the `omitted` YAML key with a reason.

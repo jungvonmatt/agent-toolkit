@@ -25,17 +25,29 @@ npx @google/design.md spec
 
 ## Token architecture
 
-Organize tokens in two tiers that the spec naturally supports:
+Organize tokens in three tiers within the `colors` and `components` sections. The spec supports this naturally — all tiers live in the same YAML, connected by `{path.to.token}` references.
 
-1. **Semantic tokens** — the `colors`, `typography`, `spacing`, `rounded` sections. Named by function, not appearance (`primary` not `blue`). These are the palette.
-2. **Component tokens** — the `components` section. Each component references semantic tokens via `{path.to.token}`. Variants (hover, active, pressed) are separate entries with related key names.
+1. **Primitive tokens** — raw values named by shade or scale. These are the raw palette the brand uses. Defined as color tokens with descriptive names (`blue-600`, `gray-50`).
+2. **Semantic tokens** — functional roles that reference primitives. Named by purpose, not appearance (`primary`, `surface`, `error`). These are what the prose describes.
+3. **Component tokens** — the `components` section. Each component references semantic tokens. Variants (hover, active, pressed) are separate entries.
 
 ```yaml
-# Semantic tier
 colors:
-  primary: "#1A1C1E"
-  on-primary: "#FFFFFF"
-  surface: "#F7F5F2"
+  # Primitive tier — raw values, named by shade
+  blue-600: "#2665FD"
+  blue-700: "#1E52D4"
+  neutral-50: "#F7F5F2"
+  neutral-900: "#1A1C1E"
+  white: "#FFFFFF"
+  red-500: "#DC2626"
+
+  # Semantic tier — functional roles, reference primitives
+  primary: "{colors.blue-600}"
+  primary-hover: "{colors.blue-700}"
+  on-primary: "{colors.white}"
+  surface: "{colors.neutral-50}"
+  on-surface: "{colors.neutral-900}"
+  error: "{colors.red-500}"
 
 # Component tier — references semantic tokens
 components:
@@ -48,7 +60,12 @@ components:
     backgroundColor: "{colors.primary-hover}"
 ```
 
-Every component token value should reference a semantic token where possible. Hard-coded values in the component tier signal a missing semantic token — add it.
+Why three tiers:
+- **Rebranding** changes only primitive values — semantic mapping stays stable.
+- **Dark mode** swaps semantic → primitive assignments — component tokens stay untouched.
+- **Consistency** — matches how professional design systems work (Material, Spectrum, Carbon).
+
+Every component token should reference a semantic token. Every semantic token should reference a primitive. Hard-coded hex values in the semantic or component tier signal a missing primitive — add it.
 
 ## Workflow
 
@@ -166,5 +183,5 @@ Iterate until the user confirms.
 - **Sampling colors from photography** — hero images do not define the palette.
 - **Promoting every value to a token** — cluster into scales; a one-off 13px radius is noise.
 - **Using adjectives instead of references** — "modern, clean, trustworthy" evokes nothing specific. Name a concrete reference.
-- **Hard-coding values in component tokens** — every component value should reference a semantic token. A hard-coded hex in a component signals a missing semantic token.
+- **Hard-coding values in component tokens** — every component value should reference a semantic token, every semantic token a primitive. A hard-coded hex anywhere but the primitive tier signals a missing token.
 - **Inventing tokens not in the source** — every token must trace back to the input. If you cannot observe it, do not include it.
