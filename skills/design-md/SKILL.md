@@ -219,13 +219,37 @@ Add this instruction to the DESIGN.md prose (at the end of the Overview section)
 
 This turns the DESIGN.md itself into a self-enforcing instruction.
 
-## Common mistakes
+## Common Rationalizations
 
-- **Reading stylesheet source instead of computed styles** — bundled CSS has unused rules; only rendered values count.
-- **Extracting with an overlay open** — cookie banners dominate the color inventory. Dismiss first.
-- **Extracting before web fonts load** — you record the fallback font. Await `document.fonts.ready`.
-- **Sampling colors from photography** — hero images do not define the palette.
-- **Promoting every value to a token** — cluster into scales; a one-off 13px radius is noise.
-- **Using adjectives instead of references** — "modern, clean, trustworthy" evokes nothing specific. Name a concrete reference.
-- **Hard-coding values in component tokens** — every component value should reference a semantic token, every semantic token a primitive. A hard-coded hex anywhere but the primitive tier signals a missing token.
-- **Inventing tokens not in the source** — every token must trace back to the input. If you cannot observe it, do not include it.
+| Rationalization | Reality |
+|---|---|
+| "I'll read the stylesheet source instead of computed styles" | Bundled CSS has unused rules. Only rendered `getComputedStyle` values are ground truth. |
+| "Extracting with the cookie banner visible is fine" | Overlays dominate the color inventory and pollute every token. Dismiss first. |
+| "The fonts look loaded — skip waiting" | You record the fallback font. Always await `document.fonts.ready`. |
+| "This hero image color is part of the palette" | Photography colors are content, not UI chrome. Sample only surfaces, text, and controls. |
+| "Every unique value deserves a token" | Cluster into scales. A one-off 13px radius from a widget is noise, not a token. |
+| "Modern, clean, trustworthy describes the aesthetic" | Adjectives evoke nothing specific. Name a concrete reference that carries constraints. |
+| "I'll hard-code this hex in the component — it's faster" | A hard-coded hex signals a missing primitive. Add the primitive first. |
+
+## Red Flags
+
+- Semantic tokens with hard-coded hex values instead of `{primitive}` references
+- An Overview section that uses adjectives instead of a concrete design reference
+- Component tokens referencing primitives directly, bypassing the semantic tier
+- Sections appearing out of the canonical spec order
+- Tokens that cannot be traced to the input source
+- Skipping the linter because "it looks right"
+- Overwriting an existing DESIGN.md without diffing first
+
+## Verification
+
+After the DESIGN.md is finalized:
+
+- [ ] `npx @google/design.md lint DESIGN.md` returns 0 errors
+- [ ] All `{token.references}` resolve to defined tokens
+- [ ] Component `backgroundColor`/`textColor` pairs meet WCAG AA contrast (4.5:1)
+- [ ] No duplicate section headings
+- [ ] Sections appear in the canonical order
+- [ ] Every token traces back to the input source
+- [ ] The Overview names a concrete reference point, not adjectives
+- [ ] Agent config references DESIGN.md (Step 7a completed or noted as skipped)

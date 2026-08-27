@@ -48,3 +48,30 @@ Tell the developer:
 ## Design System Reference
 
 Do not apply the design system yourself during bootstrap — that happens later, guided by the project-local `DESIGN.md`. If the user asks you to also build something after bootstrapping, read `$PROJECT_ROOT/DESIGN.md` (not the skill-local copy) and follow its tokens and rationale.
+
+## Common Rationalizations
+
+| Rationalization | Reality |
+|---|---|
+| "I'll reference the DESIGN.md from the skill directory" | The project must be self-contained. Agents won't have this skill at runtime. |
+| "The fonts are available via CDN" | The design system requires self-hosted fonts. CDN introduces an external dependency. |
+| "I'll apply the design system during bootstrap" | Bootstrap copies resources. Application happens later guided by the project-local DESIGN.md. |
+| "The tokens.css file isn't needed — I'll use the DESIGN.md values directly" | tokens.css is the CSS foundation. Agents and developers consume it at build time. |
+
+## Red Flags
+
+- Importing fonts from Google Fonts or another CDN instead of self-hosting
+- Reading DESIGN.md from the skill directory instead of the project root
+- Applying design system styles during the bootstrap step
+- Missing font files in the project's `fonts/` directory
+- An empty or truncated DESIGN.md in the project root
+
+## Verification
+
+After bootstrapping:
+
+- [ ] `DESIGN.md` exists in the project root and starts with YAML front matter
+- [ ] `assets/tokens.css` exists and contains `--` custom properties
+- [ ] `fonts/` directory contains at least 4 `.woff2` files
+- [ ] No file was read from the skill directory at runtime — only the project-local copies
+- [ ] The user was informed that the project is now self-contained

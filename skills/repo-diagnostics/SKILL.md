@@ -111,3 +111,31 @@ After running all steps (1–5, plus Step 6 if applicable), produce a concise fi
 7. **Recommended first reads** – which files or areas to examine first, based on all of the above
 
 Keep the summary to one paragraph per section. Flag only what is genuinely anomalous; do not pad with reassurances about healthy signals.
+
+## Common Rationalizations
+
+| Rationalization | Reality |
+|---|---|
+| "Git history is unreliable — skip it" | Even noisy history reveals churn and bus-factor patterns. Note caveats, do not skip. |
+| "The team uses squash merges — author data is useless" | Step 2 handles this. Check the merge strategy and note it; do not skip the step. |
+| "No bug-fix keywords in commits — Step 3 is pointless" | Absence of data is itself a finding. Report "low signal due to commit message discipline." |
+| "Fallow is unavailable — skip Step 6" | Note it as unavailable in the report. Do not silently omit the section. |
+| "The repo is too small for diagnostics" | Small repos still have bus-factor and velocity insights. Run all steps. |
+
+## Red Flags
+
+- Skipping a step because the output is empty instead of reporting the absence
+- Drawing conclusions from squash-merge author data without noting the merge strategy
+- Ignoring the cross-reference between churn hotspots and bug clusters
+- Reporting only healthy signals and padding with reassurances
+- Running fallow without checking whether the repo is JS/TS first
+
+## Verification
+
+After completing the synthesis:
+
+- [ ] All 5 git steps produced output or documented why they returned no data
+- [ ] Step 6 ran (JS/TS) or was explicitly marked unavailable with reason
+- [ ] Cross-references are stated: churn × bugs, churn × complexity (if Step 6 ran)
+- [ ] "Recommended first reads" lists at least 2 specific files with rationale
+- [ ] No section is padded with reassurances about healthy signals

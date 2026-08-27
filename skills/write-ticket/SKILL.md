@@ -195,3 +195,35 @@ Provider-specific mapping:
 After creation, return the ticket URL and ID.
 
 If no provider is detected and the author does not name one, ask which provider to use — offer the most likely candidates as options based on the workspace, plus a Markdown fallback option.
+
+## Common Rationalizations
+
+| Rationalization | Reality |
+|---|---|
+| "The requirements are clear enough — skip refinement" | Developers find the gaps at implementation time, costing 3× more to fix. Refine now. |
+| "I'll derive acceptance criteria from the description" | Implicit criteria are untestable. QA cannot verify what was never written down. |
+| "No need to check scope — it's obvious" | Scope creep is the #1 cause of ticket re-scoping mid-sprint. Name the boundary. |
+| "Design reference can come later" | UI tickets without design refs produce implementation guesses that need rework. |
+| "The author knows what they mean" | If the author can't explain it to you, a developer won't understand it either. Ask. |
+| "This is too small for acceptance criteria" | Small tickets with vague criteria cause the most back-and-forth. Two criteria minimum. |
+
+## Red Flags
+
+- Acceptance criteria that describe implementation ("use a modal") instead of outcomes ("the user sees a confirmation")
+- A ticket with no out-of-scope section
+- UI-facing ticket without a design reference
+- Description that only states the solution, not the problem
+- Acceptance criteria that cannot be verified by someone who did not write the ticket
+- Author answers "I don't know" to expected-outcome questions and you proceed anyway
+
+## Verification
+
+After the ticket is finalized:
+
+- [ ] Every fact in the ticket traces to the author's input or an explicit confirmation
+- [ ] At least two acceptance criteria exist: one happy-path, one edge-case
+- [ ] Each acceptance criterion contains an observable verb (shows, returns, prevents, displays)
+- [ ] Out-of-scope names at least one exclusion
+- [ ] UI-facing tickets have a design reference attached
+- [ ] The ticket type is stated with confidence level
+- [ ] The ticket was published to the detected provider or presented as copy-ready Markdown

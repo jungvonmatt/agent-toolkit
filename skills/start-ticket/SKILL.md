@@ -160,3 +160,35 @@ ADRs:           <list or none>
 Open questions: <list or none>
 Next step:      execute the plan, starting with Task 1
 ```
+
+## Common Rationalizations
+
+| Rationalization | Reality |
+|---|---|
+| "I already understand the codebase — skip exploration" | Plans without impact analysis miss breaking changes in shared code. |
+| "The ticket is clear — no questions needed" | The edge-case sweep in Step 4b catches 2–4 gaps per ticket on average. |
+| "Stress-testing is overkill for this ticket" | Skipping it means architectural assumptions go unchallenged until implementation. |
+| "I'll figure out edge cases during implementation" | Edge cases discovered mid-implementation cause scope changes and rework. |
+| "This is a simple change — one task is enough" | Simple changes touch shared code. Impact analysis reveals the real scope. |
+| "I can infer the tech stack" | Detect from evidence, not assumption. Wrong stack assumptions produce wrong patterns. |
+
+## Red Flags
+
+- A plan with no `[TENTATIVE]` decisions — either nothing was uncertain or uncertainty was hidden
+- Acceptance criteria from the ticket that do not map to any task
+- Tasks without edge cases listed or explicitly marked "none applicable"
+- Skipping Step 4b because "the ticket is well-written"
+- A plan that invents requirements not in the ticket without flagging them to the user
+- More than 8 tasks for a single ticket — the ticket may need splitting
+
+## Verification
+
+Before presenting the plan summary:
+
+- [ ] Every acceptance criterion from the ticket maps to at least one task
+- [ ] Every task has edge cases listed or explicitly marked "none applicable"
+- [ ] All decisions are marked `[FIRM]` or `[TENTATIVE]` — no unmarked assumptions
+- [ ] The plan uses exact, project-root-relative file paths
+- [ ] The Definition of Done is cited from the project or the baseline reference
+- [ ] Skills were loaded only for what the ticket actually needs
+- [ ] The plan is written in STE (one instruction per sentence, ≤ 20 words for procedures)
