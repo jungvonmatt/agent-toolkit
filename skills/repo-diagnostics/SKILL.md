@@ -60,15 +60,54 @@ git log --oneline --since="1 year ago" | grep -iE 'revert|hotfix|emergency|rollb
 
 Revert and hotfix frequency over the past year. A handful is normal. Reverts every few weeks signals that the team does not trust its deploy process. Zero results means either stability or undisciplined commit messages—clarify which before concluding.
 
+## Step 6 — Static analysis (JS/TS repos only)
+
+If the repository contains `package.json`, `tsconfig.json`, or `jsconfig.json`, run fallow for deeper code-level insights that git logs cannot reveal.
+
+Skip this step entirely for non-JS/TS repos. If fallow is not installed, note it as unavailable and continue to synthesis — do not install it automatically.
+
+### 6a. Dead code and unused dependencies
+
+```bash
+npx fallow dead-code --format json --quiet
+```
+
+Identify unused files, exports, types, and dependencies. Cross-reference against Step 1 (churn hotspots): a file with high churn AND unused exports is accumulating dead weight.
+
+### 6b. Circular dependencies
+
+```bash
+npx fallow health --circular --format json --quiet
+```
+
+Circular dependency chains that git history cannot detect. Each cycle is a coupling risk — changes to one module ripple unpredictably through the ring.
+
+### 6c. Complexity hotspots
+
+```bash
+npx fallow health --hotspots --format json --quiet
+```
+
+Files ranked by cyclomatic complexity and cognitive load. Cross-reference against Step 1 and Step 3: a file that is high-churn, bug-prone, AND complex is the single highest-priority refactoring target.
+
+### 6d. Code duplication
+
+```bash
+npx fallow dupes --format json --quiet
+```
+
+Near-duplicate code blocks. Duplication that git cannot see because the copies were introduced in separate commits by different authors.
+
 ## Synthesis
 
-After running all five commands, produce a concise findings summary with the following structure:
+After running all steps (1–5, plus Step 6 if applicable), produce a concise findings summary with the following structure:
 
 1. **Churn hotspots** – top 3–5 files with note on whether they also appear in bug clusters
 2. **Bus factor** – primary author(s), whether they are still active, health of contributor spread
 3. **Bug magnets** – files that appear in both churn and bug-fix lists (highest-risk code)
 4. **Velocity trend** – one-line description of the commit-velocity shape
 5. **Crisis signal** – count and pattern of reverts/hotfixes; interpretation
-6. **Recommended first reads** – which files or areas to examine first, based on all of the above
+6. **Code health** (JS/TS only) – dead code count, circular dependency chains, top 3 complexity hotspots, duplication ratio. Highlight any file that ranks high across multiple dimensions (churn + complexity + bugs = critical target).
+7. **Recommended first reads** – which files or areas to examine first, based on all of the above
 
 Keep the summary to one paragraph per section. Flag only what is genuinely anomalous; do not pad with reassurances about healthy signals.
