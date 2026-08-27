@@ -1,0 +1,22 @@
+{
+  "name": "jvm-skills",
+  "interface": {
+    "displayName": "JvM Skills"
+  },
+  "plugins": [
+    {
+      "name": "jvm-skills",
+      "version": "1.0.0",
+      "description": "Reusable agent skills for AI-assisted development at Jung von Matt TECH.",
+      "source": {
+        "source": "local",
+        "path": "./"
+      },
+      "policy": {
+        "installation": "AVAILABLE",
+        "authentication": "ON_INSTALL"
+      },
+      "category": "Developer Tools"
+    }
+  ]
+}

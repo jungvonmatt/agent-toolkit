@@ -1,0 +1,12 @@
+{
+  "name": "jvm-skills",
+  "version": "1.0.0",
+  "description": "Reusable agent skills for AI-assisted development at Jung von Matt TECH.",
+  "author": {
+    "name": "Jung von Matt TECH"
+  },
+  "homepage": "https://github.com/jungvonmatt/agent-toolkit",
+  "repository": "https://github.com/jungvonmatt/agent-toolkit",
+  "license": "MIT",
+  "skills": "./skills"
+}
