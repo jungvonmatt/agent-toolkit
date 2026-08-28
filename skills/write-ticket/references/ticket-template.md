@@ -80,11 +80,12 @@ Write all prose in Simplified Technical English (ASD-STE100): one instruction pe
 
 - The title uses an imperative verb, names the object, and gives context. Maximum 12 words.
 - The description answers: who is affected, what is the problem or need, and why it matters. Write from the user's perspective, not the developer's.
-- Acceptance criteria are mandatory. Include at least two items: one happy-path and one edge-case or error-path criterion.
+- Acceptance criteria are mandatory. Include 3–7 items: happy-path outcomes, at least one edge-case or error-path criterion, and one accessibility criterion (for UI tickets). Consolidate related checks into a single criterion.
 - Each acceptance criterion is testable by a human or automated test without further clarification.
 - Each acceptance criterion describes an observable outcome, not an implementation detail.
 - User stories appear for `story` and `epic` types. Each story covers one actor–capability–benefit triple.
-- Out of scope names at least one thing the ticket does not cover.
+- Out of scope names at least one thing the ticket does not cover. Every out-of-scope item must come from the author's explicit input or be confirmed by the author when asked. Do not invent exclusions.
 - Security considerations appear whenever the change touches user data, login, or personal information.
 - Metadata (priority, labels, estimate) is a suggestion the author can override.
 - Do not include implementation details, file paths, or technical architecture decisions — those are the developer's domain.
+- **Never add** an "Implementation notes", "Technical notes", or "Developer hints" section. The ticket describes the *what*, never the *how*.
