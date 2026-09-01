@@ -12,14 +12,7 @@ When a project PR/MR template exists, use its structure instead of this default.
 ```markdown
 ## Description
 
-<!-- 2–4 sentences: what changed and why. Reference ticket if one exists. Do not restate the diff. -->
-
-## Changes
-
-<!-- Bullet list of concrete changes, grouped logically. Be specific. -->
-
-- …
-- …
+<!-- 2–5 sentences: summarize what changed, why, and the user-facing effect. Reference ticket if one exists. The reviewer has the diff — do not list files or repeat code-level details. -->
 
 ## How to Test
 
@@ -51,8 +44,7 @@ When a project PR/MR template exists, use its structure instead of this default.
 
 ## Rules
 
-- **Description** is 2–4 sentences. No filler. No "This PR enhances…" patterns.
-- **Changes** uses concrete bullets. Name files or components when they add clarity. Do not list every touched file — group by purpose.
+- **Description** is 2–5 sentences. Summarize the behavioral change and the reason. Do not list files — the diff view does that. No filler. No "This PR enhances…" patterns.
 - **How to Test** contains steps a reviewer can execute. Each step is a command, a URL to visit, or an action to perform. The final step states the expected result.
 - **Screenshots** section appears only when screenshots were actually captured. Do not add placeholder text.
 - **Checklist** items are checked only when the diff evidence supports it. Unchecked items include a note.
