@@ -23,6 +23,32 @@ All skills are namespaced under `jvm-skills` to avoid conflicts with other skill
 
 > **Manual install:** Clone the repo and run `./sync-skills.sh` to copy skills into `~/.agents/skills/`.
 
+### Native Plugin Install
+
+Install via the plugin marketplaces if your team does not use Node/npm locally.
+
+#### Claude Code
+
+```bash
+claude plugin marketplace add jungvonmatt/agent-toolkit
+claude plugin install jvm-skills@jvm-skills
+```
+
+If your environment has no GitHub SSH keys, force HTTPS cloning:
+
+```bash
+export CLAUDE_CODE_PLUGIN_PREFER_HTTPS=1
+claude plugin marketplace add jungvonmatt/agent-toolkit
+claude plugin install jvm-skills@jvm-skills
+```
+
+#### Codex CLI
+
+```bash
+codex plugin marketplace add jungvonmatt/agent-toolkit
+codex plugin add jvm-skills@jvm-skills
+```
+
 ## Skills
 
 | Skill | Description |

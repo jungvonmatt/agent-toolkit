@@ -1,0 +1,28 @@
+{
+  "$schema": "https://json.schemastore.org/claude-code-marketplace.json",
+  "name": "jvm-skills",
+  "description": "Reusable agent skills, rules, prompts, and workflows for AI-assisted development at Jung von Matt TECH.",
+  "owner": {
+    "name": "Jung von Matt TECH",
+    "url": "https://github.com/jungvonmatt"
+  },
+  "plugins": [
+    {
+      "name": "jvm-skills",
+      "version": "1.0.0",
+      "source": {
+        "source": "github",
+        "repo": "jungvonmatt/agent-toolkit"
+      },
+      "description": "Reusable agent skills for AI-assisted development at Jung von Matt TECH.",
+      "homepage": "https://github.com/jungvonmatt/agent-toolkit",
+      "license": "MIT",
+      "keywords": [
+        "skills",
+        "agents",
+        "developer-tools",
+        "workflow"
+      ]
+    }
+  ]
+}
