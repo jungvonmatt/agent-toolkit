@@ -17,6 +17,13 @@ Local mode: current checkout + required target branch + optional ticket context
 In local mode, invoke the review with the target branch and optionally a ticket
 key or URL. Example: `review local branch against main with ticket PROJ-123`.
 
+At the beginning of the review, once its identity is known, set a suitable
+chat or session title when the host supports it. Use `Review <ticket-key>` when
+a ticket is available. Otherwise use the most stable available identifier:
+`Review PR #<number>`, `Review MR !<iid>`, `Review <change-id>`, or
+`Review <source-branch>`. Do not block or alter the review when the host has no
+session-title API.
+
 ## Core principles
 
 - Review the stated intent and tests before judging implementation details.

@@ -9,6 +9,13 @@ Turn a raw idea, bug report, conversation, or feature request into a development
 
 Provider-aware: when the workspace or conversation reveals a ticket provider (Jira, Linear, GitHub Issues, GitLab Issues, Asana), the skill creates the ticket directly via MCP tools or CLI. Markdown is the fallback when no provider is available.
 
+At the beginning of the session, once the ticket identity is known, set a
+suitable chat or session title when the host supports it. Use `Write ticket
+<ticket-key>` for an existing ticket. For a new ticket without an identifier,
+use `Write ticket <short subject>` until a provider assigns an ID. Preserve any
+more specific naming convention required by the host. Do not block ticket
+writing when the host has no session-title API.
+
 ## Core principles
 
 - **Never assume — always ask.** If you are not sure about any fact, scope, priority, behavior, or intent, ask the author. Do not fill in gaps with plausible-sounding guesses. Every piece of information in the ticket must trace back to the author's input or an explicit confirmation.

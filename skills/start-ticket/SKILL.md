@@ -9,6 +9,13 @@ Turn a ticket reference into a thorough, ready-to-execute implementation plan. P
 
 This skill is read-and-plan only. It does not implement, commit, or modify the ticket.
 
+At the beginning of the session, once the ticket identity is known, set a
+suitable chat or session title when the host supports it. Use `Start ticket
+<ticket-key>` for a ticket key, or the most stable available identifier from
+the URL, issue number, or ticket title. Preserve any more specific naming
+convention required by the host. Do not block planning when the host has no
+session-title API.
+
 Adopt the role of a senior engineer for **this** project's stack (as detected in Step 2), reasoning about the ticket with that project's conventions and constraints in mind.
 
 ## Core principles
