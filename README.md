@@ -57,6 +57,7 @@ codex plugin add jvm-skills@jvm-skills
 | `start-ticket` | Turns a ticket (Jira, Asana, Linear, GitHub/GitLab Issues) into a ready-to-execute implementation plan — fetches the ticket, pulls design specs, explores the codebase, pressure-tests the requirement, and writes a plan. |
 | `pr-description` | Generates a concise PR/MR description in Simplified Technical English from the current branch diff — auto-captures screenshots when UI changes are detected. |
 | `pr-review` | Comprehensive pull request review against a configurable target branch with severity-ranked findings, Jira traceability, accessibility checks, and performance analysis. |
+| `writing-tests` | Auto-invokes when authoring tests — enforces behavior-first, mutation-sensitive tests that query by ARIA role or `data-testid`, never by class name, and cover atomic units first. |
 | `repo-diagnostics` | Git-based diagnostics that reveal churn hotspots, bus factor, bug clustering, commit velocity, and crisis patterns — before reading any code. |
 | `jvm-design` | Bootstraps a project with the Jung von Matt CI 2026 design system by copying `DESIGN.md`, brand assets, and fonts into the project root. |
 | `design-md` | Reverse-engineers a design system from any source (Figma, live website, screenshot, or tokens) into a spec-compliant `DESIGN.md` with tiered tokens. |
