@@ -9,6 +9,8 @@ Write tests that fail for the right reason: a real change in behavior. A good te
 
 The examples use Vitest with Vue Test Utils and Testing Library, but the principles apply to any framework and any runner. Read [`references/examples.md`](references/examples.md) for good-versus-bad patterns.
 
+**Use Testing Library when it fits the stack.** If a Testing Library package for the current stack is already installed (`@testing-library/react`, `@testing-library/vue`, `@testing-library/dom`, `@testing-library/svelte`, and so on), use its role- and label-based queries. If none is installed but one exists for the stack, ask the user to install it before writing the tests rather than falling back to brittle selectors. If no variant exists for the stack, apply the same query priority with the runner's native API.
+
 ## The three rules
 
 1. **Test atomic units first.** Cover the smallest testable unit before the larger flow. Push logic into pure functions and test those directly. It is fine to refactor a component to expose a testable unit when the refactor also improves the code. Reserve component and integration tests for behavior that only appears when the parts work together.
@@ -46,11 +48,11 @@ Identify elements the way a user or assistive technology finds them. Follow the 
 1. **Role + accessible name** — `getByRole('button', { name: /checkout/i })`. Your first choice for almost everything; it also proves the element is in the accessibility tree.
 2. **Label, placeholder, or text** — `getByLabelText` for a form field, then `getByText` for non-interactive content.
 3. **`data-testid`** — the last resort, only when no role or text fits (for example dynamic content).
-4. **Never query by class name, id, or `container.querySelector`.** These are invisible to the user and describe styling, not behavior.
+4. **Never locate elements by class name, id, or `container.querySelector`.** This is the one rule with no exceptions: never find an element by its class and then run assertions on it. The locator couples to styling, proves nothing about accessibility, and either breaks on a visual refactor or silently matches the wrong node.
 
 **Fix the markup, do not fake the query.** If an element has no suitable role, make it accessible — associate a `<label>`, set an input `type`, use semantic HTML — instead of querying by class or adding a bogus `role`/`aria-*` just so a test can find it. A hard-to-query element is usually a hard-to-use element.
 
-**Never assert on arbitrary class names.** Do not write `expect(el.classList).toContain('is-active')`. Assert the user-visible effect instead — a role state (`aria-pressed`), visible text, or `aria-hidden`. Test a semantic state attribute only when it is the contract.
+**Prefer the user-visible effect over a class-name assertion.** Assert a role state (`aria-pressed`), visible text, or `aria-hidden` whenever one exists — `expect(el.classList).toContain('is-active')` tells you nothing when `aria-pressed` is right there. A `classList.contains(...)` assertion is an acceptable last resort only when the class *is* the observable contract of a visual-state change and no semantic signal represents it. Even then, locate the element by role or text first, then assert on its class — never the reverse.
 
 **Use semantic matchers.** Prefer `toBeDisabled()`, `toBeVisible()`, `toBeChecked()`, or `toHaveAccessibleName()` over a raw property or boolean assertion like `expect(el.disabled).toBe(true)`. The matcher reads clearer and fails with a far better message.
 
@@ -177,7 +179,7 @@ Treat the component as a black box and test its external surface:
 ## Red Flags
 
 - A test with no meaningful assertion, or only `expect(wrapper.exists()).toBe(true)`.
-- A query by class name, or an assertion on a class name.
+- An element located by class name, then asserted on — never acceptable. (Asserting `classList` on an element found by role or text is fine when the class is the visual-state contract.)
 - An assertion on `wrapper.vm.<privateState>` or a directly invoked component method.
 - A test that stays green after you delete the code under test.
 - A composable data-fetch test that stubs the composable instead of mocking the network.
@@ -196,7 +198,7 @@ Before you finish a test file:
 
 - [ ] Every test states one user-visible behavior in its description.
 - [ ] Every test fails when the covered logic is removed (mutation test passed).
-- [ ] No test queries or asserts on a class name.
+- [ ] No test locates an element by class name; any `classList` assertion is on an element found by role or text and covers a real visual-state contract.
 - [ ] Element queries follow the priority ladder (role → label/text → `data-testid`); the markup was fixed rather than a role faked.
 - [ ] Async elements use `findBy*`; `queryBy*` is used only to assert absence.
 - [ ] Interactions use `userEvent`; each `waitFor` holds one assertion and no side effect.

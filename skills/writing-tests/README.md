@@ -17,7 +17,7 @@ Query rules for component tests:
 
 - Prefer ARIA role and accessible name (`getByRole('button', { name: /checkout/i })`).
 - Fall back to label, text, or `data-testid`.
-- Never query or assert on class names.
+- Never locate an element by class name. Prefer asserting the user-visible effect over a class, but a `classList` check is an acceptable last resort when the class is the visual-state contract.
 
 Data-fetching composables: run the **real** composable against a network mocked
 with [MSW](https://mswjs.io/) — never stub the composable and assert your own

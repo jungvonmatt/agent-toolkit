@@ -55,7 +55,7 @@ it('marks the filter as pressed when the user activates it', async () => {
 ```
 
 ```ts
-// 👎 Bad — asserts an arbitrary class; tells you nothing about behavior
+// 👎 Bad — asserts an arbitrary class when a semantic signal exists
 it('adds the is-active class when clicked', async () => {
   const wrapper = mount(FilterToggle)
 
@@ -64,6 +64,11 @@ it('adds the is-active class when clicked', async () => {
   expect(wrapper.get('button').classes()).toContain('is-active')
 })
 ```
+
+A `classList` assertion is only defensible when the class *is* the observable
+contract of a visual state and nothing semantic (`aria-pressed`, text,
+`aria-hidden`) represents it — and even then, locate the element by role or text
+first, never by the class itself.
 
 ## 3. Assert the DOM outcome, not internal state
 
