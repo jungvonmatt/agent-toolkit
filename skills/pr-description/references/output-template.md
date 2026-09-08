@@ -24,11 +24,13 @@ When a project PR/MR template exists, use its structure instead of this default.
 
 ## Screenshots
 
-<!-- Include ONLY when UI changes exist and screenshots were captured. Omit this entire section otherwise. -->
+<!-- Include ONLY when the diff touches UI files. Omit this entire section otherwise. Leave the placeholder for the author to paste before/after images. -->
+
+_UI changed. Paste before/after screenshots here._
 
 | Before | After |
 |--------|-------|
-| ![before](before.png) | ![after](after.png) |
+|        |       |
 
 ## Checklist
 
@@ -46,6 +48,6 @@ When a project PR/MR template exists, use its structure instead of this default.
 
 - **Description** is 2–5 sentences. Summarize the behavioral change and the reason. Do not list files — the diff view does that. No filler. No "This PR enhances…" patterns.
 - **How to Test** contains steps a reviewer can execute. Each step is a command, a URL to visit, or an action to perform. The final step states the expected result.
-- **Screenshots** section appears only when screenshots were actually captured. Do not add placeholder text.
+- **Screenshots** section appears only when the diff touches UI files. It contains a placeholder that prompts the author to paste images. Do not start a dev server or capture screenshots.
 - **Checklist** items are checked only when the diff evidence supports it. Unchecked items include a note.
 - The output contains no explanation before or after the code block.

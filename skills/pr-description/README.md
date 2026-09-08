@@ -2,7 +2,7 @@
 
 Generates a pull/merge request description from the current branch diff. Writes concise, human-readable Markdown in Simplified Technical English (ASD-STE100) — no AI slop, no filler prose.
 
-Auto-captures screenshots via Chrome DevTools when UI changes are detected.
+Adds a screenshot placeholder when UI changes are detected, so the author can paste before/after images.
 
 ## Install
 
@@ -31,7 +31,7 @@ The agent will:
 1. Analyse the diff, commits, and branch name.
 2. Detect and fetch linked ticket context (Jira, GitHub Issues, GitLab Issues, Linear).
 3. Use the project's PR/MR template if one exists, otherwise fall back to the default.
-4. Capture before/after screenshots when UI files changed and DevTools is available.
+4. Add a screenshot placeholder when UI files changed, for the author to paste images.
 5. Output copy-ready Markdown in a fenced code block.
 
 ## Output
