@@ -24,6 +24,7 @@ Apply to every task before you check it off.
 
 **Quality**
 - Naming and structure reveal intent; no comment is needed to explain what the code does.
+- Comments are kept short and simple — write one only when the code cannot speak for itself, explain the *why* not the *what*, and never a paragraph, let alone ten lines, for one line of code.
 - No duplicated business logic, dead code, debug output, or commented-out blocks remain.
 - The change stays scoped to the task; no unrelated refactor is included.
 - Lint and format pass.

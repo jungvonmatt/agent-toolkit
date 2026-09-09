@@ -56,6 +56,36 @@ Write all prose in Simplified Technical English (ASD-STE100): one instruction pe
 
 ---
 
+## Slice map
+
+> Vertical slices ordered by risk, then dependency. Each task is one slice. Each phase ends at an observable checkpoint. See Step 6b.
+
+**Dependency graph:**
+
+```text
+Task 1 ──→ Task 2 ──→ Task 4
+           └──→ Task 3 ──→ Task 5
+```
+
+**Phases and checkpoints:**
+
+| Phase | Tasks | Ends at checkpoint (observable outcome) | Review gate? |
+|---|---|---|---|
+| 1 — <name> | T1 | <what a person can see or run> | — |
+| 2 — <name> | T2, T3 | <…> | human review |
+| 3 — <name> | T4, T5 | <feature complete> | — |
+
+**Acceptance-criterion → checkpoint trace:** (every criterion has a named place where a checkpoint proves it)
+
+| Acceptance criterion | Proved at |
+|---|---|
+| <criterion 1> | Checkpoint A (Task 1) |
+| <criterion 2> | Checkpoint C (Task 5) |
+
+---
+
+## Phase 1 — <name>
+
 ## Task 1 — <Short title>
 
 **Files:** `<relative/path>`, `<test path>`, `<story path if applicable>`
@@ -88,6 +118,17 @@ interface Emits { /* signatures */ }
 
 ---
 
+### Checkpoint A — <observable outcome>
+
+> The named, observable result that proves this phase. State exactly what a person sees or runs (a screen renders, a flow works end-to-end). Mark as a human review gate when direction must be confirmed before later phases depend on it.
+
+- [ ] <what to observe in the browser / runnable app / passing end-to-end test>
+- [ ] Acceptance criteria proved here: <list>
+
+---
+
+> Repeat the `## Phase` → `## Task` → `### Checkpoint` pattern for each phase. Keep each task a small vertical slice.
+
 ## Task N (final) — Verification
 
 Run the project's a11y / quality checks against all new/modified surfaces and fix issues before completing. For UI work, load `a11y-debugging` if available. Confirm the full **Definition of Done** for every task, and every ticket acceptance criterion, before you call the work complete.
@@ -96,6 +137,10 @@ Run the project's a11y / quality checks against all new/modified surfaces and fi
 ## Plan quality rules
 
 - Each task is independently executable unless a `> **Depends on:** Task N` note says otherwise.
+- **Slice vertically.** Each task cuts through the stack to make one behavior observable; no task is a lone horizontal layer (all types, all services, or all UI).
+- Group tasks into phases; every phase ends at a named checkpoint with an observable outcome.
+- Order slices by risk first, then by dependency — the biggest unknown ships first, so a wrong assumption fails fast.
+- Every ticket acceptance criterion maps to a checkpoint that proves it.
 - Use exact, project-root-relative file paths.
 - **Platform-native first** — native HTML/CSS/browser APIs over libraries, especially for a11y and performance.
 - For new components, include TypeScript prop/emit interfaces — not full templates or class lists.

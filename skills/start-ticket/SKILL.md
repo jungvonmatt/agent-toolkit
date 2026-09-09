@@ -25,6 +25,7 @@ Adopt the role of a senior engineer for **this** project's stack (as detected in
 - Load references and skills lazily — only the ones the ticket actually needs.
 - Ground every plan decision in the ticket, the design source, or existing code. Mark anything else as an assumption.
 - Prefer extending existing patterns over inventing new ones; prefer platform-native solutions over new dependencies.
+- **Slice vertically, not horizontally.** Each task delivers one complete path through the stack and ends at something a person can observe — a screen in the browser, a runnable command, or a passing end-to-end test. Never make a task a single horizontal layer (all types, then all services, then all UI) that shows nothing on its own. A horizontally-sliced plan forces a costly restructure during execution.
 - **Honour the requirement, but don't implement it blindly.** The ticket defines *what done means*; the codebase decides *how* to get there. Fill the gaps it leaves (missing edge cases, unstated states), and if you find a wrong assumption or a better technical approach, raise it with the user — refine the requirement together, don't silently substitute your own.
 
 ## Workflow
@@ -132,6 +133,18 @@ Then lead with the gaps surfaced in Step 4b: unstated edge cases, shaky assumpti
 
 Wait for answers before writing the plan.
 
+### 6b. Shape the work into vertical slices
+
+Turn the dependency graph from Step 4 into an ordered set of vertical slices **before** writing tasks. Each slice is one task.
+
+1. **Cut each slice through the stack, not across a layer.** One slice touches the data, the logic, and the surface it needs to make one behavior observable. It ends at a state a person can see or run.
+2. **Group slices into phases.** Each phase bundles the slices that build one demonstrable capability and ends at a **checkpoint** — a named, observable outcome (a screen renders, a flow works end-to-end, the feature is complete). Keep each task small even inside a phase.
+3. **Order by risk, then by dependency.** Put the slice that carries the biggest unknown first, so a wrong assumption fails fast. A slice that only a compiler or a runtime can settle (a shared type, a union that must not break an existing route, an external contract) comes before content or polish that depends on it.
+4. **Mark human review gates.** When a checkpoint needs a person to confirm direction before more work depends on it, label it a review gate in the plan.
+5. **Map every acceptance criterion to a checkpoint.** Every ticket acceptance criterion must have a named place where a checkpoint proves it. If one has none, the slices are incomplete.
+
+If the ticket bundles several independently-shippable capabilities, load `spec-driven-development` (Phase 0 capability map) and treat each capability as its own phase.
+
 ### 7. Write the plan
 
 Follow [`references/plan-template.md`](references/plan-template.md). Save to:
@@ -177,12 +190,16 @@ Next step:      execute the plan, starting with Task 1
 | "Stress-testing is overkill for this ticket" | Skipping it means architectural assumptions go unchallenged until implementation. |
 | "I'll figure out edge cases during implementation" | Edge cases discovered mid-implementation cause scope changes and rework. |
 | "This is a simple change — one task is enough" | Simple changes touch shared code. Impact analysis reveals the real scope. |
+| "Layer-by-layer is cleaner — all the types, then the service, then the UI" | Horizontal layers show nothing until the last task and force a restructure mid-execution. Slice vertically. |
 | "I can infer the tech stack" | Detect from evidence, not assumption. Wrong stack assumptions produce wrong patterns. |
 
 ## Red Flags
 
 - A plan with no `[TENTATIVE]` decisions — either nothing was uncertain or uncertainty was hidden
 - Acceptance criteria from the ticket that do not map to any task
+- A task that is one horizontal layer (all types, all services, or all UI) and shows nothing observable on its own
+- A phase that ends without an observable checkpoint
+- The riskiest slice ordered late instead of first
 - Tasks without edge cases listed or explicitly marked "none applicable"
 - Skipping Step 4b because "the ticket is well-written"
 - A plan that invents requirements not in the ticket without flagging them to the user
@@ -193,6 +210,10 @@ Next step:      execute the plan, starting with Task 1
 Before presenting the plan summary:
 
 - [ ] Every acceptance criterion from the ticket maps to at least one task
+- [ ] Every task is a vertical slice that ends in an observable outcome — no task is a lone horizontal layer
+- [ ] Tasks are grouped into phases, and every phase ends at a named checkpoint
+- [ ] The riskiest or most uncertain slice is ordered first
+- [ ] Every acceptance criterion maps to a checkpoint that proves it
 - [ ] Every task has edge cases listed or explicitly marked "none applicable"
 - [ ] All decisions are marked `[FIRM]` or `[TENTATIVE]` — no unmarked assumptions
 - [ ] The plan uses exact, project-root-relative file paths
