@@ -149,6 +149,14 @@ Treat the component as a black box and test its external surface:
 - **Use `queryBy*` only to assert absence** — `expect(queryByRole('alert')).not.toBeInTheDocument()`. For anything present, `getBy*` and `findBy*` throw a helpful DOM dump; `queryBy*` returns `null` and hides the cause.
 - **Put one assertion in a `waitFor` callback, and no side effects.** `waitFor` runs the callback many times. Trigger the interaction outside it and wait only on the assertion.
 
+## Comments: only when they earn it
+
+Keep comments short and simple, and write one only when the code cannot speak for itself.
+
+- **Comment the *why*, never the *what*.** A clear test name and self-explanatory setup replace most comments. Do not narrate what the next line already shows.
+- **One line, not a paragraph.** Never write ten lines of comment for one line of code. If a comment grows long, the setup is too complex — extract a named helper instead.
+- **Only when it earns its place.** Explain a non-obvious reason, a workaround, or a caveat (for example the `ofetch` interception quirk). Delete everything else.
+
 ## Workflow
 
 1. **Name the behavior.** State the one thing the test proves, from the user's point of view. The `it` description reads as that sentence.
@@ -212,4 +220,5 @@ Before you finish a test file:
 - [ ] Pure logic is tested at the unit level, not only through the component.
 - [ ] No redundant cases — each test verifies a unique aspect.
 - [ ] Each test follows Arrange-Act-Assert and reads clearly.
+- [ ] Comments are kept to what genuinely needs one — the *why*, one line, never a paragraph for a single line of code.
 - [ ] The tests were run and pass.
