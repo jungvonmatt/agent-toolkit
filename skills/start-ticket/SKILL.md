@@ -155,7 +155,7 @@ docs/plans/YYYY-MM-DD-<kebab-case-ticket-title>.md
 
 Use today's date.
 
-**Write the plan in Simplified Technical English (ASD-STE100):** one instruction per sentence; keep procedure sentences ≤ 20 words and descriptive sentences ≤ 25; use the active voice, the imperative for instructions ("Add the prop", not "The prop should be added"), and the present tense; use articles (a/an/the); avoid gerunds and clusters of nouns; keep one term for one thing across the whole plan (do not vary synonyms). Code identifiers, file paths, and commands are exempt — write them verbatim.
+**Write the plan in Simplified Technical English (ASD-STE100):** one instruction per sentence; keep procedure sentences ≤ 20 words and descriptive sentences ≤ 25; use the active voice, the imperative for instructions ("Add the prop", not "The prop should be added"), and the present tense; use articles (a/an/the); avoid gerunds and clusters of nouns; keep one term for one thing across the whole plan (do not vary synonyms). Code identifiers, file paths, and commands are exempt — write them verbatim. State each requirement directly; do not narrate who requested it ("The client asked for…", "The user wants…") — write what the system does.
 
 Record two distinct bars in the plan: the ticket's **acceptance criteria** (per-task "did we build the right thing?") and the standing **Definition of Done** ("is it ready?", from [`references/definition-of-done.md`](references/definition-of-done.md) or the project's own). Every task clears both.
 
@@ -163,7 +163,7 @@ Record two distinct bars in the plan: the ticket's **acceptance criteria** (per-
 
 For tickets with real design decisions, explicitly invoke `grill-with-docs` via the Skill tool (it is `disable-model-invocation: true`, so it will not self-trigger — it wraps `grilling` + `domain-modeling` and crystallizes decisions into ADRs and a glossary). Fall back to `grilling` only if `grill-with-docs` is unavailable. Run it against the draft plan plus `CONTEXT.md` and existing `docs/adr/`.
 
-Fold results back in: flip resolved `[TENTATIVE]` decisions to `[FIRM]`, add surfaced edge cases, and record architecturally significant decisions as new ADRs in `docs/adr/` (continue the existing `NNNN-kebab-title.md` numbering; record superseding relationships when a decision refines an existing ADR).
+Fold results back in: flip resolved `[TENTATIVE]` decisions to `[FIRM]`, add surfaced edge cases, and record architecturally significant decisions as new ADRs. Follow [`references/adr-template.md`](references/adr-template.md) for the shape, the filename convention, and the sentence contract the body must satisfy. Record superseding relationships when a decision refines an existing ADR.
 
 Skip for trivial tickets (copy tweaks, config bumps).
 

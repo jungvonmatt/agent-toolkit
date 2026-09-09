@@ -21,6 +21,7 @@ writing when the host has no session-title API.
 - **Never assume — always ask.** If you are not sure about any fact, scope, priority, behavior, or intent, ask the author. Do not fill in gaps with plausible-sounding guesses. Every piece of information in the ticket must trace back to the author's input or an explicit confirmation.
 - **The user owns the requirement.** Clarify intent; do not invent scope. Ask when the input is ambiguous — do not guess.
 - **STE prose.** Write all ticket prose in Simplified Technical English (ASD-STE100): one instruction per sentence, ≤ 20 words for procedures, ≤ 25 for descriptions, active voice, present tense, articles kept, no gerunds, one term per concept. Code identifiers, paths, URLs, and commands are exempt — write them verbatim.
+- **State the requirement, not its provenance.** Write what the system must do, not who asked for it. Replace reported speech ("The client asked for a category filter in the filter slide-in…", "The user wants…", "We need to…") with the direct requirement ("A category filter appears in the filter slide-in of the product listing page."). Who requested the work belongs in the ticket's metadata or the conversation, not in the requirement sentence.
 - **Derive, do not ask for, the ticket type.** Infer `bug`, `task`, `story`, `spike`, or `epic` from the input (see [`references/type-heuristics.md`](references/type-heuristics.md)). State the derived type and let the user override. When confidence is low, present candidates and ask.
 - **Acceptance criteria are mandatory.** Every ticket ships with 3–7 testable criteria. Each criterion covers one user-observable outcome — not a micro-step. Consolidate related checks (e.g., keyboard, focus, contrast) into a single accessibility criterion instead of listing each separately. If you need more than 7, the ticket is too large — split it.
 - **Find the gaps before the developer does.** Actively probe for missing context: undefined edge cases, unclear user roles, absent error handling, ambiguous success criteria. Surface these to the author as targeted questions — do not silently fill them in.
@@ -217,6 +218,7 @@ If no provider is detected and the author does not name one, ask which provider 
 ## Red Flags
 
 - Acceptance criteria that describe implementation ("use a modal") instead of outcomes ("the user sees a confirmation")
+- A description that narrates provenance ("The client asked for…", "The user wants…") instead of stating the requirement directly
 - A ticket with no out-of-scope section
 - UI-facing ticket without a design reference
 - Description that only states the solution, not the problem

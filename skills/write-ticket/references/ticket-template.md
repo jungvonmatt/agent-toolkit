@@ -80,6 +80,7 @@ Write all prose in Simplified Technical English (ASD-STE100): one instruction pe
 
 - The title uses an imperative verb, names the object, and gives context. Maximum 12 words.
 - The description answers: who is affected, what is the problem or need, and why it matters. Write from the user's perspective, not the developer's.
+- State the requirement, not its provenance. Write what the system must do, not who requested it. Replace reported speech ("The client asked for a category filter…", "The user wants…", "We need to…") with the direct requirement ("A category filter appears in the filter slide-in of the product listing page.").
 - Acceptance criteria are mandatory. Include 3–7 items: happy-path outcomes, at least one edge-case or error-path criterion, and one accessibility criterion (for UI tickets). Consolidate related checks into a single criterion.
 - Each acceptance criterion is testable by a human or automated test without further clarification.
 - Each acceptance criterion describes an observable outcome, not an implementation detail.

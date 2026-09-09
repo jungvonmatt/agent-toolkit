@@ -4,6 +4,8 @@ Save to `docs/plans/YYYY-MM-DD-<kebab-case-ticket-title>.md` (today's date).
 
 Write all prose in Simplified Technical English (ASD-STE100): one instruction per sentence, ≤ 20 words for procedures and ≤ 25 for descriptions, active voice, imperative for steps, present tense, articles kept, no gerunds, and one term per concept throughout. Code, paths, and commands are written verbatim.
 
+State each requirement directly; do not narrate who requested it. Replace reported speech ("The client asked for a category filter…", "The user wants…") with the direct requirement ("The category filter appears in the filter slide-in of the product listing page.").
+
 ## Structure
 
 ```markdown
