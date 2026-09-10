@@ -113,7 +113,7 @@ interface Emits { /* signatures */ }
 1. Implement (+ story if the project uses one).
 2. Verify manually (Storybook/dev server) against design and edge cases; revisit `[TENTATIVE]` decisions.
 3. Write 3–5 targeted tests (or write them first, TDD, when behavior is well-defined).
-4. Commit: `<type>(scope): <description>`.
+4. Commit: `<type>(scope): <description>`. **Stop before this step when the task ends at a human review gate or changes several files** — leave the change uncommitted, let a developer review the working-tree diff, and commit only after approval.
 
 **Acceptance:**
 - [ ] … (task-specific criteria)
@@ -124,9 +124,12 @@ interface Emits { /* signatures */ }
 ### Checkpoint A — <observable outcome>
 
 > The named, observable result that proves this phase. State exactly what a person sees or runs (a screen renders, a flow works end-to-end). Mark as a human review gate when direction must be confirmed before later phases depend on it.
+>
+> **At a human review gate, pause before the final task's commit.** Keep the change in the working tree (unstaged or staged, not committed) so the reviewer reads a live diff. Commit only after approval; amend or reword when the reviewer asks for changes.
 
 - [ ] <what to observe in the browser / runnable app / passing end-to-end test>
 - [ ] Acceptance criteria proved here: <list>
+- [ ] (Review gate only) Reviewer approved the working-tree diff before the commit
 
 ---
 
@@ -151,5 +154,5 @@ Run the project's a11y / quality checks against all new/modified surfaces and fi
 - Include i18n keys (in the project's key style) when translations are needed.
 - For new endpoints/handlers, include the signature and the context fields used.
 - No arbitrary styling values — use design tokens; add a token-creation task first if one is missing.
-- Each task bundles: implement → verify → test → commit.
+- Each task bundles: implement → verify → test → commit. At a human review gate, or when a task changes several files, the commit waits for a developer's approval so the diff stays in the working tree.
 - List edge cases and fallbacks per task, not just the happy path.

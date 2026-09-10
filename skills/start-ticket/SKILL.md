@@ -140,7 +140,13 @@ Turn the dependency graph from Step 4 into an ordered set of vertical slices **b
 1. **Cut each slice through the stack, not across a layer.** One slice touches the data, the logic, and the surface it needs to make one behavior observable. It ends at a state a person can see or run.
 2. **Group slices into phases.** Each phase bundles the slices that build one demonstrable capability and ends at a **checkpoint** — a named, observable outcome (a screen renders, a flow works end-to-end, the feature is complete). Keep each task small even inside a phase.
 3. **Order by risk, then by dependency.** Put the slice that carries the biggest unknown first, so a wrong assumption fails fast. A slice that only a compiler or a runtime can settle (a shared type, a union that must not break an existing route, an external contract) comes before content or polish that depends on it.
-4. **Mark human review gates.** When a checkpoint needs a person to confirm direction before more work depends on it, label it a review gate in the plan.
+4. **Mark human review gates.** Label a checkpoint a review gate when a person must confirm direction before more work depends on it. Typical triggers:
+   - a first screen or flow sets the visible or UX direction that later tasks build on;
+   - the checkpoint settles a `[TENTATIVE]` decision, a shared type, an API signature, or a data model that later tasks rely on;
+   - the checkpoint proves the riskiest slice;
+   - the ticket asks for a sign-off before work continues.
+
+   Put the pause **before** the commit: the executor stops with the change in the working tree, so the reviewer reads a live diff, not committed history. The commit follows only after the reviewer approves. Apply the same pre-commit pause to **any task that changes several files at once** — a developer reviews the working-tree diff before the commit, even when the task is not a marked gate.
 5. **Map every acceptance criterion to a checkpoint.** Every ticket acceptance criterion must have a named place where a checkpoint proves it. If one has none, the slices are incomplete.
 6. **Size each slice.** Keep every task at Small or Medium — roughly 1–5 files. Split any slice that touches more than 5 files, spans two independent subsystems, or needs more than 3 acceptance-criterion bullets. Follow the sizing rubric in `planning-and-task-breakdown` (XS/S/M/L/XL by file count); an agent implements S and M tasks reliably, L and XL tasks cause rework. A slice that must touch many files is usually two slices — a build step and a wire-up step.
 
