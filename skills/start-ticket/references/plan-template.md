@@ -91,6 +91,7 @@ Task 1 ──→ Task 2 ──→ Task 4
 ## Task 1 — <Short title>
 
 **Files:** `<relative/path>`, `<test path>`, `<story path if applicable>`
+**Size:** S | M  (1–5 files — split anything larger into a build step and a wire-up step)
 **Why:** <1 sentence>
 > **Depends on:** Task N  ← only if applicable
 
@@ -142,6 +143,7 @@ Run the project's a11y / quality checks against all new/modified surfaces and fi
 - **Slice vertically.** Each task cuts through the stack to make one behavior observable; no task is a lone horizontal layer (all types, all services, or all UI).
 - Group tasks into phases; every phase ends at a named checkpoint with an observable outcome.
 - Order slices by risk first, then by dependency — the biggest unknown ships first, so a wrong assumption fails fast.
+- **Keep each task Small or Medium (1–5 files).** Split any task that touches more than 5 files, spans two independent subsystems, or needs more than 3 acceptance-criterion bullets. Use the `planning-and-task-breakdown` sizing rubric (XS/S/M/L/XL by file count).
 - Every ticket acceptance criterion maps to a checkpoint that proves it.
 - Use exact, project-root-relative file paths.
 - **Platform-native first** — native HTML/CSS/browser APIs over libraries, especially for a11y and performance.

@@ -149,6 +149,16 @@ Add these sections only when relevant:
 
 When the work bundles multiple independently shippable outcomes, break it into sub-tickets.
 
+**Split when any of these signals appears** — they measure scope, not implementation:
+
+- The ticket needs more than 7 acceptance criteria to cover the outcome.
+- The title needs "and" to describe what it delivers (a sign of two outcomes).
+- It delivers more than one result a person can demo on its own.
+- It affects two or more unrelated user roles, areas, or systems.
+- No single sentence states the one outcome that proves the ticket is done.
+
+A ticket that a team cannot finish in one focused iteration is an epic — keep the parent as the epic and split the work into child tickets.
+
 Sub-ticket rules:
 
 - Each sub-ticket delivers one complete, demoable result — not just one layer of the work.
@@ -223,6 +233,7 @@ If no provider is detected and the author does not name one, ask which provider 
 - UI-facing ticket without a design reference
 - Description that only states the solution, not the problem
 - Acceptance criteria that cannot be verified by someone who did not write the ticket
+- A ticket that needs more than 7 acceptance criteria, needs "and" in the title, or bundles more than one demoable outcome — split it (Step 6b)
 - Author answers "I don't know" to expected-outcome questions and you proceed anyway
 
 ## Verification
@@ -232,6 +243,7 @@ After the ticket is finalized:
 - [ ] Every fact in the ticket traces to the author's input or an explicit confirmation
 - [ ] At least two acceptance criteria exist: one happy-path, one edge-case
 - [ ] Each acceptance criterion contains an observable verb (shows, returns, prevents, displays)
+- [ ] The ticket delivers one demoable outcome and stays within 7 acceptance criteria — or it is split into sub-tickets (Step 6b)
 - [ ] Out-of-scope names at least one exclusion
 - [ ] UI-facing tickets have a design reference attached
 - [ ] The ticket type is stated with confidence level

@@ -142,6 +142,7 @@ Turn the dependency graph from Step 4 into an ordered set of vertical slices **b
 3. **Order by risk, then by dependency.** Put the slice that carries the biggest unknown first, so a wrong assumption fails fast. A slice that only a compiler or a runtime can settle (a shared type, a union that must not break an existing route, an external contract) comes before content or polish that depends on it.
 4. **Mark human review gates.** When a checkpoint needs a person to confirm direction before more work depends on it, label it a review gate in the plan.
 5. **Map every acceptance criterion to a checkpoint.** Every ticket acceptance criterion must have a named place where a checkpoint proves it. If one has none, the slices are incomplete.
+6. **Size each slice.** Keep every task at Small or Medium — roughly 1–5 files. Split any slice that touches more than 5 files, spans two independent subsystems, or needs more than 3 acceptance-criterion bullets. Follow the sizing rubric in `planning-and-task-breakdown` (XS/S/M/L/XL by file count); an agent implements S and M tasks reliably, L and XL tasks cause rework. A slice that must touch many files is usually two slices — a build step and a wire-up step.
 
 If the ticket bundles several independently-shippable capabilities, load `spec-driven-development` (Phase 0 capability map) and treat each capability as its own phase.
 
@@ -203,6 +204,7 @@ Next step:      execute the plan, starting with Task 1
 - Tasks without edge cases listed or explicitly marked "none applicable"
 - Skipping Step 4b because "the ticket is well-written"
 - A plan that invents requirements not in the ticket without flagging them to the user
+- A task that touches more than 5 files (L or XL in the `planning-and-task-breakdown` rubric) — split it into a build step and a wire-up step
 - More than 8 tasks for a single ticket — the ticket may need splitting
 
 ## Verification
@@ -213,6 +215,7 @@ Before presenting the plan summary:
 - [ ] Every task is a vertical slice that ends in an observable outcome — no task is a lone horizontal layer
 - [ ] Tasks are grouped into phases, and every phase ends at a named checkpoint
 - [ ] The riskiest or most uncertain slice is ordered first
+- [ ] Every task stays at Small or Medium size (≤ 5 files); larger slices are split
 - [ ] Every acceptance criterion maps to a checkpoint that proves it
 - [ ] Every task has edge cases listed or explicitly marked "none applicable"
 - [ ] All decisions are marked `[FIRM]` or `[TENTATIVE]` — no unmarked assumptions
