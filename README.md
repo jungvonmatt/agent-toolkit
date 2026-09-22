@@ -55,6 +55,7 @@ codex plugin add jvm-skills@jvm-skills
 | --- | --- |
 | `write-ticket` | Turns a raw idea, bug report, or feature request into a development-ready ticket — acts as a product coach that finds weak spots, refines requirements with the author, and publishes directly to Jira, GitHub, GitLab, Linear, or Asana. |
 | `start-ticket` | Turns a ticket (Jira, Asana, Linear, GitHub/GitLab Issues) into a ready-to-execute implementation plan — fetches the ticket, pulls design specs, explores the codebase, pressure-tests the requirement, and writes a plan. |
+| `implement` | Executes a `start-ticket` plan task-by-task — builds, tests, and verifies each vertical slice, then pauses for a human to review the working-tree diff before every commit. Add `auto` to run the whole plan in one approved pass. |
 | `pr-description` | Generates a concise PR/MR description in Simplified Technical English from the current branch diff — auto-captures screenshots when UI changes are detected. |
 | `pr-review` | Comprehensive pull request review against a configurable target branch with severity-ranked findings, Jira traceability, accessibility checks, and performance analysis. |
 | `writing-tests` | Auto-invokes when authoring tests — enforces behavior-first, mutation-sensitive tests that query by ARIA role or `data-testid`, never by class name, and cover atomic units first. |
@@ -68,6 +69,7 @@ codex plugin add jvm-skills@jvm-skills
 | --- | --- |
 | `/jvm-skills:write-ticket` | Turn a raw idea into a development-ready ticket |
 | `/jvm-skills:start-ticket` | Fetch a ticket and produce a ready-to-execute plan |
+| `/jvm-skills:implement` | Execute a plan task-by-task, reviewing the working-tree diff before each commit |
 | `/jvm-skills:pr-description` | Generate a PR/MR description from the current branch |
 | `/jvm-skills:review` | Review the current PR/MR for merge readiness |
 | `/jvm-skills:repo-diagnostics` | Run git-based repository diagnostics |

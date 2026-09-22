@@ -219,7 +219,7 @@ Skills used:    <list>
 ADRs:           <list or none>
 Verified:       plan claims checked against the codebase (Step 7b) — <N confirmed, M corrected>
 Open questions: <list or none>
-Next step:      execute the plan, starting with Task 1
+Next step:      execute the plan with the `implement` skill (`/jvm-skills:implement`), starting with Task 1
 ```
 
 ## Common Rationalizations

@@ -11,7 +11,7 @@ State each requirement directly; do not narrate who requested it. Replace report
 ```markdown
 # <Ticket title> — Implementation Plan
 
-> **For the executor:** Use an executing-plans workflow to implement this plan task-by-task.
+> **For the executor:** Use the `implement` skill (`/jvm-skills:implement`) to implement this plan task-by-task. It pauses before each commit for a working-tree review; add `auto` to run the whole plan in one approved pass.
 
 **Ticket:** [<id>](<url>)
 **Goal:** <1–2 sentence summary of what to build and why>
