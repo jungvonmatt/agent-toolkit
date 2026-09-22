@@ -153,6 +153,12 @@ interface Emits { /* signatures */ }
 ## Task N (final) — Verification
 
 Run the project's a11y / quality checks against all new/modified surfaces and fix issues before completing. For UI work, load `a11y-debugging` if available. Confirm the full **Definition of Done** for every task, and every ticket acceptance criterion, before you call the work complete.
+
+---
+
+## Execution log
+
+> The executor (`implement`) appends one line here per ruling it makes in `auto` mode: `Task <N>: <decision> — <why> — <cost if wrong>`. Leave it empty at plan time.
 ```
 
 ## Plan quality rules

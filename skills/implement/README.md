@@ -34,11 +34,12 @@ Run the whole plan in one pass, with a single up-front approval:
 ## What it does
 
 1. Locates the plan under `docs/plans/` and confirms a clean git baseline.
-2. Picks the next pending task, loads its acceptance criteria, files, edge cases, and dependencies.
+2. Picks the next pending task (the first unticked acceptance checkbox in the plan), loads its acceptance criteria, files, edge cases, and dependencies.
 3. Runs a test-driven loop — failing test (RED) → minimum code (GREEN) → full suite → build → runtime check.
 4. Confirms both bars: the task's acceptance criteria and the standing Definition of Done.
 5. **Default mode:** presents a review packet and waits for approval on the working-tree diff, then commits.
-6. Respects the plan's phases, checkpoints, review gates, and `[TENTATIVE]` decisions.
+6. Ticks the task's checkbox in the plan in the same commit, so the plan is a durable ledger that survives context compaction — a resumed run never re-does a finished task.
+7. Respects the plan's phases, checkpoints, review gates, and `[TENTATIVE]` decisions.
 
 ## How it differs from a plain build loop
 
