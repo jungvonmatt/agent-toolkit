@@ -58,6 +58,21 @@ State each requirement directly; do not narrate who requested it. Replace report
 
 ---
 
+## Codebase verification
+
+> From Step 7b. Every concrete identifier below was checked against the actual code before this plan was finalized, so the executor can type it verbatim.
+
+**Confirmed against the code:**
+- `<identifier>` — <where it lives, e.g. `<file>`>
+
+**Corrected (draft → real):**
+- `<wrong name in draft>` → `<real name>` (`<file>`)
+
+**Unresolved (marked `[TENTATIVE]` or routed to the user):**
+- `<identifier>` — <why it could not be grounded>
+
+---
+
 ## Slice map
 
 > Vertical slices ordered by risk, then dependency. Each task is one slice. Each phase ends at an observable checkpoint. See Step 6b.
@@ -156,3 +171,4 @@ Run the project's a11y / quality checks against all new/modified surfaces and fi
 - No arbitrary styling values — use design tokens; add a token-creation task first if one is missing.
 - Each task bundles: implement → verify → test → commit. At a human review gate, or when a task changes several files, the commit waits for a developer's approval so the diff stays in the working tree.
 - List edge cases and fallbacks per task, not just the happy path.
+- **Every concrete identifier is codebase-verified.** Every symbol, attribute, token, schema field, constant, and path the plan names was confirmed against the code (Step 7b), corrected to match it, or marked `[TENTATIVE]`. The executor never has to guess whether a name is real.
