@@ -89,9 +89,12 @@ npx skills add ChromeDevTools/chrome-devtools-mcp
 
 # Web performance skills (Core Web Vitals, loading, interaction, media …)
 npx skills add nucliweb/webperf-snippets
+
+# Alignment skills (grilling, domain modeling …)
+npx skills add mattpocock/skills
 ```
 
-> **`start-ticket`** routes to `planning-and-task-breakdown`, and conditionally to `spec-driven-development`, `doubt-driven-development`, `interview-me`, `security-and-hardening`, and `performance-optimization` from `addyosmani/agent-skills`.
+> **`start-ticket`** routes to `planning-and-task-breakdown`, and conditionally to `spec-driven-development`, `doubt-driven-development`, `interview-me`, `security-and-hardening`, and `performance-optimization` from `addyosmani/agent-skills`. Its stress-test step uses `grill-with-docs` (fallback: `grilling`) from `mattpocock/skills` when present.
 
 ## Recommended Third-Party Sources
 
