@@ -1,9 +1,12 @@
 {
   "name": "@jungvonmatt/agent-toolkit",
   "homepage": "https://jvm.tech",
-  "version": "0.5.1",
+  "version": "1.1.0",
   "description": "Reusable Agent skills, rules, prompts, and workflows for AI-assisted development.",
   "private": true,
+  "scripts": {
+    "test": "node scripts/validate.js"
+  },
   "keywords": [
     "ai",
     "agents",

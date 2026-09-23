@@ -16,6 +16,7 @@ Every contribution should:
 - not include sensitive or proprietary information
 - include clear examples where appropriate
 - have updated relevant documentation
+- pass `npm test` (checks skill frontmatter, links, README tables, and matching versions across all plugin manifests)
 
 ## What Can You Contribute?
 We accept contributions to all areas of the Agent Toolkit.
