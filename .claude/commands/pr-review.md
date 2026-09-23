@@ -1,6 +1,6 @@
 ---
 description: Review the current PR/MR for merge readiness
-argument-hint: "[target branch, defaults to main]"
+argument-hint: "[target branch — required in local mode; PR/MR target comes from the remote] [quick]"
 ---
 
 Invoke the jvm-skills:pr-review skill.

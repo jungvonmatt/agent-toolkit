@@ -1,10 +1,10 @@
 ---
-description: Extract a DESIGN.md from a Figma project
-argument-hint: "<Figma project URL>"
+description: Reverse-engineer a DESIGN.md from any design source
+argument-hint: "<Figma URL, website URL, screenshot path, tokens file, or 'refine'>"
 ---
 
 Invoke the jvm-skills:design-md skill.
 
-Analyze the Figma project URL using the Figma MCP, extract the design language
-(colors, typography, spacing, components), and synthesize a semantic DESIGN.md
-file in the current working directory.
+Extract the design language (colors, typography, spacing, components) from the
+given source — Figma, a live website, a screenshot, or an existing tokens file —
+and synthesize a spec-compliant DESIGN.md in the current working directory.
