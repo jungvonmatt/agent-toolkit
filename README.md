@@ -71,9 +71,9 @@ codex plugin add jvm-skills@jvm-skills
 | `/jvm-skills:start-ticket` | Fetch a ticket and produce a ready-to-execute plan |
 | `/jvm-skills:implement` | Execute a plan task-by-task, reviewing the working-tree diff before each commit |
 | `/jvm-skills:pr-description` | Generate a PR/MR description from the current branch |
-| `/jvm-skills:review` | Review the current PR/MR for merge readiness |
+| `/jvm-skills:pr-review` | Review the current PR/MR for merge readiness |
 | `/jvm-skills:repo-diagnostics` | Run git-based repository diagnostics |
-| `/jvm-skills:design` | Bootstrap the JvM CI 2026 design system into a project |
+| `/jvm-skills:jvm-design` | Bootstrap the JvM CI 2026 design system into a project |
 | `/jvm-skills:design-md` | Reverse-engineer a DESIGN.md from any design source |
 
 ### Companion Skills
