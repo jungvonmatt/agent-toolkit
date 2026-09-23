@@ -1,6 +1,6 @@
 ---
 name: jvm-design
-description: Bootstrap a new project with the Jung von Matt CI 2026 design system — copies DESIGN.md, brand assets, and fonts into the project root so agents can auto-discover them.
+description: Use when a project must adopt the Jung von Matt (JvM) CI 2026 design system, brand assets, or Carloschi fonts, or when asked to set up the JvM DESIGN.md in a project.
 argument-hint: "[path to project root, defaults to ./]"
 ---
 
@@ -14,30 +14,36 @@ You are setting up a project to use the Jung von Matt CI 2026 design system. You
 
 Use the path provided by the user, or default to the current working directory (`./`).
 
-### 2. Copy design resources into the project
+### 2. Check for conflicts
 
-Run the following from the skill directory, substituting `$PROJECT_ROOT` with the target path:
+Before copying, check whether the target already contains `DESIGN.md`, `assets/tokens.css`, `assets/logo.svg`, `assets/horse-green.svg`, `assets/horse-white.svg`, or any `fonts/Carloschi*.woff2`. If any exist, list them and ask the user before overwriting. Existing `assets/` and `fonts/` directories are fine — the copy adds files to them.
+
+### 3. Copy design resources into the project
+
+Set `SKILL_DIR` to the absolute path of the directory that contains this `SKILL.md`, and `PROJECT_ROOT` to the target path:
 
 ```bash
+mkdir -p "$PROJECT_ROOT/assets" "$PROJECT_ROOT/fonts"
+
 # Design system spec — auto-discovered by agents at the project root
-cp DESIGN.md $PROJECT_ROOT/DESIGN.md
+cp "$SKILL_DIR/DESIGN.md" "$PROJECT_ROOT/DESIGN.md"
 
 # Brand assets (tokens CSS, logos)
-cp -r assets $PROJECT_ROOT/assets
+cp "$SKILL_DIR"/assets/* "$PROJECT_ROOT/assets/"
 
-# Font files
-cp -r fonts $PROJECT_ROOT/fonts
+# Font files — tokens.css loads them from ../fonts/
+cp "$SKILL_DIR"/fonts/*.woff2 "$PROJECT_ROOT/fonts/"
 ```
 
-### 3. Verify
+### 4. Verify
 
 Confirm these files exist in the project root:
 - `DESIGN.md` — design system spec with YAML tokens + rationale prose
 - `assets/tokens.css` — CSS custom properties for all tokens + `@font-face` declarations
-- `assets/JvM_Logo.svg`, `assets/horse-green.svg`, `assets/horse-white.svg` — brand assets
+- `assets/logo.svg`, `assets/horse-green.svg`, `assets/horse-white.svg` — brand assets
 - `fonts/Carloschi*.woff2` — all Carloschi weight variants
 
-### 4. Inform the developer
+### 5. Inform the developer
 
 Tell the developer:
 - The design system is now bootstrapped. Agents will read `DESIGN.md` automatically.
@@ -73,5 +79,6 @@ After bootstrapping:
 - [ ] `DESIGN.md` exists in the project root and starts with YAML front matter
 - [ ] `assets/tokens.css` exists and contains `--` custom properties
 - [ ] `fonts/` directory contains at least 4 `.woff2` files
-- [ ] No file was read from the skill directory at runtime — only the project-local copies
+- [ ] No existing project file was overwritten without the user's confirmation
+- [ ] Any follow-up UI work reads the project-local `DESIGN.md`, not the skill copy
 - [ ] The user was informed that the project is now self-contained

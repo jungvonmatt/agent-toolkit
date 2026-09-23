@@ -8,7 +8,7 @@ State each requirement directly; do not narrate who requested it. Replace report
 
 ## Structure
 
-```markdown
+````markdown
 # <Ticket title> — Implementation Plan
 
 > **For the executor:** Use the `implement` skill (`/jvm-skills:implement`) to implement this plan task-by-task. It pauses before each commit for a working-tree review; add `auto` to run the whole plan in one approved pass.
@@ -125,9 +125,9 @@ interface Emits { /* signatures */ }
 - <fallback if the approach doesn't hold>
 
 **Steps:**
-1. Implement (+ story if the project uses one).
-2. Verify manually (Storybook/dev server) against design and edge cases; revisit `[TENTATIVE]` decisions.
-3. Write 3–5 targeted tests (or write them first, TDD, when behavior is well-defined).
+1. Write 3–5 targeted failing tests first when the behavior is well-defined (TDD). For an exploratory UI slice, skip to step 2 and add the tests in step 3.
+2. Implement (+ story if the project uses one) until the tests pass.
+3. Verify manually (Storybook/dev server) against design and edge cases; revisit `[TENTATIVE]` decisions. Add the targeted tests now if step 1 was skipped.
 4. Commit: `<type>(scope): <description>`. **Stop before this step when the task ends at a human review gate or changes several files** — leave the change uncommitted, let a developer review the working-tree diff, and commit only after approval.
 
 **Acceptance:**
@@ -140,7 +140,7 @@ interface Emits { /* signatures */ }
 
 > The named, observable result that proves this phase. State exactly what a person sees or runs (a screen renders, a flow works end-to-end). Mark as a human review gate when direction must be confirmed before later phases depend on it.
 >
-> **At a human review gate, pause before the final task's commit.** Keep the change in the working tree (unstaged or staged, not committed) so the reviewer reads a live diff. Commit only after approval; amend or reword when the reviewer asks for changes.
+> **At a human review gate, pause before the final task's commit.** Keep the change in the working tree (unstaged or staged, not committed) so the reviewer reads a live diff. Commit only after approval. When the reviewer asks for changes, apply them in the working tree and present the diff again.
 
 - [ ] <what to observe in the browser / runnable app / passing end-to-end test>
 - [ ] Acceptance criteria proved here: <list>
@@ -159,7 +159,7 @@ Run the project's a11y / quality checks against all new/modified surfaces and fi
 ## Execution log
 
 > The executor (`implement`) appends one line here per ruling it makes in `auto` mode: `Task <N>: <decision> — <why> — <cost if wrong>`. Leave it empty at plan time.
-```
+````
 
 ## Plan quality rules
 
@@ -175,6 +175,6 @@ Run the project's a11y / quality checks against all new/modified surfaces and fi
 - Include i18n keys (in the project's key style) when translations are needed.
 - For new endpoints/handlers, include the signature and the context fields used.
 - No arbitrary styling values — use design tokens; add a token-creation task first if one is missing.
-- Each task bundles: implement → verify → test → commit. At a human review gate, or when a task changes several files, the commit waits for a developer's approval so the diff stays in the working tree.
+- Each task bundles: test → implement → verify → commit (tests follow verification only for an exploratory UI slice). At a human review gate, or when a task changes several files, the commit waits for a developer's approval so the diff stays in the working tree.
 - List edge cases and fallbacks per task, not just the happy path.
 - **Every concrete identifier is codebase-verified.** Every symbol, attribute, token, schema field, constant, and path the plan names was confirmed against the code (Step 7b), corrected to match it, or marked `[TENTATIVE]`. The executor never has to guess whether a name is real.

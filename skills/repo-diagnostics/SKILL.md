@@ -1,6 +1,6 @@
 ---
 name: repo-diagnostics
-description: Run git-based diagnostics on a repository before reading any code. Reveals churn hotspots, bus factor, bug-clustering, commit velocity, and crisis patterns. Use this when starting work on an unfamiliar codebase, onboarding to a repo, or auditing technical health.
+description: Use when starting work on an unfamiliar codebase, onboarding to a repository, or auditing its technical health before reading any code, or when asked which files change or break most often, who knows the code (bus factor), or how commit velocity develops.
 argument-hint: "[path to repo or leave blank for current directory]"
 ---
 
@@ -64,7 +64,7 @@ Revert and hotfix frequency over the past year. A handful is normal. Reverts eve
 
 If the repository contains `package.json`, `tsconfig.json`, or `jsconfig.json`, run fallow for deeper code-level insights that git logs cannot reveal.
 
-Skip this step entirely for non-JS/TS repos. If fallow is not installed, note it as unavailable and continue to synthesis — do not install it automatically.
+Skip this step entirely for non-JS/TS repos. Fallow does not need to be pre-installed: `npx` fetches it into its cache on demand and it only reads the repository. Always run the commands. If a command itself fails (registry unreachable, invalid output), note code health as `unavailable — <exact reason>` and continue to synthesis.
 
 ### 6a. Dead code and unused dependencies
 
@@ -77,7 +77,7 @@ Identify unused files, exports, types, and dependencies. Cross-reference against
 ### 6b. Circular dependencies
 
 ```bash
-npx fallow health --circular --format json --quiet
+npx fallow dead-code --circular-deps --format json --quiet
 ```
 
 Circular dependency chains that git history cannot detect. Each cycle is a coupling risk — changes to one module ripple unpredictably through the ring.

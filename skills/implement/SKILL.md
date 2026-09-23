@@ -1,6 +1,6 @@
 ---
 name: implement
-description: Use when executing a ready-to-execute implementation plan (from start-ticket, under docs/plans/) task-by-task — builds, tests, and verifies each vertical slice, then pauses for a human to review the working-tree diff before every commit. Add "auto" to run the whole plan in one approved pass.
+description: Use when executing an implementation plan under docs/plans/ (for example one written by start-ticket), or when asked to implement the next planned task or the whole plan ("auto").
 ---
 
 # Implement
@@ -34,14 +34,15 @@ The argument selects the mode. Treat `auto` (canonical) or `all` as autonomous m
 
 The plan file under `docs/plans/` is the durable record of progress — not the chat, whose context can compact mid-run and lose the place. Re-dispatching an already-finished task is the most expensive failure in a long run, so read the ledger before you act and write it as you go.
 
-- **Resume from the plan.** At the start of every run, read the plan and find the first task whose acceptance checkbox is not ticked. That is the next task. Never re-run a task whose checkbox is already ticked — its commit is the proof it is done.
-- **Mark completion in the plan.** When a task passes its bars and is approved, tick its acceptance checkbox (and its checkpoint box when the checkpoint is reached) **in the same commit as the task's work**. The tick plus the commit are the two halves of the record: the plan says *what* is done, the commit is the *evidence*.
+- **A task's acceptance checkboxes** are all `- [ ]` items under its **Acceptance** heading. A task is complete only when every one of them is ticked; it is pending while any is unticked.
+- **Resume from the plan.** At the start of every run, read the plan and find the first task with an unticked acceptance checkbox. That is the next task. Never re-run a task whose acceptance checkboxes are all ticked — its commit is the proof it is done.
+- **Mark completion in the plan.** When a task passes its bars and is approved, tick its acceptance checkboxes (and its checkpoint box when the checkpoint is reached) **in the same commit as the task's work**. The tick plus the commit are the two halves of the record: the plan says *what* is done, the commit is the *evidence*.
 - **The commit is the evidence, the plan is the index.** One commit per task backs each ticked box. Do not rely on `git log` alone to know what is done — it has no task mapping; the plan's checkboxes carry that.
 - **Record rulings in the plan.** In `auto` mode, when you settle an ambiguity yourself, append one line to the plan's `## Execution log`: `Task <N>: <decision> — <why> — <cost if wrong>`. If the plan has no such section, add it at the end.
 
 ## Default: one task, human gate before the commit
 
-Read the plan and pick the first task whose acceptance checkbox is not ticked. Then:
+Read the plan and pick the first task with an unticked acceptance checkbox. Before you start, run `git status --porcelain`. If uncommitted changes exist that are not the plan file itself, stop and ask the user to commit, stash, or confirm how to handle them — the task's commit must contain only the task's work. Then:
 
 1. **Read the task.** Load its acceptance criteria, its `Files` list, its `Edge cases & fallbacks`, and any `Depends on` note. Confirm every dependency task is already complete.
 2. **Load context.** Read the existing code, patterns, and types the task builds on. Follow the closest precedent the plan cites rather than inventing a new pattern.
@@ -58,7 +59,7 @@ Read the plan and pick the first task whose acceptance checkbox is not ticked. T
 
    Then stop and let the reviewer read the live diff in their own tool. Wait for an explicit response.
 9. **Act on the review.**
-   - **Approved** → tick the task's acceptance checkbox in the plan, then commit the task's work and that tick together (`<type>(scope): <description>`), and stop.
+   - **Approved** → tick the task's acceptance checkboxes in the plan, then commit the task's work and those ticks together (`<type>(scope): <description>`), and stop.
    - **Changes requested** → apply them in the working tree, re-verify (steps 5–7), and return to the gate. Do not commit until approved.
 10. **Stop.** One task per invocation. Report the task done and name the next pending task (the next unticked box in the plan).
 
@@ -69,7 +70,7 @@ Use this when the plan is trusted and you want to collapse the run into one pass
 1. **Require a plan.** Locate the plan under `docs/plans/` (the newest matching one, or the plan the argument names). If none exists, stop and tell the user to run `start-ticket` first — do not invent requirements.
 2. **Establish a clean baseline.** Run `git status --porcelain`. If uncommitted changes exist that are not the plan file itself, stop and ask the user to commit, stash, or confirm how to handle them. Per-task commits must not absorb unrelated local work, or the clean-rollback guarantee breaks.
 3. **Single checkpoint.** Present the plan's task list and wait for an unambiguous affirmative (`approve`, `go`, `yes`). Treat a hedged reply (`looks reasonable`, `I guess`) as **not** approved. This is the only routine human gate — after approval, run autonomously.
-4. **Execute every task in order.** Use each task's `Depends on` note for order; otherwise follow the plan's task order. Skip any task whose acceptance checkbox is already ticked — resume at the first unticked one. For each task, run the full default loop above (steps 1–7), then tick its acceptance checkbox and commit the work plus that tick per task **without pausing for review** — stage only the files that task touched plus the plan's tick (never `git add -A` blindly), and make one commit per task so any point is a clean rollback.
+4. **Execute every task in order.** Use each task's `Depends on` note for order; otherwise follow the plan's task order. Skip any task whose acceptance checkboxes are all ticked — resume at the first task with an unticked one. For each task, run the full default loop above (steps 1–7), then tick its acceptance checkboxes and commit the work plus that tick per task **without pausing for review** — stage only the files that task touched plus the plan's tick (never `git add -A` blindly), and make one commit per task so any point is a clean rollback.
 5. **Still pause before the commit** at:
    - a checkpoint the plan marks as a **human review gate**,
    - any task the plan flags as changing several files where the plan asks for a working-tree review,
@@ -117,7 +118,7 @@ Load only what the task needs, and only skills present in the workspace. Each de
 
 - A commit made before the human gate in default mode
 - `git add -A` staging files the task did not touch
-- Re-running a task whose acceptance checkbox is already ticked in the plan
+- Re-running a task whose acceptance checkboxes are all ticked in the plan
 - A task marked done in the plan with no commit backing it, or a commit with no ticked box
 - Starting a task whose `Depends on` task is not yet complete
 - A task marked done with no test that fails without the change
@@ -132,12 +133,12 @@ Before you call a task done:
 
 - [ ] Every dependency task is complete
 - [ ] The task's acceptance criteria are all met
-- [ ] A new test fails without the change and passes with it
+- [ ] A new test fails without the change and passes with it (written first, or right after manual verification for an exploratory UI slice)
 - [ ] The full test suite passes and the build succeeds
 - [ ] The behavior is verified at runtime, not only compiled
 - [ ] The task's edge cases are handled or explicitly marked "none applicable"
 - [ ] The Definition of Done (Correctness + Quality at minimum) is cleared
 - [ ] The change stays scoped to the task — no unrelated refactor
 - [ ] (Default mode) The reviewer approved the working-tree diff **before** the commit
-- [ ] The commit stages only the files this task touched, plus the plan's ticked checkbox
-- [ ] The task's acceptance checkbox is ticked in the plan, in the same commit as its work
+- [ ] The commit stages only the files this task touched, plus the plan's ticked checkboxes
+- [ ] The task's acceptance checkboxes are ticked in the plan, in the same commit as its work

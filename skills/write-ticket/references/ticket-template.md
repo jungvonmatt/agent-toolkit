@@ -58,7 +58,7 @@ Write all prose in Simplified Technical English (ASD-STE100): one instruction pe
 
 ### Sub-tasks (if applicable)
 
-> For vertical-slice breakdowns, use separate sub-tickets (see SKILL.md Step 5b) instead of this checklist. Use this checklist only for small, same-ticket work items.
+> For vertical-slice breakdowns, use separate sub-tickets (see SKILL.md Step 6b) instead of this checklist. Use this checklist only for small, same-ticket work items.
 
 - [ ] <Sub-task 1>
 - [ ] <Sub-task 2>

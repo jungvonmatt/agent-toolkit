@@ -1,6 +1,6 @@
 ---
 name: write-ticket
-description: Use when writing, refining, or structuring a ticket for project management — interviews the author to find weak spots in the requirements, then produces a development-ready ticket in Simplified Technical English with auto-derived type, acceptance criteria, and everything a developer needs to start work.
+description: Use when writing, refining, or structuring a ticket, issue, user story, or bug report for Jira, Linear, GitHub Issues, GitLab Issues, or Asana, or when a raw idea, bug report, or meeting notes must be turned into a development-ready ticket.
 ---
 
 # Write Ticket
@@ -194,6 +194,8 @@ If any check fails, point out the gap and propose a fix. Iterate until the autho
 
 ### 9. Publish the ticket
 
+Publishing writes to a shared system. Before you create anything, name the target (provider, project or repo) and list the ticket and any sub-tickets you will create. Wait for an explicit confirmation (`publish`, `yes`). Treat a hedged reply as **not** confirmed.
+
 Use the provider detected in Step 3. Try each method in order and stop at the first one that works:
 
 1. **MCP tools** — Atlassian MCP for Jira, GitHub MCP for GitHub Issues, Linear MCP for Linear, Asana MCP for Asana.
@@ -205,7 +207,7 @@ Provider-specific mapping:
 | Provider | Tool / CLI | Key fields |
 |---|---|---|
 | **Jira** | Atlassian MCP `createJiraIssue` | project, issueType, summary, description, priority, labels, components |
-| **GitHub** | GitHub MCP `create_issue` or `gh issue create` | repo, title, body, labels |
+| **GitHub** | GitHub MCP `issue_write` or `gh issue create` | repo, title, body, labels |
 | **GitLab** | `glab issue create` | title, description, labels |
 | **Linear** | Linear MCP | team, title, description, priority, labels |
 | **Asana** | Asana MCP | project, name, notes, tags |
@@ -223,7 +225,7 @@ If no provider is detected and the author does not name one, ask which provider 
 | "No need to check scope — it's obvious" | Scope creep is the #1 cause of ticket re-scoping mid-sprint. Name the boundary. |
 | "Design reference can come later" | UI tickets without design refs produce implementation guesses that need rework. |
 | "The author knows what they mean" | If the author can't explain it to you, a developer won't understand it either. Ask. |
-| "This is too small for acceptance criteria" | Small tickets with vague criteria cause the most back-and-forth. Two criteria minimum. |
+| "This is too small for acceptance criteria" | Small tickets with vague criteria cause the most back-and-forth. Three criteria minimum. |
 
 ## Red Flags
 
@@ -241,7 +243,7 @@ If no provider is detected and the author does not name one, ask which provider 
 After the ticket is finalized:
 
 - [ ] Every fact in the ticket traces to the author's input or an explicit confirmation
-- [ ] At least two acceptance criteria exist: one happy-path, one edge-case
+- [ ] 3–7 acceptance criteria exist, including at least one happy-path and one edge-case or error-path criterion
 - [ ] Each acceptance criterion contains an observable verb (shows, returns, prevents, displays)
 - [ ] The ticket delivers one demoable outcome and stays within 7 acceptance criteria — or it is split into sub-tickets (Step 6b)
 - [ ] Out-of-scope names at least one exclusion

@@ -4,12 +4,12 @@ Write all prose in Simplified Technical English (ASD-STE100): one idea per sente
 
 ## Structure
 
-Wrap the entire output in a single fenced code block (` ```markdown `).
+Wrap the entire output in a single fenced code block opened with four backticks (` ````markdown `), so code blocks inside the description stay intact.
 
 When a project PR/MR template exists, use its structure instead of this default. Adapt sections and checklist to match the project's conventions.
 
+`````markdown
 ````markdown
-```markdown
 ## Description
 
 <!-- 2–5 sentences: summarize what changed, why, and the user-facing effect. Reference ticket if one exists. The reviewer has the diff — do not list files or repeat code-level details. -->
@@ -34,15 +34,16 @@ _UI changed. Paste before/after screenshots here._
 
 ## Checklist
 
-- [x] No secrets, tokens, or credentials in committed code
-- [x] No unresolved debugging artifacts (`console.log`, `debugger`)
-- [x] TypeScript and linting stay enabled (disabling has a justification)
-- [x] Tests cover new or changed logic
-- [x] No sensitive data is exposed
-- [x] New dependencies are intentional and license-compatible
-- [ ] <Unchecked items include a brief note explaining the gap>
-```
+<!-- Tick an item only when the diff proves it. Leave it unticked with a short note otherwise. -->
+
+- [ ] No secrets, tokens, or credentials in committed code
+- [ ] No unresolved debugging artifacts (`console.log`, `debugger`)
+- [ ] TypeScript and linting stay enabled (disabling has a justification)
+- [ ] Tests cover new or changed logic
+- [ ] No sensitive data is exposed
+- [ ] New dependencies are intentional and license-compatible
 ````
+`````
 
 ## Rules
 

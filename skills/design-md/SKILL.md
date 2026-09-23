@@ -1,6 +1,6 @@
 ---
 name: design-md
-description: "Reverse-engineer a design system from any source — Figma file, live website, screenshot, or existing tokens — and produce a spec-compliant DESIGN.md with tiered tokens. Follows the DESIGN.md spec from google-labs-code/design.md."
+description: "Use when creating or refining a DESIGN.md, or when a design system must be extracted from a Figma file, live website, screenshot, or existing tokens file for use by agents."
 argument-hint: "[Figma URL, website URL, screenshot path, or 'refine' to update an existing DESIGN.md]"
 ---
 
@@ -179,7 +179,7 @@ Iterate until the user confirms.
 
 After the DESIGN.md is finalized, make sure it is consumed — not just written.
 
-**a) Register in agent config**
+#### 7a. Register in agent config
 
 Check for agent instruction files in the workspace. If one exists, verify it references `DESIGN.md`. If not, add a reference.
 
@@ -192,7 +192,7 @@ Check for agent instruction files in the workspace. If one exists, verify it ref
 
 Only touch the first agent config file found. Do not create one if none exists — suggest the user creates one instead. Ask before modifying.
 
-**b) Export tokens to the framework**
+#### 7b. Export tokens to the framework
 
 If the project uses a CSS framework, export the tokens so they are enforced at the code level — not just in the prompt:
 
@@ -211,7 +211,7 @@ Choose the format that matches the project's stack. If the project already has a
 
 If the export CLI is not available, skip this step and note that the user can export manually.
 
-**c) Add a design guard note**
+#### 7c. Add a design guard note
 
 Add this instruction to the DESIGN.md prose (at the end of the Overview section):
 

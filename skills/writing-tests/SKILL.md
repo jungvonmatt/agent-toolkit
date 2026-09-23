@@ -1,6 +1,6 @@
 ---
 name: writing-tests
-description: Use when writing, reviewing, or refactoring any automated test — unit, component, or integration. Kicks in automatically whenever you author a test file (*.test.*, *.spec.*) or a component test. Enforces behavior-first, mutation-sensitive tests that query by ARIA role or label, never by class name.
+description: Use when writing, reviewing, or refactoring any automated test — unit, component, or integration — including whenever a test file (*.test.*, *.spec.*) or a component test is authored or changed.
 ---
 
 # Writing Tests

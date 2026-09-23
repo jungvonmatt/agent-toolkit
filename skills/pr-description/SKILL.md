@@ -1,6 +1,6 @@
 ---
 name: pr-description
-description: Generate a pull/merge request description in plain Markdown, ready to paste into GitHub/GitLab/Bitbucket. Writes concise, human-readable prose in Simplified Technical English — no AI slop.
+description: Use when writing or updating a pull request or merge request description for the current branch, for GitHub, GitLab, or Bitbucket.
 ---
 
 # PR Description
@@ -22,14 +22,20 @@ Generate a clear, structured pull/merge request description from the current bra
 
 Collect the full picture before writing anything:
 
+Resolve the target branch first. Use the branch the user names; otherwise use the remote default branch:
+
 ```bash
-git rev-parse --abbrev-ref HEAD
-git log --oneline $(git merge-base HEAD main)..HEAD
-git diff --stat $(git merge-base HEAD main)..HEAD
-git diff $(git merge-base HEAD main)..HEAD
+git symbolic-ref --short refs/remotes/origin/HEAD   # e.g. origin/main
 ```
 
-Adjust the target branch (`main`, `develop`, `master`) to match the repository default. If the target is ambiguous, check the remote default or ask the user.
+If neither resolves, ask the user. Then collect the changes against `<target>`:
+
+```bash
+git rev-parse --abbrev-ref HEAD
+git log --oneline $(git merge-base HEAD <target>)..HEAD
+git diff --stat $(git merge-base HEAD <target>)..HEAD
+git diff $(git merge-base HEAD <target>)..HEAD
+```
 
 Extract context from:
 
@@ -91,7 +97,7 @@ Mark checklist items as unchecked when validation fails and add a brief note.
 
 ### 7. Output
 
-Wrap the entire Markdown output in a single fenced code block (` ```markdown `) so the user can copy it as raw source. Do not include explanation before or after the code block.
+Wrap the entire Markdown output in a single fenced code block opened with four backticks (` ````markdown `) so inner code blocks in the description do not close it early. Do not include explanation before or after the code block.
 
 ## Common Rationalizations
 

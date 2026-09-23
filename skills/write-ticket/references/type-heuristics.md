@@ -25,8 +25,8 @@ Derive the ticket type from the user's input. Apply the first rule that matches.
 After deriving the type, assess whether the work fits a single ticket:
 
 - If the input bundles **multiple independently shippable outcomes**, split into separate tickets and declare blocking edges between them.
-- If the work spans **more than one vertical slice** (schema + API + UI + tests), break it into sub-tickets using the vertical-slicing rules in `SKILL.md` Step 5b.
-- A single ticket should be completable in **one focused session** (a few hours to a day). If it feels larger, it is an epic or needs splitting.
+- If the work delivers **more than one demoable outcome**, break it into sub-tickets using the vertical-slicing rules in `SKILL.md` Step 6b. Each sub-ticket is one vertical slice through all the layers it needs.
+- A single ticket should be completable in **one focused iteration**. If it feels larger, it is an epic or needs splitting.
 
 When you split, flag the split to the user and explain the rationale.
 
