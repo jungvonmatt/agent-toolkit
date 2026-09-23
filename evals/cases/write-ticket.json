@@ -1,0 +1,16 @@
+{
+  "skill_name": "write-ticket",
+  "trigger": {
+    "positive": [
+      { "prompt": "Turn this into a Jira ticket: the checkout button stays disabled after the user corrects an invalid postcode." },
+      { "prompt": "Can you help me write a user story for a wishlist feature on the product detail page?" },
+      { "prompt": "Here are my notes from the refinement meeting, please turn them into a GitHub issue." },
+      { "prompt": "The acceptance criteria in PROJ-481 are too vague, help me rewrite the ticket." },
+      { "prompt": "Schreib mir bitte ein Ticket für den Bug: Filter werden beim Seitenwechsel zurückgesetzt.", "lexical": false }
+    ],
+    "negative": [
+      { "prompt": "Let's start working on PROJ-1234 and plan the implementation.", "owner": "start-ticket" },
+      { "prompt": "Write a PRD for the new loyalty program." }
+    ]
+  }
+}

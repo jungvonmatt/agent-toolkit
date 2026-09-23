@@ -1,0 +1,15 @@
+{
+  "skill_name": "implement",
+  "trigger": {
+    "positive": [
+      { "prompt": "Implement the next task from docs/plans/2026-09-20-wishlist.md." },
+      { "prompt": "Run the whole implementation plan in auto mode." },
+      { "prompt": "Continue with the plan, task 3 is next." },
+      { "prompt": "Execute the implementation plan we wrote yesterday." }
+    ],
+    "negative": [
+      { "prompt": "Here's the Linear issue ENG-42. Figure out what needs to change in the codebase before we write any code.", "owner": "start-ticket" },
+      { "prompt": "Commit these changes with a good message." }
+    ]
+  }
+}

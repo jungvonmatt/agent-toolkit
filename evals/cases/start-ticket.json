@@ -1,0 +1,15 @@
+{
+  "skill_name": "start-ticket",
+  "trigger": {
+    "positive": [
+      { "prompt": "Let's start working on PROJ-1234." },
+      { "prompt": "Pick up https://github.com/acme/shop/issues/88 and plan how to implement it." },
+      { "prompt": "Here's the Linear issue ENG-42. Figure out what needs to change in the codebase before we write any code." },
+      { "prompt": "Ich fange mit LEV-658 an, erstell mir einen Plan.", "lexical": false }
+    ],
+    "negative": [
+      { "prompt": "Turn this into a Jira ticket: the checkout button stays disabled after the user corrects an invalid postcode.", "owner": "write-ticket" },
+      { "prompt": "Implement the next task from docs/plans/2026-09-20-wishlist.md.", "owner": "implement" }
+    ]
+  }
+}

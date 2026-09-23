@@ -16,7 +16,9 @@ Every contribution should:
 - not include sensitive or proprietary information
 - include clear examples where appropriate
 - have updated relevant documentation
-- pass `npm test` (checks skill frontmatter, links, README tables, and matching versions across all plugin manifests)
+- pass `npm test` (checks skill frontmatter, links, README tables, matching versions across all plugin manifests, and keyword-based skill routing)
+- ship a routing case file for every new skill in `evals/cases/<skill>.json` with at least 3 positive and 2 negative prompts
+- run `npm run eval:model` (GitHub Copilot CLI; `-- --runner claude` for Claude Code) after changing a skill description, and compare with `npm run eval:model -- --ref origin/main`
 
 ## What Can You Contribute?
 We accept contributions to all areas of the Agent Toolkit.

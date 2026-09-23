@@ -1,0 +1,15 @@
+{
+  "skill_name": "pr-description",
+  "trigger": {
+    "positive": [
+      { "prompt": "Write the PR description for this branch." },
+      { "prompt": "Generate a merge request description I can paste into GitLab." },
+      { "prompt": "I pushed two more commits, update the pull request description." },
+      { "prompt": "Schreib eine Beschreibung für meinen Merge Request.", "lexical": false }
+    ],
+    "negative": [
+      { "prompt": "Review this PR before I merge it.", "owner": "pr-review" },
+      { "prompt": "Commit these changes with a good message." }
+    ]
+  }
+}

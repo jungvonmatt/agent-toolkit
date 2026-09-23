@@ -1,0 +1,16 @@
+{
+  "skill_name": "design-md",
+  "trigger": {
+    "positive": [
+      { "prompt": "Create a DESIGN.md from https://www.figma.com/design/abc123/Shop" },
+      { "prompt": "Extract the design system from https://example.com into a DESIGN.md." },
+      { "prompt": "Here's a screenshot of our app. Document its design tokens so agents can reuse them." },
+      { "prompt": "Our Tailwind config holds all the tokens, turn it into a DESIGN.md." },
+      { "prompt": "The button colors changed, refine the DESIGN.md." }
+    ],
+    "negative": [
+      { "prompt": "Set up the JvM design system in this new project.", "owner": "jvm-design" },
+      { "prompt": "Bump vite to the latest version." }
+    ]
+  }
+}

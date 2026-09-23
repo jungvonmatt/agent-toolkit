@@ -5,7 +5,8 @@
   "description": "Reusable Agent skills, rules, prompts, and workflows for AI-assisted development.",
   "private": true,
   "scripts": {
-    "test": "node scripts/validate.js"
+    "test": "node scripts/validate.js && node scripts/run-evals.js --min-rank1 85",
+    "eval:model": "node scripts/run-evals.js --runner copilot"
   },
   "keywords": [
     "ai",

@@ -1,0 +1,15 @@
+{
+  "skill_name": "pr-review",
+  "trigger": {
+    "positive": [
+      { "prompt": "Review this PR before I merge it." },
+      { "prompt": "Is merge request !312 ready to merge?" },
+      { "prompt": "Check my local branch against develop for regressions and accessibility issues before I open a PR." },
+      { "prompt": "Kannst du den PR #57 reviewen?", "lexical": false }
+    ],
+    "negative": [
+      { "prompt": "Write the PR description for this branch.", "owner": "pr-description" },
+      { "prompt": "Refactor the price formatter to remove the duplication." }
+    ]
+  }
+}

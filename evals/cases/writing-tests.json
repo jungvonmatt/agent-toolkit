@@ -1,0 +1,15 @@
+{
+  "skill_name": "writing-tests",
+  "trigger": {
+    "positive": [
+      { "prompt": "Add tests for the useCart composable." },
+      { "prompt": "This spec file finds buttons by class name, can you clean up the test?" },
+      { "prompt": "Write a Vitest component test for the newsletter signup form." },
+      { "prompt": "Checkout.test.ts asserts on wrapper.vm internals, please rewrite it." }
+    ],
+    "negative": [
+      { "prompt": "Refactor the price formatter to remove the duplication." },
+      { "prompt": "The dev server crashes on startup, find out why." }
+    ]
+  }
+}

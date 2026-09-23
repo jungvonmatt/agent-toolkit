@@ -1,0 +1,15 @@
+{
+  "skill_name": "repo-diagnostics",
+  "trigger": {
+    "positive": [
+      { "prompt": "I just joined this project. Before I read any code, show me where the risky parts of the codebase are." },
+      { "prompt": "Who knows this codebase best, and are they still active? I worry about the bus factor." },
+      { "prompt": "Which files change the most and attract the most bug fixes?" },
+      { "prompt": "Mach mal eine Health-Analyse von diesem Repo.", "lexical": false }
+    ],
+    "negative": [
+      { "prompt": "What does the useCart composable return?" },
+      { "prompt": "Review this PR before I merge it.", "owner": "pr-review" }
+    ]
+  }
+}

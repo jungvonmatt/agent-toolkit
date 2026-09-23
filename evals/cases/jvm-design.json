@@ -1,0 +1,14 @@
+{
+  "skill_name": "jvm-design",
+  "trigger": {
+    "positive": [
+      { "prompt": "Set up the JvM design system in this new project." },
+      { "prompt": "We need the Jung von Matt brand fonts and tokens in this repo." },
+      { "prompt": "Build a landing page in the Jung von Matt CI." }
+    ],
+    "negative": [
+      { "prompt": "Create a DESIGN.md from https://www.figma.com/design/abc123/Shop", "owner": "design-md" },
+      { "prompt": "Build a responsive product card component." }
+    ]
+  }
+}

@@ -42,8 +42,8 @@ function parseScalar(raw) {
 }
 
 // Minimal parser for the flat `key: value` frontmatter used here; rejects what real YAML would reject.
-function frontmatter(file) {
-  const match = read(file).match(/^---\r?\n([\s\S]*?)\r?\n---\r?\n/);
+function frontmatter(file, text = read(file)) {
+  const match = text.match(/^---\r?\n([\s\S]*?)\r?\n---\r?\n/);
   if (!match) return fail(file, 'missing frontmatter block');
 
   const data = {};
@@ -88,6 +88,37 @@ function checkSkillPaths(file, skillDir) {
   const text = stripFences(read(file));
   for (const match of text.matchAll(/`((?:references|assets|examples|fonts|scripts)\/[^`\s*?{}$<>]+)`/g)) {
     if (!fs.existsSync(path.join(skillDir, match[1]))) fail(file, `missing file "${match[1]}"`, lineAt(text, match.index));
+  }
+}
+
+function checkMarkdown(file) {
+  const text = read(file);
+  const prose = stripFences(text).replace(/`[^`\n]*`/g, (span) => ' '.repeat(span.length));
+  for (const match of prose.matchAll(/\\u[0-9a-fA-F]{4}/g)) {
+    fail(file, `literal escape "${match[0]}" in prose`, lineAt(prose, match.index));
+  }
+
+  // A closing fence uses the same character, is at least as long, and has no info string.
+  let open = null;
+  for (const [i, line] of text.split('\n').entries()) {
+    const fence = line.match(/^[ \t]*(`{3,}|~{3,})(.*)$/);
+    if (!fence) continue;
+    if (!open) open = { marker: fence[1], line: i + 1 };
+    else if (fence[1][0] === open.marker[0] && fence[1].length >= open.marker.length && !fence[2].trim()) open = null;
+  }
+  if (open) fail(file, `code fence "${open.marker}" is never closed`, open.line);
+}
+
+// Headings like `### 4b. Title` or `## Step 1 — Title` define the step numbers a skill can reference.
+function stepHeadings(skillFile) {
+  const text = stripFences(read(skillFile));
+  return new Set([...text.matchAll(/^#{2,4} (?:Step )?(\d+[a-z]?)[.\s]/gm)].map((match) => match[1]));
+}
+
+function checkStepRefs(file, steps) {
+  const text = read(file);
+  for (const match of text.matchAll(/\bSteps? (\d+[a-z]?)\b/g)) {
+    if (!steps.has(match[1])) fail(file, `"${match[0]}" does not match any step heading in SKILL.md`, lineAt(text, match.index));
   }
 }
 
@@ -154,11 +185,15 @@ function checkSkills() {
       if (data.name !== entry.name) fail(skillFile, `name "${data.name}" must match directory "${entry.name}"`);
       if (!data.description) fail(skillFile, 'description is required');
       else if (data.description.length > 1024) fail(skillFile, `description is ${data.description.length} characters (max 1024)`);
+      else if (!/^Use when\b/.test(data.description)) fail(skillFile, 'description must start with "Use when" and state triggers, not the workflow');
     }
 
+    const steps = stepHeadings(skillFile);
     for (const file of walk(skillDir, '.md')) {
       checkLinks(file);
       checkSkillPaths(file, skillDir);
+      checkMarkdown(file);
+      checkStepRefs(file, steps);
     }
   }
   return names;
@@ -176,6 +211,7 @@ function checkCommands(pluginName, skills) {
     const data = frontmatter(file);
     if (data && !data.description) fail(file, 'description is required');
     checkLinks(file);
+    checkMarkdown(file);
     if (pluginName) checkSkillRefs(file, pluginName, skills);
   }
 }
@@ -183,23 +219,41 @@ function checkCommands(pluginName, skills) {
 function checkReadme(pluginName, skills) {
   const file = path.join(root, 'README.md');
   checkLinks(file);
+  checkMarkdown(file);
   checkLinks(path.join(root, 'CONTRIBUTING.md'));
+  checkMarkdown(path.join(root, 'CONTRIBUTING.md'));
   if (pluginName) checkSkillRefs(file, pluginName, skills);
 
-  const section = read(file).split(/^## Skills[ \t]*$/m)[1]?.split(/^#{1,3} /m)[0];
+  const text = read(file);
+  const commandSection = text.split(/^### Commands\b.*$/m)[1]?.split(/^#{1,3} /m)[0];
+  if (!commandSection) fail(file, 'missing "### Commands" section');
+  else {
+    const listed = [...commandSection.matchAll(/^\|\s*`\/[\w-]+:([a-z0-9-]+)`\s*\|/gm)].map((match) => match[1]);
+    const commands = walk(path.join(root, '.claude', 'commands'), '.md').map((command) => path.basename(command, '.md'));
+    for (const command of commands) if (!listed.includes(command)) fail(file, `command "${command}" is missing from the Commands table`);
+    for (const command of listed) if (!commands.includes(command)) fail(file, `Commands table lists "${command}" but .claude/commands/${command}.md does not exist`);
+  }
+
+  const section = text.split(/^## Skills[ \t]*$/m)[1]?.split(/^#{1,3} /m)[0];
   if (!section) return fail(file, 'missing "## Skills" section');
   const listed = [...section.matchAll(/^\|\s*`([a-z0-9-]+)`\s*\|/gm)].map((match) => match[1]);
   for (const skill of skills) if (!listed.includes(skill)) fail(file, `skill "${skill}" is missing from the Skills table`);
   for (const skill of listed) if (!skills.includes(skill)) fail(file, `Skills table lists unknown skill "${skill}"`);
 }
 
-const pluginName = checkManifests();
-const skills = checkSkills();
-checkCommands(pluginName, skills);
-checkReadme(pluginName, skills);
+function main() {
+  const pluginName = checkManifests();
+  const skills = checkSkills();
+  checkCommands(pluginName, skills);
+  checkReadme(pluginName, skills);
 
-if (errors.length) {
-  console.error(`✖ ${errors.length} problem${errors.length === 1 ? '' : 's'}:\n${errors.map((error) => `  ${error}`).join('\n')}`);
-  process.exit(1);
+  if (errors.length) {
+    console.error(`✖ ${errors.length} problem${errors.length === 1 ? '' : 's'}:\n${errors.map((error) => `  ${error}`).join('\n')}`);
+    process.exit(1);
+  }
+  console.log(`✔ ${skills.length} skills, commands, docs, and manifests are valid`);
 }
-console.log(`✔ ${skills.length} skills, commands, docs, and manifests are valid`);
+
+if (require.main === module) main();
+
+module.exports = { frontmatter };
