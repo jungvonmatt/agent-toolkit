@@ -19,6 +19,7 @@ Every contribution should:
 - pass `npm test` (checks skill frontmatter, links, README tables, matching versions across all plugin manifests, and keyword-based skill routing)
 - ship a routing case file for every new skill in `evals/cases/<skill>.json` with at least 3 positive and 2 negative prompts (optional per prompt: `"with": ["<skill>"]` for skills that must load alongside, `"lexical": false` for prompts the keyword check cannot match, e.g. non-English or implicit asks)
 - run `npm run eval:model` (GitHub Copilot CLI; `-- --runner claude` for Claude Code) after changing a skill description, and compare with `npm run eval:model -- --ref origin/main`
+- optionally run `npm run eval:behavior` (Claude Code 2.1.273+, costs roughly $1–2 per full run) to check that a skill fires inside a real task; cases live in `evals/plugin/<case>/` as `prompt.md` plus `graders/*.md`
 
 ## What Can You Contribute?
 We accept contributions to all areas of the Agent Toolkit.

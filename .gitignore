@@ -5,6 +5,7 @@ node_modules/
 coverage/
 *.lcov
 .nyc_output
+evals/results/
 
 # Production
 build/
