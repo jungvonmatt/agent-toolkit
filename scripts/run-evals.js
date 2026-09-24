@@ -61,9 +61,10 @@ function loadCases() {
 }
 
 // Coverage and schema problems, shared by both tiers.
-function checkCases(skills, cases) {
+function checkCases(skills, cases, catalog) {
   const problems = [];
   const own = new Set(skills.map((s) => s.name));
+  const known = new Set(catalog.map((s) => s.name));
   for (const s of skills) {
     if (!cases.some((c) => c.file === `${s.name}.json`)) problems.push(`${s.name}: no case file (evals/cases/${s.name}.json)`);
   }
@@ -82,6 +83,12 @@ function checkCases(skills, cases) {
     }
     for (const t of [...positive, ...negative]) {
       if (typeof t.prompt !== 'string' || !t.prompt.trim()) problems.push(`${c.file}: every trigger needs a non-empty "prompt"`);
+    }
+    for (const t of positive) {
+      if (t.with === undefined) continue;
+      if (!Array.isArray(t.with) || t.with.some((name) => !known.has(name) || name === skill)) {
+        problems.push(`${c.file}: "with" must list other skills from the catalog, got ${JSON.stringify(t.with)}`);
+      }
     }
     for (const t of negative) {
       // Owners point at our own skills only; third-party distractors are never asserted on.
@@ -166,7 +173,7 @@ function rank(prompt, corpus) {
 function runLexical({ catalog, skills, cases, minRank1, only }) {
   const corpus = buildCorpus(catalog);
   const own = new Set(skills.map((s) => s.name));
-  const errors = checkCases(skills, cases);
+  const errors = checkCases(skills, cases, catalog);
   const warnings = [];
   let passed = 0;
   let positives = 0;
@@ -189,7 +196,14 @@ function runLexical({ catalog, skills, cases, minRank1, only }) {
       if (idx === 0 && ranking[0].score > 0) rank1++;
       if (ranking[idx].score === 0) errors.push(`${skill}: shares no vocabulary with "${t.prompt}"`);
       else if (idx >= TOP_K) errors.push(`${skill}: ranked #${idx + 1} (need top ${TOP_K}) for "${t.prompt}" — top: ${top3(ranking)}`);
-      else passed++;
+      else {
+        const missing = (t.with ?? []).filter((name) => {
+          const i = ranking.findIndex((r) => r.name === name);
+          return i >= TOP_K || ranking[i].score === 0;
+        });
+        if (missing.length) errors.push(`${skill}: ${missing.join(', ')} not in top ${TOP_K} alongside it for "${t.prompt}" — top: ${top3(ranking)}`);
+        else passed++;
+      }
     }
 
     for (const t of c.data.trigger?.negative ?? []) {
@@ -234,7 +248,7 @@ function runLexical({ catalog, skills, cases, minRank1, only }) {
 
   for (const e of errors) console.log(`  ✗  ${e}`);
   for (const w of warnings) console.log(`  ⚠  ${w}`);
-  console.log(`\n${passed} trigger checks passed — ${errors.length} error(s), ${warnings.length} warning(s), ${skipped} non-English prompt(s) skipped`);
+  console.log(`\n${passed} trigger checks passed — ${errors.length} error(s), ${warnings.length} warning(s), ${skipped} keyword-exempt prompt(s) skipped`);
   console.log(`rank-1 rate: ${rate.toFixed(0)}% (${rank1}/${positives} positive prompts rank their skill first)`);
   return errors.length ? 1 : 0;
 }
@@ -292,7 +306,7 @@ async function pool(items, limit, fn) {
 }
 
 async function runModel({ catalog, skills, cases, runner, model, runs, concurrency, minPass, only }) {
-  const problems = checkCases(skills, cases);
+  const problems = checkCases(skills, cases, catalog);
   if (problems.length) {
     for (const p of problems) console.log(`  ✗  ${p}`);
     return 1;
@@ -335,7 +349,9 @@ async function runModel({ catalog, skills, cases, runner, model, runs, concurren
     fs.rmSync(cwd, { recursive: true, force: true });
   }
 
-  const passes = (t, picks) => Array.isArray(picks) && (t.kind === 'positive' ? picks.includes(t.skill) : !picks.includes(t.skill));
+  const passes = (t, picks) =>
+    Array.isArray(picks) &&
+    (t.kind === 'positive' ? [t.skill, ...(t.with ?? [])].every((name) => picks.includes(name)) : !picks.includes(t.skill));
   const bySkill = new Map();
   let passedRuns = 0;
   const failures = [];

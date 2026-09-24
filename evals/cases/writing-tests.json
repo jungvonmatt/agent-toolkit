@@ -5,7 +5,11 @@
       { "prompt": "Add tests for the useCart composable." },
       { "prompt": "This spec file finds buttons by class name, can you clean up the test?" },
       { "prompt": "Write a Vitest component test for the newsletter signup form." },
-      { "prompt": "Checkout.test.ts asserts on wrapper.vm internals, please rewrite it." }
+      { "prompt": "Checkout.test.ts asserts on wrapper.vm internals, please rewrite it." },
+      { "prompt": "Fix the cart total rounding bug test-first.", "with": ["test-driven-development"] },
+      { "prompt": "Write a failing test that reproduces the login redirect bug, then fix it.", "with": ["test-driven-development"] },
+      { "prompt": "Fix the rounding bug in splitCents and make sure it can't regress.", "lexical": false },
+      { "prompt": "Add a coupon code field to the checkout form and cover its edge cases.", "lexical": false }
     ],
     "negative": [
       { "prompt": "Refactor the price formatter to remove the duplication." },
