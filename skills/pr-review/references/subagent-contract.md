@@ -60,8 +60,10 @@ deduplicate and merge mechanically:
   symbol: <function/class/identifier, or null>
   axis: correctness | architecture | tests | security | performance | a11y | code-health
   evidence: precise, quoted or referenced proof from the diff or source
+  repro: <P0/P1 only — how to show it fails: failing input, request, test, or steps; else null>
   recommendation: one practical fix direction
   confidence: confirmed | static-inference | measured | unverified
+  looked: <for unverified only — where you searched; else null>
 ```
 
 If your scope produced no findings, return one status line instead:

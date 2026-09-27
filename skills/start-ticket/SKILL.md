@@ -210,16 +210,16 @@ Skip for trivial tickets (copy tweaks, config bumps).
 
 ### 9. Summarize
 
-Output compactly:
+Output compactly. Lead with what the user must answer or decide, so it is read first:
 
 ```text
+Open questions: <list or none>
 Ticket:         <id> — <title>
 Plan:           <path>
 Tasks:          N (+ final verification task)
 Skills used:    <list>
 ADRs:           <list or none>
 Verified:       plan claims checked against the codebase (Step 7b) — <N confirmed, M corrected>
-Open questions: <list or none>
 Next step:      execute the plan with the `implement` skill (`/jvm-skills:implement`), starting with Task 1
 ```
 

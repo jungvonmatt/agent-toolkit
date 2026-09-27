@@ -309,17 +309,22 @@ Quick mode skips this step and records runtime as `skipped — quick mode`.
 #### 6. Aggregate specialist findings
 
 Collect the findings returned by every specialist and merge them mechanically —
-do not re-derive or re-review their scopes:
+do not re-derive or re-review their scopes; only spot-check blocking evidence
+(step 3):
 
 1. **Deduplicate** by `(file, line, symbol)`. When two specialists report the
    same location, keep one entry and record both axes on it.
 2. **Confirm status coverage.** Every applicable specialist must have returned
    `findings`, `passed`, `skipped — <reason>`, or `unavailable — <reason>`. A
    missing status is a blocker, not a silent pass.
-3. **Reconcile with runtime evidence.** Where a static finding was confirmed or
+3. **Check the evidence of every P0 and P1.** Before a blocking finding enters
+   the verdict, open the cited `file:line` yourself and confirm the evidence
+   says what the specialist claims. Downgrade to `unverified` or drop it when it
+   does not hold. Lower severities pass through unchecked.
+4. **Reconcile with runtime evidence.** Where a static finding was confirmed or
    refuted by the runtime pass, upgrade its confidence and note the measured
    evidence.
-4. **Order** the merged set P0 to P3. Do not let one axis's volume of nits bury
+5. **Order** the merged set P0 to P3. Do not let one axis's volume of nits bury
    another axis's real finding; a few high-severity findings lead.
 
 #### 7. Report
@@ -377,6 +382,7 @@ After the review is complete:
 - [ ] Every applicable specialist ran (as a subagent) or is documented as `skipped`/`unavailable — <reason>`
 - [ ] Every specialist was dispatched with the read-only contract and context packet, and returned a status
 - [ ] Findings were deduplicated by `(file, line, symbol)` and ordered P0 to P3
+- [ ] The evidence of every P0/P1 finding was checked at its cited location before the verdict
 - [ ] All findings have severity, location, and a concrete suggestion
 - [ ] Runtime ran (Option A or B) or is recorded as `skipped`/`unavailable — <reason>`
 - [ ] The verdict follows precedence: Blocked > Needs changes > Unverified > Ready

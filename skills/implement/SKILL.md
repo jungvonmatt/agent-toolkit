@@ -53,9 +53,9 @@ Read the plan and pick the first task with an unticked acceptance checkbox. Befo
 7. **Confirm both bars:** every task acceptance criterion is met, and the Definition of Done (Correctness + Quality at minimum) is cleared.
 8. **Pause before the commit — the human gate.** Leave every change in the working tree (staged or unstaged, **not committed**). Present a concise review packet — follow [`references/review-packet.md`](references/review-packet.md):
    - the task title and its acceptance criteria,
+   - anything that needs a decision (a resolved `[TENTATIVE]`, a deviation from the plan, an edge case handled differently) — first, so the reviewer sees it before the detail,
    - the files touched and a one-line summary of each change,
-   - the test result and build result,
-   - anything that needs a decision (a resolved `[TENTATIVE]`, a deviation from the plan, an edge case handled differently).
+   - the test result and build result.
 
    Then stop and let the reviewer read the live diff in their own tool. Wait for an explicit response.
 9. **Act on the review.**
@@ -70,7 +70,7 @@ Use this when the plan is trusted and you want to collapse the run into one pass
 1. **Require a plan.** Locate the plan under `docs/plans/` (the newest matching one, or the plan the argument names). If none exists, stop and tell the user to run `start-ticket` first — do not invent requirements.
 2. **Establish a clean baseline.** Run `git status --porcelain`. If uncommitted changes exist that are not the plan file itself, stop and ask the user to commit, stash, or confirm how to handle them. Per-task commits must not absorb unrelated local work, or the clean-rollback guarantee breaks.
 3. **Single checkpoint.** Present the plan's task list and wait for an unambiguous affirmative (`approve`, `go`, `yes`). Treat a hedged reply (`looks reasonable`, `I guess`) as **not** approved. This is the only routine human gate — after approval, run autonomously.
-4. **Execute every task in order.** Use each task's `Depends on` note for order; otherwise follow the plan's task order. Skip any task whose acceptance checkboxes are all ticked — resume at the first task with an unticked one. For each task, run the full default loop above (steps 1–7), then tick its acceptance checkboxes and commit the work plus that tick per task **without pausing for review** — stage only the files that task touched plus the plan's tick (never `git add -A` blindly), and make one commit per task so any point is a clean rollback.
+4. **Execute every task in order.** Use each task's `Depends on` note for order; otherwise follow the plan's task order. Skip any task whose acceptance checkboxes are all ticked — resume at the first task with an unticked one. For each task, run the full default loop above (steps 1–7), then tick its acceptance checkboxes and commit the work plus that tick per task **without pausing for review** — stage only the files that task touched plus the plan's tick (never `git add -A` blindly), and make one commit per task so any point is a clean rollback. Between tasks, do not stop to report: no summary that names the next task without starting it, no "Want me to continue?", no list of options that block nothing. Put the status note in the same message as the next action.
 5. **Still pause before the commit** at:
    - a checkpoint the plan marks as a **human review gate**,
    - any task the plan flags as changing several files where the plan asks for a working-tree review,
@@ -83,7 +83,10 @@ Use this when the plan is trusted and you want to collapse the run into one pass
 
    After the user resolves a blocker, they re-invoke `/implement auto` — it reads the plan and resumes at the first unticked task.
 7. **Verify each checkpoint.** At each phase checkpoint, confirm the observable outcome the plan names actually holds before moving to the next phase.
-8. **Summarize at the end:** tasks completed, tests added, commits made, checkpoints reached, and anything skipped, flagged, or left for the user.
+8. **Summarize at the end** under three headings, in this order:
+   - **Blocked on you** — open decisions, approvals, and blockers the user must resolve (or `none`),
+   - **Changed** — tasks completed, commits made, tests added, checkpoints reached,
+   - **Found** — anything skipped, flagged, or discovered outside the plan's scope.
 
 ## Why the gate is before the commit
 

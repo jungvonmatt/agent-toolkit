@@ -11,6 +11,11 @@ Keep the packet short. It orients the reviewer; it is not a report.
 ```markdown
 ### Review — Task <N>: <title>
 
+**Needs a decision:** (omit when nothing is open)
+- Resolved `[TENTATIVE]`: <decision> → <what was chosen and why>
+- Deviation from the plan: <what and why>
+- Edge case handled differently: <what and why>
+
 **Acceptance criteria** (the bar for this task):
 - [ ] <criterion 1>
 - [ ] <criterion 2>
@@ -24,11 +29,6 @@ Keep the packet short. It orients the reviewer; it is not a report.
 - Suite: <pass / N passed, 0 failed>
 - Build: <pass / fail>
 - Runtime: <what was checked and where — dev server, Storybook, the command>
-
-**Needs a decision:** (omit when nothing is open)
-- Resolved `[TENTATIVE]`: <decision> → <what was chosen and why>
-- Deviation from the plan: <what and why>
-- Edge case handled differently: <what and why>
 
 **Proposed commit:** `<type>(scope): <description>`
 

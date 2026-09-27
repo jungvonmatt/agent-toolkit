@@ -24,8 +24,9 @@ For each finding:
 - `Title`: short and specific
 - `Evidence`: precise file and line reference, plus runtime evidence when relevant
 - `Impact`: what can break and for whom
+- `Repro` (P0/P1 only): how to show it fails — a failing input, request, test, or step sequence
 - `Recommendation`: practical fix direction
-- `Confidence`: confirmed | static inference | measured | unverified
+- `Confidence`: confirmed | static inference | measured | unverified — for `unverified`, say where you looked
 
 Report findings in severity order. Do not invent findings to fill a category.
 

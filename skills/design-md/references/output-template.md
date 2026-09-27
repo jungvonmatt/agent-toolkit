@@ -157,5 +157,6 @@ components:
 - Prose names colors by their semantic role (`primary`), not their primitive name (`blue-600`) or appearance (`blue`). Include hex for human reference.
 - The Overview section names a concrete reference point, not adjectives. "A high-end furniture showroom catalog" > "modern, clean, premium".
 - Do's and Don'ts are directly derived from what you observed, not generic best practices.
+- Also rule out, by name, common agent default styles the source does **not** use — for example a cream or off-white background, italic accent words in headings, numbered "01 / 02 / 03" section labels, monospace labels, or pill-shaped buttons. A general "avoid a generic look" only swaps one default for another; a named list works. Never ban a pattern the source actually uses.
 - Sections appear in the canonical order. Omitted sections use the `omitted` YAML key with a reason.
 - After writing, validate with `npx @google/design.md lint DESIGN.md`.
