@@ -12,7 +12,7 @@ there. Use `NNNN-kebab-title.md` only when the directory is empty.
 ```md
 # {Decision, stated as a claim}
 
-**Status:** Proposed | Accepted | Superseded by {ADR}
+**Status:** Proposed | Accepted | Deprecated | Superseded by {ADR}
 **Date:** {YYYY-MM-DD}
 **Ticket:** {link}
 
@@ -31,6 +31,9 @@ there. Use `NNNN-kebab-title.md` only when the directory is empty.
 
 Keep `Status`, `Consequences` and `Rejected alternatives` only when they carry weight. A
 one-paragraph ADR is a valid ADR.
+
+Never edit an accepted ADR. Write a new one and set the old one's status to
+`Superseded by {ADR}`.
 
 ## Sentence contract
 

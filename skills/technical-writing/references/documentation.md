@@ -84,7 +84,13 @@ Follow [Keep a Changelog](https://keepachangelog.com/en/1.1.0/): `CHANGELOG.md`,
 
 ### ADR
 
-Follow the project's ADR template when one exists. Otherwise use [Michael Nygard's format](https://cognitect.com/blog/2011/11/15/documenting-architecture-decisions): a numbered title, Status (proposed, accepted, deprecated, superseded), Context (the facts and forces, stated neutrally), Decision ("We will …"), and Consequences (the negative ones too). Keep it to one or two pages. Supersede an accepted ADR with a new one instead of editing it.
+Follow the project's ADR template when one exists, else the ADR template of the `start-ticket` skill when it is installed. Otherwise extend [Michael Nygard's format](https://cognitect.com/blog/2011/11/15/documenting-architecture-decisions):
+
+- **Header:** a title that states the decision as a claim, then Status (Proposed, Accepted, Deprecated, Superseded by ADR-NNNN), Date, and a link to the ticket or PR. The number goes in the filename, such as `docs/adr/0007-page-the-export-api.md`.
+- **Body:** Context (the facts and constraints, stated neutrally), Decision, Consequences (the costs too), and Rejected alternatives (each with the constraint that ruled it out).
+- **Sentences:** the system is the subject, not "we". Back each rationale with a constraint the reader can check: a repository fact, an API contract, or a dated measurement.
+
+A one-paragraph ADR is valid. Supersede an accepted ADR with a new one; never edit it.
 
 ## Checklist
 

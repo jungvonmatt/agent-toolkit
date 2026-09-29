@@ -29,7 +29,7 @@ Read the neighbouring docs and comments first. Match their language, terminology
 
 ## 3. Draft with the core rules
 
-Every branch applies these rules. The branch reference adds its own and may relax a number.
+Every branch applies these rules. The branch reference adds its own, may relax a number, and may set the voice of a doc-comment summary.
 
 1. **Lead with the point.** The first sentence of every document, section, paragraph, and comment carries its main message: bottom line up front. Background follows only when the reader needs it.
 2. **One idea per sentence.** Keep sentences short: at most 20 words in an instruction, 25 in a description. Split a long sentence at "and", "which", or a semicolon.
