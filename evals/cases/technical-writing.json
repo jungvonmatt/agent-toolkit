@@ -1,0 +1,24 @@
+{
+  "skill_name": "technical-writing",
+  "trigger": {
+    "positive": [
+      { "prompt": "Add JSDoc to the exported functions in src/utils/price.ts." },
+      { "prompt": "The comments in useCheckout.ts are way too long, clean them up." },
+      { "prompt": "Write a README for this package." },
+      { "prompt": "Document the deployment process for new developers." },
+      { "prompt": "Write Python docstrings for the ingestion module." },
+      { "prompt": "Draft a technical blog post about how we cut our Nuxt build time in half." },
+      { "prompt": "Add KDoc to the public classes of the payment SDK." },
+      { "prompt": "Update the changelog for the 2.4.0 release." },
+      { "prompt": "Schreib eine Anleitung, wie man das Projekt lokal aufsetzt.", "lexical": false },
+      { "prompt": "Explain in the code why we retry the payment call three times.", "lexical": false }
+    ],
+    "negative": [
+      { "prompt": "Write the PR description for this branch.", "owner": "pr-description" },
+      { "prompt": "Turn this idea into a Jira ticket.", "owner": "write-ticket" },
+      { "prompt": "Add tests for the useCart composable.", "owner": "writing-tests" },
+      { "prompt": "Add the lint command to CLAUDE.md." },
+      { "prompt": "Refactor the price formatter to remove the duplication." }
+    ]
+  }
+}
