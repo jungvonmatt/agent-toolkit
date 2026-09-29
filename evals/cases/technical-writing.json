@@ -18,7 +18,8 @@
       { "prompt": "Turn this idea into a Jira ticket.", "owner": "write-ticket" },
       { "prompt": "Add tests for the useCart composable.", "owner": "writing-tests" },
       { "prompt": "Add the lint command to CLAUDE.md." },
-      { "prompt": "Refactor the price formatter to remove the duplication." }
+      { "prompt": "Refactor the price formatter to remove the duplication." },
+      { "prompt": "Fix the off-by-one error in the pagination helper." }
     ]
   }
 }
