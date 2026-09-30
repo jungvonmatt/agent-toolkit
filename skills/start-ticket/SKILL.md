@@ -58,6 +58,7 @@ Establish the stack from repo evidence, not assumption, and adopt the matching e
 - Existing agent context: `AGENTS.md`, `CLAUDE.md`, `CONTEXT.md`, `README.md`, `docs/adr/`
 - An existing project Definition of Done (in the files above, a `references/` checklist, or `docs/`) — reuse it if present; otherwise the baseline in [`references/definition-of-done.md`](references/definition-of-done.md) applies
 - Design-token / theme source, i18n locale files, test setup
+- Browser support policy for web UI: `browserslist` (in `package.json` or `.browserslistrc`) or a policy stated in the agent context files; else Baseline Widely available
 
 Record the plan output directory: `docs/plans/` if it exists, otherwise ask before creating one.
 
@@ -110,7 +111,7 @@ Load only what the ticket type requires, and only skills that exist in the works
 | Challenging assumptions / weighing a different approach | `spec-driven-development` (assumption-surfacing), `doubt-driven-development` |
 | Underspecified ticket (no clear acceptance criteria) | `interview-me` |
 | Ticket bundling several independently-shippable capabilities | `spec-driven-development` (Phase 0 capability map) |
-| HTML/CSS/client-side JS | `modern-web-guidance` (invoke as a search tool — do not read its `SKILL.md`) |
+| HTML/CSS/client-side JS | `modern-web-guidance` — run its `search` → `retrieve` flow for the planned UI patterns; record the guide IDs per task in the plan |
 | UI / new component | the project's framework skill (Vue → `vue` / `nuxt`; React → `vercel-react-best-practices`), `web-design-guidelines` |
 | React / Next.js performance or data fetching | `vercel-react-best-practices` |
 | React component API design (prop proliferation, compound components, render props, context) | `vercel-composition-patterns` |
