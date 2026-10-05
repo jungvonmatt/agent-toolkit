@@ -241,6 +241,7 @@ Then list the skipped PRs with the reason (including "untrusted"), the PRs that 
 | Start the app on a port in use | The review checks the wrong code, or stops your own dev server | Use a free port, and only stop what you started |
 | Review the full diff with the full bar in every round | Smaller and smaller comments block the merge | P2 only in the delta after round 1 |
 | Count a merge of the target branch as a round | Rounds run out without a real change | Changes from the target branch are not part of the delta |
+| Review every file of the PR diff when the base of the PR is old | Changes that reached the target branch through other PRs (for example squash merges) get reviewed and commented again. The file list of GitHub and GitLab shows them too. | Leave out the commits that `git cherry` marks with `-` |
 | Run lint and tests that CI already ran | Slow runs | Step 4 uses the CI results first |
 | Keep a crashed run's lock forever | No PR gets reviewed again | The lock is a lease: a stale lock is taken over after 90 minutes |
 | Match duplicates on the line number | The same finding comes back after a rebase | Match on file, symbol, and problem |
