@@ -274,15 +274,18 @@ function routerPrompt(catalog, request) {
   ].join('\n\n');
 }
 
+// Keep the end of each stream on its own, so a long stdout cannot push the stderr error out of the message.
+const tail = (text) => text.trim().split('\n').slice(-3).join(' ');
+
 function callRunner(runner, model, prompt, cwd) {
   const [cmd, args] = RUNNERS[runner](prompt, model);
   return new Promise((resolve, reject) => {
     const child = execFile(cmd, args, { cwd, encoding: 'utf8', timeout: RUNNER_TIMEOUT_MS, maxBuffer: 4 * 1024 * 1024 }, (error, stdout, stderr) => {
-      if (error) reject(new Error(`${cmd} failed: ${(`${stderr}\n${stdout}`.trim() || error.message).split('\n').slice(-3).join(' ')}`));
+      if (error) reject(new Error(`${cmd} failed: ${[stderr, stdout].map(tail).filter(Boolean).join(' | ') || error.message}`));
       else resolve(stdout);
     });
     // The prompt goes in as an argument. An open stdin makes `claude -p` wait 3 s and print a warning that hid the real error.
-    child.stdin.end();
+    child.stdin?.end();
   });
 }
 
