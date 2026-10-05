@@ -67,6 +67,8 @@ git archive "$head_sha" | docker run --rm -i "${limits[@]}" --network none --use
 - **`pnpm` on the `PATH`.** Package scripts often call `pnpm` directly. `corepack enable --install-directory` puts it on the `PATH` without root, from the pnpm that the download phase cached.
 - **Install scripts only without network.** The offline install runs the install scripts of the dependencies and the `prepare` or `postinstall` script of the project. They cannot write to the cache, so a hostile PR cannot change the packages that later runs use.
 
+- **Tests that need a browser or the network.** Browser test projects (for example Storybook with Playwright) and code that fetches at test time (for example web fonts) fail without network. When the broad test script fails only for that reason, run the narrower scripts that do not need it (for example `test:run:nuxt`), and record the rest as "unavailable". A failure in the tests themselves is still a failure.
+
 ### 3. Never weaken the container
 
 - Give it no credentials: no `-e` with a token, no mount of the home folder, `.ssh`, the git folder, or the Docker socket.
