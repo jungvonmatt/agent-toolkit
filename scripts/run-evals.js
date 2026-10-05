@@ -277,10 +277,12 @@ function routerPrompt(catalog, request) {
 function callRunner(runner, model, prompt, cwd) {
   const [cmd, args] = RUNNERS[runner](prompt, model);
   return new Promise((resolve, reject) => {
-    execFile(cmd, args, { cwd, encoding: 'utf8', timeout: RUNNER_TIMEOUT_MS, maxBuffer: 4 * 1024 * 1024 }, (error, stdout, stderr) => {
-      if (error) reject(new Error(`${cmd} failed: ${(stderr || stdout || error.message).trim().split('\n').slice(-3).join(' ')}`));
+    const child = execFile(cmd, args, { cwd, encoding: 'utf8', timeout: RUNNER_TIMEOUT_MS, maxBuffer: 4 * 1024 * 1024 }, (error, stdout, stderr) => {
+      if (error) reject(new Error(`${cmd} failed: ${(`${stderr}\n${stdout}`.trim() || error.message).split('\n').slice(-3).join(' ')}`));
       else resolve(stdout);
     });
+    // The prompt goes in as an argument. An open stdin makes `claude -p` wait 3 s and print a warning that hid the real error.
+    child.stdin.end();
   });
 }
 
