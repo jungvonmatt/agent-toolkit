@@ -43,15 +43,23 @@ The caller can override a setting with an argument, for example `max_rounds=3`.
 1. Get the project facts in one shell call. Do not name a variable `path`: in zsh, `path` is tied to `PATH`.
 
    ```bash
-   rest=$(git config --get remote.origin.url | sed -E 's#^[a-z+]+://##; s#^[^@/]+@##; s#^altssh\.##')
-   proj_host=${rest%%[:/]*}
-   proj_path=$(printf %s "$rest" | sed -E 's#^[^:/]+[:/]([0-9]+/)?##; s#\.git$##')
+   url=$(git config --get remote.origin.url)
+   rest=$(printf %s "$url" | sed -E 's#^[a-z+]+://##; s#^[^@/]+@##; s#^altssh\.##')
+   case "$url" in
+     http://*|https://*) proj_host=${rest%%/*}; tail=${rest#*/} ;;
+     *://*) proj_host=${rest%%[:/]*}; tail=$(printf %s "${rest#"$proj_host"}" | sed -E 's#^(:[0-9]+)?/##') ;;
+     *) proj_host=${rest%%:*}; tail=${rest#*:} ;;
+   esac
+   proj_path=${tail%.git}
    proj_enc=$(printf %s "$proj_path" | sed 's#/#%2F#g')
    proj_key=$(printf %s "$proj_host/$proj_path" | sed 's#/#%2F#g')
    echo "$proj_host $proj_path $proj_enc $proj_key"
    ```
 
-   `git@gitlab.com:group/sub/repo.git` gives the host `gitlab.com`, the path `group/sub/repo`, and the key `gitlab.com%2Fgroup%2Fsub%2Frepo`. The key encodes only `/`, and `%` cannot occur in a host or a repository path, so two repositories never get the same key.
+   - `git@gitlab.com:group/sub/repo.git` gives the host `gitlab.com`, the path `group/sub/repo`, and the key `gitlab.com%2Fgroup%2Fsub%2Frepo`.
+   - An HTTP(S) remote keeps an explicit port in the host (`https://gitlab.example.com:8443/group/repo` gives `gitlab.example.com:8443`), because it is the port of the web and API host.
+   - An `ssh://` remote drops its port, because that port belongs to SSH.
+   - The key encodes only `/`, and `%` cannot occur in a host or a repository path, so two repositories never get the same key.
 2. Get the provider from the host: GitHub for `github.com`, GitLab when the host contains `gitlab`. For any other host, stop and report the remote.
 3. Use only the commands of this provider. They are in `references/providers.md`. Always pass the project path explicitly. Do not rely on the CLI to find the project from the remote.
 4. Get the account that this run posts with ("Current user" in `references/providers.md`).
@@ -78,7 +86,7 @@ The state folder is `${XDG_STATE_HOME:-$HOME/.local/state}/scheduled-pr-review/`
 
 - If the `project` field is not `<host>/<project path>` of this repository, stop and report it. Do not write to the file.
 - Write the file atomically: write a temporary file in the same folder, then rename it.
-- If a PR has no entry, rebuild the entry from the markers of step 6. Use only comments by the current user. `rounds` is the highest marker round, and `last_reviewed_sha` is the sha of that marker. A PR without markers starts at round 1.
+- If a PR has no entry, rebuild the entry from the markers of step 6. Use only comments by the current user. A marker proves that one comment was posted, not that its round finished. So set `rounds` to the highest marker round minus 1, add the marked findings as posted, and leave `last_reviewed_sha` empty. The run then reviews the head again, and the duplicate check stops a second copy of the posted comments. A PR without markers starts at round 1.
 
 ## Run lock
 
@@ -189,7 +197,9 @@ Create a fresh temporary worktree at the head SHA with hooks disabled: `git -c c
 
 Also hold back a finding when one of these conditions is true:
 
-- It matches a stored finding, or an existing comment on the PR (inline comments, general comments, and review bodies) from any author, bots included, open or resolved. Match on file, symbol, and problem, not on the line number, because lines move.
+- It matches a stored finding with `posted: true`, or an existing comment on the PR (inline comments, general comments, and review bodies) from any author, bots included, open or resolved. Match on file, symbol, and problem, not on the line number, because lines move.
+
+A stored finding with `posted: false` does not block anything. Evaluate it again in every round, because a later commit can move its line into the delta.
 - It only repeats a failed CI check. CI already shows the failure to the author.
 
 Every finding that you hold back goes into the report with the reason. Nothing gets lost: the reader of the report can still post it by hand.
