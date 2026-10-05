@@ -4,9 +4,9 @@ Runs one unattended first-pass review over all open pull requests (GitHub) or me
 
 - It reviews only PRs with new commits, and only after CI has finished. It skips drafts, bot PRs, and stale PRs, and it reviews at most 5 PRs in one run.
 - After round 1, it posts minor findings only on lines that changed since the last round. Serious findings always get through.
-- It uses the CI results for lint, format, typecheck, unit tests, and build, and runs a check locally only when CI did not run it.
+- It uses the CI results for lint, format, typecheck, unit tests, and build. It runs a check only when CI did not run it, and then only in a container without credentials, because the code of a PR can be hostile.
 - It never posts the same finding twice, also when a teammate or another bot found it first.
-- It keeps its state in one file for each project, so runs for different projects never overwrite each other.
+- It keeps its state in one file for each project, so runs for different projects never overwrite each other. A run lock stops two runs for the same project from posting the same finding.
 
 The actual review is done by [`pr-review`](../pr-review/README.md) in quick mode.
 
@@ -16,7 +16,7 @@ The actual review is done by [`pr-review`](../pr-review/README.md) in quick mode
 npx skills add jungvonmatt/agent-toolkit/skills/scheduled-pr-review --global
 ```
 
-It needs `pr-review` from the same toolkit, and the `gh` CLI (GitHub) or the `glab` CLI (GitLab), signed in.
+It needs `pr-review` from the same toolkit, `jq`, and the `gh` CLI (GitHub) or the `glab` CLI (GitLab), signed in. For checks that CI does not run, it needs Docker (or a compatible runtime such as OrbStack). Without it, those checks are reported as "not run".
 
 ## Usage
 
@@ -41,6 +41,7 @@ Override a setting in the invocation:
 | `max_age` | 30 days | Skip a PR when its head commit is older than this. |
 | `include_bots` | false | Review PRs that a bot opened, for example dependency updates. |
 | `include_own` | true | Review PRs that the current user opened. |
+| `local_checks` | `container` | Where checks run that CI did not run: `container` or `off`. |
 
 ### As a scheduled task
 
@@ -50,12 +51,12 @@ Create a scheduled task in the repository (for example every 2 hours) with this 
 Use the jvm-skills:scheduled-pr-review skill.
 ```
 
-Start the task once by hand before you enable the schedule. Then you can approve the tools it needs (git, `gh` or `glab`, the package manager, and writes to `~/.local/state/scheduled-pr-review/`), and later runs do not stop at a permission prompt.
+Start the task once by hand before you enable the schedule. Then you can approve the tools it needs (git, `gh` or `glab`, `jq`, `docker`, and writes to `~/.local/state/scheduled-pr-review/`), and later runs do not stop at a permission prompt.
 
 ## What it changes
 
 - Inline comments on the PRs, for P0 to P2 findings only. Each comment ends with a hidden `scheduled-pr-review` marker.
-- The state file `${XDG_STATE_HOME:-$HOME/.local/state}/scheduled-pr-review/<project key>.json`.
+- The state file `${XDG_STATE_HOME:-$HOME/.local/state}/scheduled-pr-review/<project key>.json`, and a lock folder next to it while a run works.
 
 It adds no labels, assignments, approvals, or merges, and it never commits or pushes. The run report stays in the run.
 

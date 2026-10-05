@@ -5,18 +5,20 @@ Use only the column of the provider from the project facts. `<path>` is the proj
 | Operation | GitHub (`gh`) | GitLab (`glab`) |
 | --- | --- | --- |
 | Current user | `gh api user --jq .login` | `glab api --hostname <host> user`, field `username` |
-| Open PRs | `gh pr list -R <path> --state open --limit 200 --json number,headRefOid,baseRefName,isDraft,author` | `glab api --hostname <host> "projects/<enc>/merge_requests?state=opened&per_page=100"` (fields `iid`, `target_branch`, `draft`, `author`), then `glab api --hostname <host> projects/<enc>/merge_requests/<iid>` for `diff_refs` and `head_pipeline` |
-| Head SHA | `headRefOid` | `diff_refs.head_sha` |
+| Open PRs (all pages) | `gh api "repos/<path>/pulls?state=open&per_page=100" --paginate --slurp \| jq 'add'` (fields `number`, `head.sha`, `base.ref`, `draft`, `user`) | `glab api --hostname <host> "projects/<enc>/merge_requests?state=opened&per_page=100" --paginate \| jq -s 'add'` (fields `iid`, `target_branch`, `draft`, `author`), then `glab api --hostname <host> projects/<enc>/merge_requests/<iid>` for `diff_refs` and `head_pipeline` |
+| Head SHA | `head.sha` | `diff_refs.head_sha` |
 | Head commit time | `gh api repos/<path>/commits/<head sha> --jq .commit.committer.date` | `glab api --hostname <host> projects/<enc>/repository/commits/<head sha>`, field `committed_date` |
-| Bot author | `author.is_bot` is true | the username names a bot, for example `dependabot`, `renovate-bot`, or `project_123_bot_…` |
-| Fetch the head and the target branch | `git fetch origin <baseRefName> pull/<number>/head` | `git fetch origin <target_branch> merge-requests/<iid>/head` |
+| Bot author | `user.type` is `Bot` | the username names a bot, for example `dependabot`, `renovate-bot`, or `project_123_bot_…` |
+| Fetch the head and the target branch | `git fetch origin <base.ref> pull/<number>/head` | `git fetch origin <target_branch> merge-requests/<iid>/head` |
 | CI of the head SHA | `gh pr checks <number> -R <path> --json name,workflow,state,bucket,link` | `head_pipeline` when its `sha` is the head SHA. Else the pipeline with the highest `id` from `projects/<enc>/pipelines?sha=<head sha>`. Then read `projects/<enc>/pipelines/<id>/jobs?per_page=100`, and `projects/<enc>/pipelines/<id>/bridges` for downstream pipelines |
 | Log of a failed CI job | Only for GitHub Actions jobs, whose link ends in `/actions/runs/<run>/job/<job id>`: `gh api repos/<path>/actions/jobs/<job id>/logs`. Other checks (for example CodeQL) have no log through this call. Record the link only. | `glab api --hostname <host> projects/<enc>/jobs/<job id>/trace` |
 | Existing comments | Read all three: inline comments `repos/<path>/pulls/<number>/comments`, general comments `repos/<path>/issues/<number>/comments`, and review bodies `repos/<path>/pulls/<number>/reviews`. Use `gh api --paginate --slurp` for each. | `glab api --hostname <host> "projects/<enc>/merge_requests/<iid>/discussions?per_page=100" --paginate` (discussions include inline and general comments) |
 
 ## Things that look like errors
 
-- Do not add `commits` to `gh pr list --json`. With more than about 40 PRs, the query exceeds the GitHub GraphQL node limit and fails. Read the head commit time per PR instead.
+- Read all pages of every list. A list that stops after the first page loses PRs and comments for good, because every run reads the same first page again.
+- Do not use `gh pr list` with `--json commits` to get the PRs. With more than about 40 PRs, the query exceeds the GitHub GraphQL node limit and fails.
+- `gh api` cannot combine `--slurp` with `--jq`. Pipe the output into `jq` instead.
 - `gh pr checks` exits with a code that is not 0 when a check failed or is still pending. Read the JSON, not the exit code.
 - When a PR has no CI, `gh pr checks` writes "no checks reported" to stderr and prints no JSON. That means "no CI", not an error.
 - `gh run view --job <id> --log-failed` returns HTTP 404 for workflows that the organization requires. The `gh api …/logs` call in the table works for all GitHub Actions jobs.
