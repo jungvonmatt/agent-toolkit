@@ -167,13 +167,15 @@ Then:
 
 ### 5. Review
 
-Run `pr-review` in full mode in the worktree, on the full PR diff, so it has the full context and also starts the app and checks it in a browser. Tell it:
+Invoke the `pr-review` skill with the Skill tool: `jvm-skills:pr-review`, or `pr-review` when it is installed without the plugin. Do not review the diff yourself instead. Only `pr-review` runs the full set of review passes, Fallow, and the browser checks.
+
+Run it in full mode in the worktree, on the full PR diff, so it has the full context and also starts the app and checks it in a browser. Tell it:
 
 - to use the check results from step 4 as the check evidence, and not to run lint, format, typecheck, unit tests, or build again;
 - to start the app on a free port, never on a port that is in use (for example `3000` of a running dev server), and never to use or stop a server that it did not start;
 - to stop the app after the review.
 
-When the app does not start, record the runtime checks as "unavailable" with the reason.
+The browser checks need a browser tool in the session, for example the Chrome DevTools MCP server. When the session has none, or the app does not start, record the runtime checks as "unavailable" with the reason. An HTTP request to the page is not a browser check: do not report it as one.
 
 ### 6. Filter the findings
 
@@ -243,6 +245,7 @@ Then list the skipped PRs with the reason (including "untrusted"), the PRs that 
 | Count a merge of the target branch as a round | Rounds run out without a real change | Changes from the target branch are not part of the delta |
 | Review every file of the PR diff when the base of the PR is old | Changes that reached the target branch through other PRs (for example squash merges) get reviewed and commented again. The file list of GitHub and GitLab shows them too. | Leave out the commits that `git cherry` marks with `-` |
 | Run lint and tests that CI already ran | Slow runs | Step 4 uses the CI results first |
+| Review the diff yourself instead of calling `pr-review` | No review passes, no Fallow, no browser checks | Invoke `jvm-skills:pr-review` with the Skill tool in step 5 |
 | Keep a crashed run's lock forever | No PR gets reviewed again | The lock is a lease: a stale lock is taken over after 90 minutes |
 | Match duplicates on the line number | The same finding comes back after a rebase | Match on file, symbol, and problem |
 | Let the CLI find the project from the remote | SSH host aliases (for example `altssh.gitlab.com`) break the lookup | Pass the project path explicitly |
