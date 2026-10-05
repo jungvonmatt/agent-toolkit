@@ -1,12 +1,39 @@
 # Provider commands
 
-Use only the column of the provider from the project facts. `<path>` is the project path (`group/sub/repo`), `<enc>` is the URL-encoded path (`group%2Fsub%2Frepo`), and `<host>` is the host. Always pass them explicitly. When the CLI finds the project from the remote, SSH host aliases can break the lookup.
+## Project facts
+
+Run this in one shell call. Do not name a variable `path`: in zsh, `path` is tied to `PATH`.
+
+```bash
+url=$(git config --get remote.origin.url)
+rest=$(printf %s "$url" | sed -E 's#^[a-z+]+://##; s#^[^@/]+@##; s#^altssh\.##')
+case "$url" in
+  http://*|https://*) proj_host=${rest%%/*}; tail=${rest#*/} ;;
+  *://*) proj_host=${rest%%[:/]*}; tail=$(printf %s "${rest#"$proj_host"}" | sed -E 's#^(:[0-9]+)?/##') ;;
+  *) proj_host=${rest%%:*}; tail=${rest#*:} ;;
+esac
+proj_path=${tail%.git}
+proj_enc=$(printf %s "$proj_path" | sed 's#/#%2F#g')
+proj_key=$(printf %s "$proj_host/$proj_path" | sed 's#/#%2F#g')
+echo "$proj_host $proj_path $proj_enc $proj_key"
+```
+
+- `git@gitlab.com:group/sub/repo.git` gives the host `gitlab.com`, the path `group/sub/repo`, and the key `gitlab.com%2Fgroup%2Fsub%2Frepo`.
+- An HTTP(S) remote keeps an explicit port in the host (`https://gitlab.example.com:8443/group/repo` gives `gitlab.example.com:8443`), because it is the port of the web and API host.
+- An `ssh://` remote drops its port, because that port belongs to SSH.
+- The key encodes only `/`, and `%` cannot occur in a host or a repository path, so two repositories never get the same key.
+
+## Commands
+
+Use only the column of the provider from the project facts. On a GitHub host other than `github.com` (GitHub Enterprise), add `--hostname <host>` to every `gh api` call and use `-R <host>/<path>` with `gh pr checks`. `<path>` is the project path (`group/sub/repo`), `<enc>` is the URL-encoded path (`group%2Fsub%2Frepo`), and `<host>` is the host. Always pass them explicitly. When the CLI finds the project from the remote, SSH host aliases can break the lookup.
 
 | Operation | GitHub (`gh`) | GitLab (`glab`) |
 | --- | --- | --- |
 | Current user | `gh api user --jq .login` | `glab api --hostname <host> user`, field `username` |
 | Open PRs (all pages) | `gh api "repos/<path>/pulls?state=open&per_page=100" --paginate --slurp \| jq 'add'` (fields `number`, `head.sha`, `base.ref`, `draft`, `user`) | `glab api --hostname <host> "projects/<enc>/merge_requests?state=opened&per_page=100" --paginate \| jq -s 'add'` (fields `iid`, `target_branch`, `draft`, `author`), then `glab api --hostname <host> projects/<enc>/merge_requests/<iid>` for `diff_refs` and `head_pipeline` |
 | Head SHA | `head.sha` | `diff_refs.head_sha` |
+| Write access | `gh api repos/<path>/collaborators/<login>/permission --jq .permission` is `admin`, `maintain`, or `write` | `glab api --hostname <host> projects/<enc>/members/all/<author id>`, `access_level` is 30 or higher |
+| Fork | `head.repo.full_name` is not `base.repo.full_name` (or `head.repo` is null) | `source_project_id` is not `target_project_id` |
 | Head commit time | `gh api repos/<path>/commits/<head sha> --jq .commit.committer.date` | `glab api --hostname <host> projects/<enc>/repository/commits/<head sha>`, field `committed_date` |
 | Bot author | `user.type` is `Bot` | the username names a bot, for example `dependabot`, `renovate-bot`, or `project_123_bot_…` |
 | Fetch the head and the target branch | `git fetch origin <base.ref> pull/<number>/head` | `git fetch origin <target_branch> merge-requests/<iid>/head` |

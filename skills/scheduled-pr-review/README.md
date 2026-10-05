@@ -4,7 +4,7 @@ Runs one unattended first-pass review over all open pull requests (GitHub) or me
 
 - It reviews only PRs with new commits. It waits for running CI, but not longer than `ci_wait_limit` (2 hours) after the head commit. It skips drafts, bot PRs, and stale PRs, and it reviews at most 5 PRs in one run.
 - After round 1, it posts minor findings only on lines that changed since the last round. Serious findings always get through.
-- It uses the CI results for lint, format, typecheck, unit tests, and build. It runs a check only when CI did not run it, and then only in a container without credentials, with resource limits, and without network after the dependency download, because the code of a PR can be hostile.
+- It uses the CI results for lint, format, typecheck, unit tests, and build, and runs a check only when CI did not run it. A trusted PR (author with write access, branch in the same repository, no dependency changes) runs it in a worktree on this machine. Every other PR runs it in a container (pnpm projects only) without credentials, with resource limits, and without network after the dependency download.
 - It never posts the same finding twice, also when a teammate or another bot found it first.
 - It keeps its state in one file for each project, so runs for different projects never overwrite each other. A run lock stops two runs for the same project from posting the same finding.
 
@@ -41,7 +41,9 @@ Override a setting in the invocation:
 | `max_age` | 30 days | Skip a PR when its head commit is older than this. |
 | `include_bots` | false | Review PRs that a bot opened, for example dependency updates. |
 | `include_own` | true | Review PRs that the current user opened. |
-| `local_checks` | `container` | Where checks run that CI did not run: `container` or `off`. |
+| `local_checks` | `auto` | Where checks run that CI did not run. `auto`: trusted PRs in a worktree, other PRs in a container. `container`: every PR in a container. `off`: no local checks. |
+| `provider` | `auto` | Set `github` or `gitlab` for a host whose name does not show the provider (GitHub Enterprise, self-managed GitLab). |
+| `runtime_checks` | `off` | `trusted`: let `pr-review` start the app and check it in a browser, only for trusted PRs. |
 
 ### As a scheduled task
 
@@ -74,6 +76,7 @@ rm -r "${XDG_STATE_HOME:-$HOME/.local/state}/scheduled-pr-review/<project key>.l
 scheduled-pr-review/
 ├── SKILL.md                  — Agent instructions: selection, delta, checks, filter, state
 ├── references/providers.md   — gh and glab commands, inline-comment recipes
+├── references/local-checks.md — worktree and container recipes for checks that CI did not run
 └── README.md                 — This file
 ```
 
