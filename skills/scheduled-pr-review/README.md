@@ -35,6 +35,7 @@ Override a setting in the invocation:
 | Setting | Default | Meaning |
 | --- | --- | --- |
 | `max_prs_per_run` | 5 | Review at most this number of PRs in one run. The others wait for the next run. |
+| `prs` | all | Review only these PR numbers, for example `prs=43`. For a test or a manual rerun. |
 | `max_rounds` | 5 | After this number of rounds, the PR gets no more automatic reviews. |
 | `quiet_period` | 30 minutes | Skip a PR when its head is younger than this. |
 | `ci_wait_limit` | 2 hours | Wait for running CI, but not longer than this after the head commit. |

@@ -29,6 +29,7 @@ Fix commits are small, so later rounds have little new code to comment on and th
 | Setting | Default | Meaning |
 | --- | --- | --- |
 | `max_prs_per_run` | 5 | Review at most this number of PRs in one run. The others wait for the next run. |
+| `prs` | all | Review only these PR numbers, for example `prs=43` or `prs=43,46`. For a test or a manual rerun. |
 | `max_rounds` | 5 | Backstop. After this number of rounds, the PR gets no more automatic reviews. |
 | `quiet_period` | 30 minutes | Skip a PR when its head is younger than this. The author is still pushing. |
 | `ci_wait_limit` | 2 hours | Wait for running CI, but not longer than this after the head commit. |
@@ -87,17 +88,17 @@ The state folder is `${XDG_STATE_HOME:-$HOME/.local/state}/scheduled-pr-review/`
 
 Only one run for each project may work at a time. Two runs that read the same state can post the same finding twice. The lock is a lease: the run that holds it keeps it alive with a heartbeat, so a crashed run blocks the project for 90 minutes at most.
 
-The lock folder is `<project key>.lock` in the state folder. Its `heartbeat` file holds the time in epoch seconds (`date +%s`).
+The lock folder is `<project key>.lock` in the state folder. Its `heartbeat` file holds the time in epoch seconds (`date +%s`). Build every lock path from variables with a guard, for example `"${state_dir:?}/${proj_key:?}.lock"`. Claude Code refuses `rm -rf` on a path from plain variables, and the guard also stops `rm -rf` on an empty path.
 
 1. **Token.** Before step 1, generate a unique run token, for example with `uuidgen`.
 2. **Take the lock.** Create the lock folder with `mkdir` (without `-p`). On success, write the token into `owner` and the time into `heartbeat`.
 3. **Busy lock.** When `mkdir` fails, read `heartbeat` (when it is missing, use the modification time of the folder). When it is younger than 90 minutes, stop and report "another run is active".
 4. **Stale lock.** When the heartbeat is 90 minutes old or older, create `<project key>.lock.takeover` with `mkdir`. When that fails, another run is taking over: stop. (Remove a `.takeover` folder that is older than 10 minutes, and try once more.) Inside the takeover, read `heartbeat` again:
    - When it is now younger than 90 minutes, another run was faster. Remove `.takeover` and stop.
-   - Else remove the lock folder, create it again with `mkdir`, write `owner` and `heartbeat`, and remove `.takeover`. When the `mkdir` fails, remove `.takeover` and stop. Report "took over a stale lock" with the old owner and heartbeat.
+   - Else remove the lock folder (`rm -rf -- "${state_dir:?}/${proj_key:?}.lock"`), create it again with `mkdir`, write `owner` and `heartbeat`, and remove `.takeover`. When the `mkdir` fails, remove `.takeover` and stop. Report "took over a stale lock" with the old owner and heartbeat.
 5. **Heartbeat.** Write the time into `heartbeat` before each PR, and before each check, the review, and the posting.
 6. **Owner check.** Before each comment and each state write, read `owner`. When it is not this run's token, another run took over: stop at once, and do not post or write anything more.
-7. **Release.** At the end of the run, also after an early stop or a failure, remove the lock folder when `owner` is this run's token.
+7. **Release.** At the end of the run, also after an early stop or a failure, remove the lock folder with `rm -rf -- "${state_dir:?}/${proj_key:?}.lock"` when `owner` is this run's token.
 
 ## Workflow
 
@@ -107,6 +108,7 @@ Do step 1 for all open PRs. Then do steps 2 to 9 for each selected PR.
 
 Skip a PR in this run when one of these conditions is true. Give the reason in the report.
 
+- `prs` is set, and the PR is not in it.
 - It is a draft.
 - It is not trusted.
 - The current user opened it, and `include_own` is false.
@@ -126,6 +128,7 @@ Fetch the head of the PR and its target branch with the command in `references/p
 
 - In round 1, the delta is the full PR diff: `git diff "$new_base" "$head_sha"`.
 - In a later round, check first that `last_reviewed_sha` is still reachable: `git cat-file -e "${last_reviewed_sha}^{commit}"`. Then also get `old_base=$(git merge-base "origin/${target_branch}" "$last_reviewed_sha")`. The delta is every hunk of `git diff "$last_reviewed_sha" "$head_sha"`, except the changes that came in from the target branch. A change came in from the target branch when it is also in `git diff "$old_base" "$new_base"`.
+- Commits of the PR whose change is already on the target branch are not part of the delta, also in round 1. This happens when the base of the PR is old and the same change was merged through another PR. `git cherry "origin/${target_branch}" "$head_sha"` marks these commits with `-`. Leave out the files and hunks that only these commits change.
 - Added lines and deleted lines both count. A deleted line has its position at the place of the deletion on the head side. A commit that only deletes code, for example a removed authorization check, is a real change.
 - If the delta is empty, set `last_reviewed_sha` to the head. Do not review, and do not count a round.
 - If `last_reviewed_sha` is not reachable (for example after a force push), use the full PR diff as the delta.
