@@ -60,6 +60,14 @@ Start the task once by hand before you enable the schedule. Then you can approve
 
 It adds no labels, assignments, approvals, or merges, and it never commits or pushes. The run report stays in the run.
 
+### A lock from a crashed run
+
+A run that crashes can leave its lock folder behind. Later runs for the same project then stop and report "lock not acquired". Make sure that no run for the project is active, then remove the lock folder:
+
+```bash
+rm -r "${XDG_STATE_HOME:-$HOME/.local/state}/scheduled-pr-review/<project key>.lock"
+```
+
 ## Output
 
 ```text

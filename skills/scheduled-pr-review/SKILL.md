@@ -84,7 +84,7 @@ The state folder is `${XDG_STATE_HOME:-$HOME/.local/state}/scheduled-pr-review/`
 
 Only one run for each project may work at a time. Two runs that read the same state can post the same finding twice.
 
-1. Before step 1, generate a unique run token and set `lock_acquired` to false. Keep both values for this run.
+1. Before step 1, generate a unique run token (for example with `uuidgen`, or `cat /proc/sys/kernel/random/uuid` on Linux) and set `lock_acquired` to false. Keep both values for this run.
 2. Create the lock folder `<project key>.lock` in the state folder with `mkdir` (without `-p`). On success, set `lock_acquired` to true. Write the token into `<project key>.lock/owner` and the start time into `<project key>.lock/started_at`.
 3. If `mkdir` fails, stop and report "lock not acquired" with the error and any available owner and start time. Leave the lock unchanged, even when its metadata is missing or it is older than 3 hours.
 4. At the end of the run, including an early stop or failure, remove the lock only when `lock_acquired` is true and `owner` matches this run's token. Otherwise, leave it unchanged. Report any failure to release an owned lock.
