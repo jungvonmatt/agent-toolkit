@@ -35,10 +35,12 @@ gh api --method POST "repos/<path>/pulls/<number>/comments" \
   -f commit_id=<head sha> \
   -f path=<file> \
   -F line=<line> \
-  -f side=RIGHT
+  -f side=<RIGHT or LEFT>
 ```
 
-GitHub returns HTTP 422 when the line is not part of the diff. Anchor the comment on a changed line.
+- For an added or a context line, use `side=RIGHT` and the line number in the new file.
+- For a deleted line, use `side=LEFT` and the line number in the old file. This is the only way to comment on a PR that only deletes code.
+- GitHub returns HTTP 422 when the line is not part of the diff. Anchor the comment on a changed line.
 
 ## Post an inline comment on GitLab
 

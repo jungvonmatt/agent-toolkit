@@ -46,12 +46,12 @@ The caller can override a setting with an argument, for example `max_rounds=3`.
    rest=$(git config --get remote.origin.url | sed -E 's#^[a-z+]+://##; s#^[^@/]+@##; s#^altssh\.##')
    proj_host=${rest%%[:/]*}
    proj_path=$(printf %s "$rest" | sed -E 's#^[^:/]+[:/]([0-9]+/)?##; s#\.git$##')
-   proj_key=$(printf %s "$proj_host/$proj_path" | tr '/:' '--')
    proj_enc=$(printf %s "$proj_path" | sed 's#/#%2F#g')
+   proj_key=$(printf %s "$proj_host/$proj_path" | sed 's#/#%2F#g')
    echo "$proj_host $proj_path $proj_enc $proj_key"
    ```
 
-   `git@gitlab.com:group/sub/repo.git` gives the host `gitlab.com`, the path `group/sub/repo`, and the key `gitlab.com-group-sub-repo`.
+   `git@gitlab.com:group/sub/repo.git` gives the host `gitlab.com`, the path `group/sub/repo`, and the key `gitlab.com%2Fgroup%2Fsub%2Frepo`. The key encodes only `/`, and `%` cannot occur in a host or a repository path, so two repositories never get the same key.
 2. Get the provider from the host: GitHub for `github.com`, GitLab when the host contains `gitlab`. For any other host, stop and report the remote.
 3. Use only the commands of this provider. They are in `references/providers.md`. Always pass the project path explicitly. Do not rely on the CLI to find the project from the remote.
 4. Get the account that this run posts with ("Current user" in `references/providers.md`).
@@ -62,7 +62,7 @@ The state folder is `${XDG_STATE_HOME:-$HOME/.local/state}/scheduled-pr-review/`
 
 ```json
 {
-  "project": "<project key>",
+  "project": "<host>/<project path>",
   "provider": "github",
   "prs": {
     "<number or iid>": {
@@ -76,7 +76,7 @@ The state folder is `${XDG_STATE_HOME:-$HOME/.local/state}/scheduled-pr-review/`
 }
 ```
 
-- If the `project` field is not the project key, stop and report it. Do not write to the file.
+- If the `project` field is not `<host>/<project path>` of this repository, stop and report it. Do not write to the file.
 - Write the file atomically: write a temporary file in the same folder, then rename it.
 - If a PR has no entry, rebuild the entry from the markers of step 6. Use only comments by the current user. `rounds` is the highest marker round, and `last_reviewed_sha` is the sha of that marker. A PR without markers starts at round 1.
 
@@ -143,19 +143,37 @@ Then:
 
 #### Run checks in a container
 
-Stream the files of the head SHA into a fresh container. Do not mount a host folder:
+The container is the only place where code of the PR runs. It gets no credentials, limited resources, and network access only to download the dependencies.
 
-```bash
-git archive <head sha> | docker run --rm -i -e CI=true node:<version> sh -c \
-  'mkdir -p /work && cd /work && tar -x && corepack enable && <install> && <check commands>'
-```
+1. **Validate every value that comes from the repository.** The PR author controls these files. A raw value in a host command can inject shell code.
+   - `node_tag`: the first major version number in `.nvmrc`, `.node-version`, or `engines.node` (for example `24` from `24.18.0` or from `>=24`). It must match `^[0-9]{1,2}$`. Otherwise use `lts`.
+   - `pm`: `pnpm`, `npm`, or `yarn`, from the `packageManager` field or the lockfile. For any other value, record the checks as "unavailable".
+   - Script names: each must match `^[A-Za-z0-9:._-]+$` and exist in the package manifest.
 
-- `<version>` comes from `.nvmrc`, `.node-version`, or `engines.node`. Use `lts` when none of them exists.
-- `<install>` uses the package manager of the repository (`packageManager` field or lockfile) with the frozen lockfile.
-- Install once, then run each check and record its exit code and the end of its output.
-- Give the container no credentials: no `-e` with a token, no mount of the home folder, `.ssh`, the git folder, or the Docker socket.
-- When `local_checks` is `off`, or no container runtime works (`docker info` fails), record each check that CI did not cover as "not run". Never run it on the host instead.
-- When the install needs registry credentials, or a check fails only because an environment variable is missing, record "unavailable", not a failure.
+   Pass each value as one quoted argument or as an environment variable. Never paste a repository value into a command string.
+2. **Download with network, run without network.** Use two containers that share one temporary Docker volume. Do not mount a host folder.
+
+   ```bash
+   vol="scheduled-pr-review-$run_token"
+   limits=(--memory 8g --cpus 2 --pids-limit 1024 --cap-drop ALL --security-opt no-new-privileges)
+   env=(-e CI=true -e COREPACK_HOME=/work/.corepack -e npm_config_store_dir=/work/.pnpm-store -e PM="$pm")
+   docker volume create "$vol"
+   docker run --rm --network none -v "$vol:/work" "node:$node_tag" chown node:node /work
+   # Download phase: network on, install scripts off.
+   git archive "$head_sha" | docker run --rm -i "${limits[@]}" --user node -v "$vol:/work" -w /work "${env[@]}" \
+     "node:$node_tag" sh -c 'tar -x && timeout 1800 corepack "$PM" <download command>'
+   # Check phase: network off.
+   docker run --rm "${limits[@]}" --network none --user node -v "$vol:/work" -w /work "${env[@]}" -e SCRIPTS="$scripts" \
+     "node:$node_tag" sh -c 'timeout 1800 <skipped install scripts>; for s in $SCRIPTS; do timeout 1800 corepack "$PM" run "$s"; echo "exit $s $?"; done'
+   docker volume rm "$vol"
+   ```
+
+   - `<download command>` is fixed for each package manager: `install --frozen-lockfile --ignore-scripts` (pnpm), `ci --ignore-scripts` (npm), or `install --immutable --mode=skip-build` (yarn).
+   - `<skipped install scripts>` runs the install scripts that the download phase skipped, for example `corepack "$PM" rebuild` and the `postinstall` script of the project.
+   - Record the exit code and the end of the output of each check.
+3. **Never weaken the container.** Give it no credentials: no `-e` with a token, no mount of the home folder, `.ssh`, the git folder, or the Docker socket. The download phase still has network access, and the lockfile decides which URLs it fetches. When that is not acceptable, use `local_checks=off`.
+
+Record a check as "not run" when `local_checks` is `off`, or when no container runtime works (`docker info` fails). Never run a check on the host instead. Record "unavailable", not a failure, when the download needs registry credentials, when a check needs the network, when a check fails only because an environment variable is missing, or when it runs out of memory (exit code 137).
 
 ### 4. Review
 
@@ -184,7 +202,11 @@ Post each remaining finding as an inline comment on the head SHA, with the provi
 <!-- scheduled-pr-review round=<n> sha=<head sha> key=<key> -->
 ```
 
-If the line of a finding is outside the diff, anchor the comment on the changed line that causes the problem. Before you retry a failed post, read the comments again, so you do not post the same comment twice.
+- A finding on a deleted line goes on the old side of the diff, with the line number in the old file. A PR that only deletes code has no new-side line to use.
+- If the line of a finding is outside the diff, anchor the comment on the changed line that causes the problem.
+- Before you retry a failed post, read the comments again, so you do not post the same comment twice.
+
+A post is done when the provider accepted it, or when the re-read shows that the comment exists.
 
 ### 7. Check earlier findings
 
@@ -192,7 +214,11 @@ For each finding that you posted in an earlier round, check whether the head fix
 
 ### 8. Update the state
 
-Set `last_reviewed_sha` to the head, add 1 to `rounds`, and append the new findings, posted and held back. Write the state after each PR, not only at the end of the run.
+When every post of step 6 is done, set `last_reviewed_sha` to the head, add 1 to `rounds`, and append the new findings, posted and held back.
+
+When a post is not done, do not change `last_reviewed_sha` or `rounds`. Append only the findings that are posted, and report the failed post. The next run then reviews the same head again and retries the missing comment. The re-read of the comments stops a second copy of the others.
+
+Write the state after each PR, not only at the end of the run.
 
 ## Report
 

@@ -2,9 +2,9 @@
 
 Runs one unattended first-pass review over all open pull requests (GitHub) or merge requests (GitLab) of a repository. Call it from a scheduled task, a cron job, or a loop. Each run continues where the last run stopped:
 
-- It reviews only PRs with new commits, and only after CI has finished. It skips drafts, bot PRs, and stale PRs, and it reviews at most 5 PRs in one run.
+- It reviews only PRs with new commits. It waits for running CI, but not longer than `ci_wait_limit` (2 hours) after the head commit. It skips drafts, bot PRs, and stale PRs, and it reviews at most 5 PRs in one run.
 - After round 1, it posts minor findings only on lines that changed since the last round. Serious findings always get through.
-- It uses the CI results for lint, format, typecheck, unit tests, and build. It runs a check only when CI did not run it, and then only in a container without credentials, because the code of a PR can be hostile.
+- It uses the CI results for lint, format, typecheck, unit tests, and build. It runs a check only when CI did not run it, and then only in a container without credentials, with resource limits, and without network after the dependency download, because the code of a PR can be hostile.
 - It never posts the same finding twice, also when a teammate or another bot found it first.
 - It keeps its state in one file for each project, so runs for different projects never overwrite each other. A run lock stops two runs for the same project from posting the same finding.
 
