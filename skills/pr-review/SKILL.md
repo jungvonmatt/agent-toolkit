@@ -258,7 +258,14 @@ dismissing them. Inherited findings are context, not branch findings. Return
 with an error (registry unreachable, DNS failure, invalid output).
 
 The subagent must run in the same checkout and against the same target ref the
-orchestrator pinned, so `--base` matches the packet's diff source. Because it is
+orchestrator pinned, so `--base` matches the packet's diff source. When that
+checkout is not the working folder of the session (for example a worktree of
+the PR), pass it with `--root <checkout>` and run the command from the working
+folder. Do not `cd` into the checkout first: `npx` would then prefer a `fallow`
+binary from the checkout's own `node_modules`, and Claude Code's auto mode
+blocks that as code from an external source. Fallow is more accurate when the
+dependencies of the checkout are installed, so run it after an install when one
+is planned. Because it is
 read-only and does not mutate the worktree, it runs safely alongside the other
 specialists.
 
