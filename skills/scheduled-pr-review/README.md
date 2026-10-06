@@ -9,7 +9,7 @@ Runs one unattended first-pass review over the open pull requests (GitHub) or me
 - After round 1, it posts minor findings only on lines that changed since the last round. Serious findings always get through.
 - It never posts the same finding twice, also when a teammate or another bot found it first.
 - It keeps its state in one file for each project. A run lock stops two runs for the same project from posting the same finding, and it frees itself 90 minutes after a crash.
-- Reviews can run in parallel, but the heavy steps (install, checks, the running app with a browser) take turns through a machine lock, so only one of them uses memory at a time.
+- Reviews can run in parallel, but the heavy steps (install, checks, the running app with a browser) take turns through a machine lock, and each one starts only when the machine has free memory and CPU. When the machine stays busy for 30 minutes, the PR waits for the next run.
 - It does not write to the agent memory. The state file and the report are the only record of a run.
 
 ## Install
@@ -43,6 +43,7 @@ Override a setting in the invocation:
 | `ci_wait_limit` | 2 hours | Wait for running CI, but not longer than this after the head commit. |
 | `max_age` | 30 days | Skip a PR when its last update is older than this. |
 | `include_own` | true | Review PRs that the current user opened. |
+| `headroom_wait` | 30 minutes | How long a heavy step waits for free memory and CPU before the PR waits for the next run. |
 | `copy_files` | `.env localhost-key.pem localhost.pem` | Files that the app needs to start, copied from the main checkout into each worktree when they exist. |
 | `provider` | `auto` | Set `github` or `gitlab` for a host whose name does not show the provider (GitHub Enterprise, self-managed GitLab). |
 

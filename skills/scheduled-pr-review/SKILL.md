@@ -36,6 +36,7 @@ Fix commits are small, so later rounds have little new code to comment on and th
 | `ci_wait_limit` | 2 hours | Wait for running CI, but not longer than this after the head commit. |
 | `max_age` | 30 days | Skip a PR when its last update is older than this. |
 | `include_own` | true | Review PRs that the current user opened. |
+| `headroom_wait` | 30 minutes | How long a heavy step waits for free memory and CPU. After that, the PR waits for the next run. |
 | `copy_files` | `.env localhost-key.pem localhost.pem` | Files that the app needs to start, copied from the main checkout into each worktree when they exist. |
 | `provider` | `auto` | `github` or `gitlab` for a host that the name does not show, for example GitHub Enterprise or a self-managed GitLab on `code.example.com`. |
 
@@ -111,6 +112,28 @@ Reviews can run at the same time: several PRs in one run, or runs for several pr
   - A lock without a heartbeat for 60 minutes is stale.
 - When the machine lock is busy, do not stop. Wait 30 seconds and try again. While you wait, refresh the heartbeat of the run lock, so another run does not take it over.
 - Take the machine lock right before a heavy step, and release it right after. Do not hold it during the reading parts of the review.
+- Run installs and checks with `nice -n 10`, so the apps of the person at the machine stay responsive.
+
+### Headroom
+
+The machine lock keeps reviews from competing with each other, but the person at the machine also needs memory. So after you take the machine lock, start the heavy step only when the machine has headroom:
+
+```bash
+has_headroom() {
+  if [ "$(uname)" = Darwin ]; then
+    [ "$(sysctl -n kern.memorystatus_vm_pressure_level)" -eq 1 ] || return 1   # 1 = normal memory pressure
+    load=$(sysctl -n vm.loadavg | awk '{print $2}'); cpus=$(sysctl -n hw.ncpu)
+  else
+    awk '/^MemTotal/{t=$2} /^MemAvailable/{a=$2} END{exit !(a*4 >= t)}' /proc/meminfo || return 1   # 25 % available
+    load=$(cut -d' ' -f1 /proc/loadavg); cpus=$(nproc)
+  fi
+  awk -v l="$load" -v c="$cpus" 'BEGIN{exit !(l < c*1.5)}'   # 1-minute load below 1.5 x CPUs
+}
+```
+
+- When `has_headroom` fails, wait 60 seconds and check again. Refresh the heartbeats of the run lock and the machine lock while you wait.
+- When there is still no headroom after `headroom_wait`, release the machine lock and stop this PR. Do not post anything and do not change its state, so the next run reviews it again. Report it as "next run: machine busy", with the last memory pressure and load.
+- A free-memory check alone is not enough: two runs can check at the same moment, and a heavy step reaches its memory peak only after it starts. So the machine lock stays, and the check comes after it.
 
 ## Workflow
 
@@ -179,7 +202,7 @@ Then:
 
 1. Read the CI results for the head SHA. A job that passed or failed covers the check that it ran. A cancelled or skipped job does not cover its check. Decide from the job name. When the name is not clear, read the CI config. For example, a job named `test:lint` runs lint, not the unit tests.
 2. For a covered check, use the CI result and record the link to the job. When the job failed, read its log and keep the errors that point at files of the PR.
-3. Take the machine lock. Install the dependencies when they are not installed yet. Run each check that CI did not cover in the worktree, one command at a time, and record its exit code and the end of its output. Refresh the heartbeat of the machine lock between the checks. Release the machine lock when the last check is done.
+3. Take the machine lock and wait for headroom (see "Headroom"). Install the dependencies when they are not installed yet. Run each check that CI did not cover in the worktree, one command at a time, and record its exit code and the end of its output. Refresh the heartbeat of the machine lock between the checks. Release the machine lock when the last check is done.
 4. Other CI jobs, for example security scans, compliance checks, or deployments, are not checks of this skill. List the failed and cancelled ones in the report with name and link. Do not read their logs.
 
 ### 5. Review
@@ -189,7 +212,7 @@ Invoke the `pr-review` skill with the Skill tool: `jvm-skills:pr-review`, or `pr
 Run it in full mode in the worktree, on the full PR diff, so it has the full context and also starts the app and checks it in a browser. Tell it:
 
 - to use the check results from step 4 as the check evidence, and not to run lint, format, typecheck, unit tests, or build again;
-- to do the reading parts of the review right away, but to take the machine lock (owner `<run token>-<PR number>`, see "Machine lock") before it installs the dependencies or starts the app, and to pass this instruction on to the part of `pr-review` that does the runtime checks;
+- to do the reading parts of the review right away, but to take the machine lock (owner `<run token>-<PR number>`, see "Machine lock") and wait for headroom (see "Headroom") before it installs the dependencies or starts the app, to start the app with `nice -n 10`, and to pass these instructions on to the part of `pr-review` that does the runtime checks;
 - to start the app on a free port, never on a port that is in use (for example `3000` of a running dev server), and never to use or stop a server that it did not start;
 - to stop the app after the runtime checks, and then to release the machine lock.
 
@@ -250,7 +273,7 @@ Reply with the project key and one block per reviewed PR:
 - the held-back findings, with the reason
 - the earlier findings, fixed or still open
 
-Then list the skipped PRs with the reason (including "untrusted"), the PRs that wait for the next run, and any lock takeover. Do not post or send the report anywhere else.
+Then list the skipped PRs with the reason (including "untrusted"), the PRs that wait for the next run (including "machine busy"), and any lock takeover. Do not post or send the report anywhere else.
 
 ## Common mistakes
 
@@ -264,6 +287,7 @@ Then list the skipped PRs with the reason (including "untrusted"), the PRs that 
 | Review every file of the PR diff when the base of the PR is old | Changes that reached the target branch through other PRs (for example squash merges) get reviewed and commented again. The file list of GitHub and GitLab shows them too. | Leave out the commits that `git cherry` marks with `-` |
 | Run lint and tests that CI already ran | Slow runs | Step 4 uses the CI results first |
 | Run the checks or the app of several PRs at the same time | The machine runs out of memory | Take the machine lock before each heavy step |
+| Start a heavy step while the machine is under memory pressure | The computer of the person at the machine slows down or swaps | Wait for headroom; after `headroom_wait`, leave the PR for the next run |
 | Keep notes about runs in the agent memory | The memory grows with every run, and a later run trusts a note instead of the state | The state file and the report are the only record |
 | Review the diff yourself instead of calling `pr-review` | No review passes, no Fallow, no browser checks | Invoke `jvm-skills:pr-review` with the Skill tool in step 5 |
 | Keep a crashed run's lock forever | No PR gets reviewed again | The lock is a lease: a stale lock is taken over after 90 minutes |
