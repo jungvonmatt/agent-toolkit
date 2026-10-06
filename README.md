@@ -17,6 +17,7 @@ Or grab individual skills:
 npx skills add jungvonmatt/agent-toolkit --skill start-ticket
 npx skills add jungvonmatt/agent-toolkit --skill pr-description
 npx skills add jungvonmatt/agent-toolkit --skill pr-review
+npx skills add jungvonmatt/agent-toolkit --skill scheduled-pr-review
 ```
 
 All skills are namespaced under `jvm-skills` to avoid conflicts with other skill packs.
@@ -58,6 +59,7 @@ codex plugin add jvm-skills@jvm-skills
 | `implement` | Executes a `start-ticket` plan task-by-task — builds, tests, and verifies each vertical slice, then pauses for a human to review the working-tree diff before every commit. Add `auto` to run the whole plan in one approved pass. |
 | `pr-description` | Generates a concise PR/MR description in Simplified Technical English from the current branch diff — auto-captures screenshots when UI changes are detected. |
 | `pr-review` | Comprehensive pull request review against a configurable target branch with severity-ranked findings, Jira traceability, accessibility checks, and performance analysis. |
+| `scheduled-pr-review` | Runs one unattended first-pass review over all open PRs/MRs from a scheduled task — reviews the full PR in every round but, after round 1, posts minor findings only where the PR changed since the last round. Reviews trusted PRs in a worktree with the project's env files, uses CI results before running checks, and keeps its state per project. |
 | `writing-tests` | Auto-invokes when authoring tests — enforces behavior-first, mutation-sensitive tests that query by ARIA role or `data-testid`, never by class name, and cover atomic units first. |
 | `technical-writing` | Auto-invokes when writing comments, doc comments, documentation, or blog posts — clean-code comments that say *why*, one Diátaxis mode per doc page, Simplified Technical English prose, and a cut test that deletes every sentence the reader does not need. |
 | `repo-diagnostics` | Git-based diagnostics that reveal churn hotspots, bus factor, bug clustering, commit velocity, and crisis patterns — before reading any code. |
@@ -73,6 +75,7 @@ codex plugin add jvm-skills@jvm-skills
 | `/jvm-skills:implement` | Execute a plan task-by-task, reviewing the working-tree diff before each commit |
 | `/jvm-skills:pr-description` | Generate a PR/MR description from the current branch |
 | `/jvm-skills:pr-review` | Review the current PR/MR for merge readiness |
+| `/jvm-skills:scheduled-pr-review` | Run one scheduled first-pass review over all open PRs/MRs |
 | `/jvm-skills:repo-diagnostics` | Run git-based repository diagnostics |
 | `/jvm-skills:jvm-design` | Bootstrap the JvM CI 2026 design system into a project |
 | `/jvm-skills:design-md` | Reverse-engineer a DESIGN.md from any design source |

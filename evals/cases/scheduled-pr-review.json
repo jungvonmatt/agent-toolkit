@@ -1,0 +1,16 @@
+{
+  "skill_name": "scheduled-pr-review",
+  "trigger": {
+    "positive": [
+      { "prompt": "Run the scheduled first-pass review on all open pull requests of this repo." },
+      { "prompt": "Set up a recurring review of every open merge request that skips commits it already reviewed." },
+      { "prompt": "This cron job should review all open PRs every two hours without posting the same comments again." },
+      { "prompt": "Prüfe alle offenen Merge Requests regelmäßig und automatisch.", "lexical": false }
+    ],
+    "negative": [
+      { "prompt": "Review this PR before I merge it.", "owner": "pr-review" },
+      { "prompt": "Write the PR description for this branch.", "owner": "pr-description" },
+      { "prompt": "Show me the churn hotspots of this repository." }
+    ]
+  }
+}

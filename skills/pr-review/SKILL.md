@@ -287,7 +287,10 @@ Option B. Quick mode skips runtime entirely under either option.
 #### 5. Runtime and narrow verification
 
 Run the narrowest available checks for the changed slice: tests, typecheck,
-lint, build, and relevant package commands. Always execute each command to
+lint, build, and relevant package commands. When the caller already ran a check
+or passes its CI result (for example the `scheduled-pr-review` skill), use that
+result as the evidence, record its source, and do not run the command again.
+Run only the checks without a given result. Always execute each command to
 completion and capture its full output — even when the process reports errors,
 setup failures, or non-zero exit codes. Do not abort a check because an early
 stage (e.g., framework bootstrap, module resolution, network fetch during
