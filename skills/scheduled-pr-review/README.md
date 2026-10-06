@@ -44,7 +44,7 @@ Override a setting in the invocation:
 | `max_age` | 30 days | Skip a PR when its last update is older than this. |
 | `include_own` | true | Review PRs that the current user opened. |
 | `headroom_wait` | 30 minutes | How long a heavy step waits for free memory and CPU before the PR waits for the next run. |
-| `copy_files` | `.env localhost-key.pem localhost.pem` | Files that the app needs to start, copied from the main checkout into each worktree when they exist. |
+| `copy_files` | `.env localhost-key.pem localhost.pem` | Files in the project root that the app needs to start, copied from the main checkout into each worktree when they exist. |
 | `provider` | `auto` | Set `github` or `gitlab` for a host whose name does not show the provider (GitHub Enterprise, self-managed GitLab). |
 
 ### As a scheduled task

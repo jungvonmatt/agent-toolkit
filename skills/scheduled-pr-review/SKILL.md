@@ -37,7 +37,7 @@ Fix commits are small, so later rounds have little new code to comment on and th
 | `max_age` | 30 days | Skip a PR when its last update is older than this. |
 | `include_own` | true | Review PRs that the current user opened. |
 | `headroom_wait` | 30 minutes | How long a heavy step waits for free memory and CPU. After that, the PR waits for the next run. |
-| `copy_files` | `.env localhost-key.pem localhost.pem` | Files that the app needs to start, copied from the main checkout into each worktree when they exist. |
+| `copy_files` | `.env localhost-key.pem localhost.pem` | Files in the project root that the app needs to start, copied from the main checkout into each worktree when they exist. |
 | `provider` | `auto` | `github` or `gitlab` for a host that the name does not show, for example GitHub Enterprise or a self-managed GitLab on `code.example.com`. |
 
 The caller can override a setting with an argument, for example `max_rounds=3`.
@@ -177,6 +177,7 @@ copy_files=(.env localhost-key.pem localhost.pem)   # the copy_files setting, as
 worktree="$(mktemp -d)/pr-$number"
 git -c core.hooksPath=/dev/null worktree add --detach "$worktree" "$head_sha"
 for f in "${copy_files[@]}"; do
+  case "$f" in ''|.|..|*/*) echo "skipped copy_files entry: $f"; continue ;; esac
   [ -f "$main_checkout/$f" ] || continue
   rm -rf -- "${worktree:?}/$f"
   cp -- "$main_checkout/$f" "$worktree/$f"
@@ -185,6 +186,7 @@ done
 
 - Keep `copy_files` an array: zsh does not split an unquoted string, so `for f in $copy_files` would copy nothing.
 - Remove the destination before the copy. The PR can check in `.env` as a symlink to a file outside the worktree, and `cp` would then write the secret into that file.
+- `copy_files` holds file names in the project root only. Skip and report any other entry: an empty one, `..`, or one with a `/` (absolute or nested). Such an entry could point `rm -rf` and `cp` outside the worktree, or into a folder that the PR checked in as a symlink.
 
 Install the dependencies the first time a heavy step needs them (step 4 or step 5), while you hold the machine lock. Use the package manager of the repository and its frozen lockfile, for example `HUSKY=0 pnpm install --frozen-lockfile`. `HUSKY=0` stops the install from changing the git hooks of the repository.
 
