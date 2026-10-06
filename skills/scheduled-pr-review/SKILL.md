@@ -119,23 +119,61 @@ Reviews can run at the same time: several PRs in one run, or runs for several pr
 
 ### Headroom
 
-The machine lock keeps reviews from competing with each other, but the person at the machine also needs memory. So after you take the machine lock, start the heavy step only when the machine has headroom:
+After you take the machine lock, check headroom before a heavy step. Wait when valid measurements show overload. If measurement fails, continue with a warning:
 
 ```bash
 has_headroom() {
-  if [ "$(uname)" = Darwin ]; then
-    [ "$(sysctl -n kern.memorystatus_vm_pressure_level)" -eq 1 ] || return 1   # 1 = normal memory pressure
-    load=$(sysctl -n vm.loadavg | awk '{print $2}'); cpus=$(sysctl -n hw.ncpu)
-  else
-    awk '/^MemTotal/{t=$2} /^MemAvailable/{a=$2} END{exit !(a*4 >= t)}' /proc/meminfo || return 1   # 25 % available
-    load=$(cut -d' ' -f1 /proc/loadavg); cpus=$(nproc)
-  fi
-  awk -v l="$load" -v c="$cpus" 'BEGIN{exit !(l < c*1.5)}'   # 1-minute load below 1.5 x CPUs
+  local platform metrics
+  headroom_result=unknown
+  headroom_metrics=
+  platform=$(uname 2>/dev/null) || return 0
+  case "$platform" in
+    Darwin)
+      metrics=$(LC_ALL=C sysctl -n kern.memorystatus_vm_pressure_level vm.loadavg hw.ncpu 2>/dev/null) || return 0
+      ;;
+    Linux)
+      metrics=$(
+        LC_ALL=C awk '
+          /^MemTotal:/ {total=$2}
+          /^MemAvailable:/ {available=$2}
+          END {
+            if (total !~ /^[0-9]+$/ || available !~ /^[0-9]+$/ || total+0 <= 0 || available+0 > total+0) exit 1
+            print (available*4 < total)
+          }' /proc/meminfo 2>/dev/null &&
+        cut -d' ' -f1 /proc/loadavg 2>/dev/null &&
+        nproc 2>/dev/null
+      ) || return 0
+      ;;
+    *) return 0 ;;
+  esac
+  headroom_metrics=$metrics
+  headroom_result=$(printf '%s\n' "$metrics" | LC_ALL=C awk -v platform="$platform" '
+    NR==1 {memory=$0}
+    NR==2 {
+      if (platform == "Darwin") {
+        if (NF==5 && $1=="{" && $5=="}") load=$2
+      } else load=$0
+    }
+    NR==3 {cpus=$0}
+    END {
+      valid_memory = platform == "Darwin" ? memory ~ /^(1|2|4)$/ : memory ~ /^(0|1)$/
+      if (NR!=3 || !valid_memory || load !~ /^[0-9]+([.][0-9]+)?$/ || cpus !~ /^[0-9]+$/ || cpus+0 <= 0) print "unknown"
+      else if ((platform == "Darwin" ? memory==4 : memory==1) || load+0 >= cpus*1.5) print "busy"
+      else print "ready"
+    }') || headroom_result=unknown
+  [ "$headroom_result" != busy ]
 }
 ```
 
-- When `has_headroom` fails, wait 60 seconds and check again. Refresh the heartbeats of the run lock and the machine lock while you wait.
-- When there is still no headroom after `headroom_wait`, release the machine lock and stop this PR. Do not post anything and do not change its state, so the next run reviews it again. Report it as "next run: machine busy", with the last memory pressure and load.
+- On macOS, allow memory pressure `1` (normal) and `2` (warning). Wait at `4` (critical). Do not require a free-memory percentage.
+- On Linux, require at least 25% of `MemTotal` in `MemAvailable`. The first metric is `1` when memory is below this threshold, otherwise `0`.
+- On both platforms, wait when the 1-minute load is at least 1.5 times the CPU count. `LC_ALL=C` keeps numeric output locale-independent.
+- `has_headroom` returns success for `ready` and `unknown`. Read `headroom_result` after each call.
+- For `unknown`, continue immediately and report "headroom unavailable: continuing without resource measurement". Do not claim the machine has headroom.
+- Missing commands, failed measurements, invalid values, and unsupported platforms are `unknown`. Do not retry them for `headroom_wait`.
+- For `busy`, wait 60 seconds and check again. Refresh the heartbeats of the run lock and the machine lock while you wait.
+- Run every check for real and record its values. Never report a wait or a busy machine that you did not measure.
+- When `busy` persists for `headroom_wait`, release the machine lock and stop this PR without posting or changing its state. Report "next run: machine busy" with the last `headroom_metrics`: memory pressure or memory-busy flag, load, and CPU count.
 - A free-memory check alone is not enough: two runs can check at the same moment, and a heavy step reaches its memory peak only after it starts. So the machine lock stays, and the check comes after it.
 
 ## Workflow

@@ -9,7 +9,7 @@ Runs one unattended first-pass review over the open pull requests (GitHub) or me
 - After round 1, it posts minor findings only on lines that changed since the last round. Serious findings always get through.
 - It never posts the same finding twice, also when a teammate or another bot found it first.
 - It keeps its state in one file for each project. A run lock stops two runs for the same project from posting the same finding, and it frees itself 90 minutes after a crash.
-- Reviews can run in parallel, but the heavy steps (install, checks, the running app with a browser) take turns through a machine lock, and each one starts only when the machine has free memory and CPU. When the machine stays busy for 30 minutes, the PR waits for the next run.
+- Heavy steps (install, checks, the running app with a browser) take turns through a machine lock. On macOS, critical memory pressure or high CPU load makes a step wait. Normal and warning memory pressure allow it. When measurement fails, the review continues with a warning. The machine lock and `nice -n 10` still apply. When measured overload lasts 30 minutes, the PR waits for the next run.
 - It does not write to the agent memory. The state file and the report are the only record of a run.
 
 ## Install
@@ -56,7 +56,7 @@ Env files (`.env` and `.env.*`) and certificates or keys (`.pem`, `.crt`, `.cer`
 | `max_age` | 30 days | Skip a PR when its last update is older than this. |
 | `review_scope` | `all` | `all`, `exclude-own`, or `assigned`: all authors, other authors only, or your direct reviewer assignments. |
 | `include_own` | true | Legacy setting. Without explicit `review_scope`, `false` selects `exclude-own` and `true` selects `all`. |
-| `headroom_wait` | 30 minutes | How long a heavy step waits for free memory and CPU before the PR waits for the next run. |
+| `headroom_wait` | 30 minutes | How long a heavy step waits for measured overload to end. Measurement failures do not make it wait. |
 | `copy_files` | empty | Extra local files to copy in addition to automatic env and certificate discovery. Paths are relative to the main checkout and can include subfolders. |
 | `provider` | `auto` | Set `github` or `gitlab` for a host whose name does not show the provider (GitHub Enterprise, self-managed GitLab). |
 
