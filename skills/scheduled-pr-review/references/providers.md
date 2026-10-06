@@ -31,8 +31,8 @@ Branch names, file paths, and other values from the provider or the repository c
 
 | Operation | GitHub (`gh`) | GitLab (`glab`) |
 | --- | --- | --- |
-| Current user | `gh api user --jq .login` | `glab api --hostname <host> user`, field `username` |
-| Open PRs (all pages) | `gh api "repos/<path>/pulls?state=open&per_page=100" --paginate --slurp \| jq 'add'` (fields `number`, `head.sha`, `base.ref`, `draft`, `user`) | `glab api --hostname <host> "projects/<enc>/merge_requests?state=opened&per_page=100" --paginate \| jq -s 'add'` (fields `iid`, `target_branch`, `draft`, `author`), then `glab api --hostname <host> projects/<enc>/merge_requests/<iid>` for `diff_refs` and `head_pipeline` |
+| Current user | `gh api user`, fields `login` and `id` | `glab api --hostname <host> user`, fields `username` and `id` |
+| Open PRs (all pages) | `gh api "repos/<path>/pulls?state=open&per_page=100" --paginate --slurp \| jq 'add'` (fields `number`, `head.sha`, `base.ref`, `draft`, `user`, `requested_reviewers`) | `glab api --hostname <host> "projects/<enc>/merge_requests?state=opened&per_page=100" --paginate \| jq -s 'add'` (fields `iid`, `target_branch`, `draft`, `author`, `reviewers`), then `glab api --hostname <host> projects/<enc>/merge_requests/<iid>` for `diff_refs` and `head_pipeline` |
 | Head SHA | `head.sha` | `diff_refs.head_sha` |
 | Write access | `gh api repos/<path>/collaborators/<login>/permission --jq .permission` is `admin`, `maintain`, or `write` | `glab api --hostname <host> projects/<enc>/members/all/<author id>`, `access_level` is 30 or higher |
 | Fork | `head.repo.full_name` is not `base.repo.full_name` (or `head.repo` is null) | `source_project_id` is not `target_project_id` |
@@ -43,6 +43,30 @@ Branch names, file paths, and other values from the provider or the repository c
 | CI of the head SHA | `gh pr checks <number> -R <path> --json name,workflow,state,bucket,link` | `head_pipeline` when its `sha` is the head SHA. Else the pipeline with the highest `id` from `projects/<enc>/pipelines?sha=<head sha>`. Then read all pages of `projects/<enc>/pipelines/<id>/jobs?per_page=100` and of `projects/<enc>/pipelines/<id>/bridges?per_page=100`, each with `--paginate \| jq -s 'add'`. A bridge only triggers a child pipeline: for each bridge with a `downstream_pipeline`, read the jobs and bridges of that pipeline the same way, down to the last level |
 | Log of a failed CI job | Only for GitHub Actions jobs, whose link ends in `/actions/runs/<run>/job/<job id>`: `gh api repos/<path>/actions/jobs/<job id>/logs`. Other checks (for example CodeQL) have no log through this call. Record the link only. | `glab api --hostname <host> projects/<enc>/jobs/<job id>/trace` |
 | Existing comments | Read all three: inline comments `repos/<path>/pulls/<number>/comments`, general comments `repos/<path>/issues/<number>/comments`, and review bodies `repos/<path>/pulls/<number>/reviews`. Use `gh api --paginate --slurp` for each. | `glab api --hostname <host> "projects/<enc>/merge_requests/<iid>/discussions?per_page=100" --paginate` (discussions include inline and general comments) |
+
+## Review scope
+
+Pipe one PR object from the provider list into this command. It returns `true` when the scope includes the PR. Apply the other selection rules before sorting and limiting the selected PRs. Keep excluded PRs in the report.
+
+```bash
+jq --arg provider "$provider" --arg scope "$review_scope" --argjson user "$current_user_id" '
+  if $scope == "all" then true
+  elif $scope == "exclude-own" then
+    (if $provider == "github" then .user.id else .author.id end) != $user
+  elif $scope == "assigned" then
+    (if $provider == "github" then .requested_reviewers else .reviewers end) as $reviewers
+    | if ($reviewers | type) != "array" then error("reviewer data unavailable")
+      else any($reviewers[]; .id == $user) end
+  else error("invalid review_scope: " + $scope)
+  end
+'
+```
+
+- Use the numeric account ID, not a display name or the git commit author. The provider must already be resolved.
+- An empty reviewer array means no direct assignment. A missing or invalid array means unavailable data, not an empty list.
+- Do not use `jq -e` here: a valid `false` is an exclusion, not an API failure.
+- GitHub's `requested_reviewers` contains pending personal requests. Submitted reviews and `requested_teams` do not count.
+- GitLab's `reviewers` contains assigned reviewers. Do not use `assignees` or the `assigned_to_me` scope.
 
 ## Things that look like errors
 

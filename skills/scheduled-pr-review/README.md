@@ -34,6 +34,16 @@ Override a setting in the invocation:
 /jvm-skills:scheduled-pr-review max_rounds=3 copy_files="config/dev.keystore"
 ```
 
+Choose which PRs to review:
+
+```text
+/jvm-skills:scheduled-pr-review review_scope=all
+/jvm-skills:scheduled-pr-review review_scope=exclude-own
+/jvm-skills:scheduled-pr-review review_scope=assigned
+```
+
+`all` is the default. `exclude-own` skips your PRs. `assigned` selects PRs where the signed-in account is directly assigned as reviewer. Assignees and team requests do not count. On GitHub, this means a pending personal review request, not a review already submitted. All other selection rules still apply, including `prs` and the limit per run.
+
 Env files (`.env` and `.env.*`) and certificates or keys (`.pem`, `.crt`, `.cer`, `.key`, `.p12`, `.pfx`) are discovered automatically, including in subfolders and when ignored by Git. The copy keeps relative paths and skips tracked files, dependencies, build outputs, caches, and symlinks. It never overwrites an existing worktree file. Use `copy_files` for extra local files with other names.
 
 | Setting | Default | Meaning |
@@ -44,7 +54,8 @@ Env files (`.env` and `.env.*`) and certificates or keys (`.pem`, `.crt`, `.cer`
 | `quiet_period` | 30 minutes | Skip a PR when its head is younger than this. |
 | `ci_wait_limit` | 2 hours | Wait for running CI, but not longer than this after the head commit. |
 | `max_age` | 30 days | Skip a PR when its last update is older than this. |
-| `include_own` | true | Review PRs that the current user opened. |
+| `review_scope` | `all` | `all`, `exclude-own`, or `assigned`: all authors, other authors only, or your direct reviewer assignments. |
+| `include_own` | true | Legacy setting. Without explicit `review_scope`, `false` selects `exclude-own` and `true` selects `all`. |
 | `headroom_wait` | 30 minutes | How long a heavy step waits for free memory and CPU before the PR waits for the next run. |
 | `copy_files` | empty | Extra local files to copy in addition to automatic env and certificate discovery. Paths are relative to the main checkout and can include subfolders. |
 | `provider` | `auto` | Set `github` or `gitlab` for a host whose name does not show the provider (GitHub Enterprise, self-managed GitLab). |

@@ -35,19 +35,22 @@ Fix commits are small, so later rounds have little new code to comment on and th
 | `quiet_period` | 30 minutes | Skip a PR when its head is younger than this. The author is still pushing. |
 | `ci_wait_limit` | 2 hours | Wait for running CI, but not longer than this after the head commit. |
 | `max_age` | 30 days | Skip a PR when its last update is older than this. |
-| `include_own` | true | Review PRs that the current user opened. |
+| `review_scope` | `all` | `all`: include all authors. `exclude-own`: skip PRs opened by the current user. `assigned`: include only PRs with the current user directly assigned as reviewer. |
+| `include_own` | true | Legacy setting. When `review_scope` is not supplied, `false` selects `exclude-own` and `true` selects `all`. |
 | `headroom_wait` | 30 minutes | How long a heavy step waits for free memory and CPU. After that, the PR waits for the next run. |
 | `copy_files` | empty | Extra local files to copy in addition to automatic env and certificate discovery. Use paths relative to the main checkout, including subfolders. |
 | `provider` | `auto` | `github` or `gitlab` for a host that the name does not show, for example GitHub Enterprise or a self-managed GitLab on `code.example.com`. |
 
 The caller can override a setting with an argument, for example `max_rounds=3`.
 
+Resolve `review_scope` before selecting PRs. An explicit `review_scope` takes precedence over `include_own`. Reject any other scope value before reviewing or posting. The scope is an additional filter: `prs`, trust, CI, age, and round limits still apply.
+
 ## Provider and project
 
 1. Get the host, the project path, the URL-encoded path, and the project key with the snippet under "Project facts" in `references/providers.md`. The key names the state file and the lock.
 2. Get the provider. When `provider` is `github` or `gitlab`, use it. When it is `auto`, use GitHub for `github.com` and GitLab when the host contains `gitlab`. For any other host, stop and report that `provider` must be set.
 3. Use only the commands of this provider. They are in `references/providers.md`. Always pass the project path explicitly. Do not rely on the CLI to find the project from the remote.
-4. Get the account that this run posts with ("Current user" in `references/providers.md`).
+4. Get the account that this run posts with ("Current user" in `references/providers.md`). Keep its numeric ID as `current_user_id`. Stop when the account cannot be resolved.
 5. Get the main checkout, which holds the local env files, certificates, and extra files: the first path of `git worktree list --porcelain`.
 
 ## Trust
@@ -143,12 +146,17 @@ When PRs run in parallel, each worker does steps 2 to 8 and returns its result: 
 
 ### 1. Select the PRs
 
+Apply the resolved `review_scope` with the "Review scope" recipe in `references/providers.md` to each PR. Use current provider data on every run, not stored assignments. `assigned` uses GitHub's `requested_reviewers` or GitLab's `reviewers`. Assignees, team requests, and past reviews alone do not qualify. On GitHub, a submitted review removes the pending request until someone requests another review.
+
+When reviewer data is unavailable in `assigned` mode, defer that PR with the reason "next run: reviewer data unavailable". Do not review, post, or advance its review state. Never fall back to `all`.
+
 Skip a PR in this run when one of these conditions is true. Give the reason in the report.
 
 - `prs` is set, and the PR is not in it.
 - It is a draft.
 - It is not trusted.
-- The current user opened it, and `include_own` is false.
+- `review_scope` is `exclude-own`, and the current user opened it. Report "own PR excluded".
+- `review_scope` is `assigned`, and the current user is not directly assigned as reviewer. Report "not assigned as reviewer".
 - Its head SHA is the stored `last_reviewed_sha`.
 - Its head is younger than `quiet_period` (see "head time" below).
 - Its last update is older than `max_age`. Use the update time of the provider, not the commit time.
