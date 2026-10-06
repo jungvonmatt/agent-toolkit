@@ -96,7 +96,7 @@ The lock folder is `<project key>.lock` in the state folder. Its `heartbeat` fil
 4. **Stale lock.** When the heartbeat is 90 minutes old or older, create `<project key>.lock.takeover` with `mkdir`. When that fails, another run is taking over: stop. (Remove a `.takeover` folder that is older than 10 minutes, and try once more.) Inside the takeover, read `heartbeat` again:
    - When it is now younger than 90 minutes, another run was faster. Remove `.takeover` and stop.
    - Else remove the lock folder (`rm -rf -- "${state_dir:?}/${proj_key:?}.lock"`), create it again with `mkdir`, write `owner` and `heartbeat`, and remove `.takeover`. When the `mkdir` fails, remove `.takeover` and stop. Report "took over a stale lock" with the old owner and heartbeat.
-5. **Heartbeat.** Write the time into `heartbeat` before each PR, and before each check, the review, and the posting.
+5. **Heartbeat.** Write the time into `heartbeat` before and after each PR, each check, the review, and the posting. Write it atomically: write `heartbeat.tmp`, then rename it to `heartbeat` with `mv`, so a reader never sees a half-written time. Do not start a background process that refreshes the heartbeat: when a run dies, such a process can keep the lock alive forever.
 6. **Owner check.** Before each comment and each state write, read `owner`. When it is not this run's token, another run took over: stop at once, and do not post or write anything more.
 7. **Release.** At the end of the run, also after an early stop or a failure, remove the lock folder with `rm -rf -- "${state_dir:?}/${proj_key:?}.lock"` when `owner` is this run's token.
 
@@ -139,10 +139,15 @@ Fetch the head of the PR and its target branch with the command in `references/p
 copy_files=(.env localhost-key.pem localhost.pem)   # the copy_files setting, as an array
 worktree="$(mktemp -d)/pr-$number"
 git -c core.hooksPath=/dev/null worktree add --detach "$worktree" "$head_sha"
-for f in "${copy_files[@]}"; do [ -f "$main_checkout/$f" ] && cp "$main_checkout/$f" "$worktree/$f"; done
+for f in "${copy_files[@]}"; do
+  [ -f "$main_checkout/$f" ] || continue
+  rm -rf -- "${worktree:?}/$f"
+  cp -- "$main_checkout/$f" "$worktree/$f"
+done
 ```
 
-Keep `copy_files` an array: zsh does not split an unquoted string, so `for f in $copy_files` would copy nothing.
+- Keep `copy_files` an array: zsh does not split an unquoted string, so `for f in $copy_files` would copy nothing.
+- Remove the destination before the copy. The PR can check in `.env` as a symlink to a file outside the worktree, and `cp` would then write the secret into that file.
 
 Then install the dependencies in the worktree with the package manager of the repository and its frozen lockfile, for example `HUSKY=0 pnpm install --frozen-lockfile`. `HUSKY=0` stops the install from changing the git hooks of the repository.
 
