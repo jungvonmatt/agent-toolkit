@@ -55,13 +55,21 @@ Branch names, file paths, and other values from the provider or the repository c
 - `gh api --paginate` and `glab api --paginate` print one JSON array for each page. Use `--slurp` with `gh`, and merge the `glab` pages with `jq -s 'add'`.
 - `glab api` exits with 0 on HTTP errors. Read the response.
 
+## Temporary files for a comment
+
+Write a comment body or a payload to a `mktemp` file, never to a fixed name such as `comment.md`. In the PR worktree, a PR can check in that name, or a symlink with that name that points outside the worktree. `mktemp` creates a new private file outside the checkout, and the `trap` removes it also when the post fails.
+
 ## Post an inline comment on GitHub
 
-Write the comment body to a file, then post it:
+Write the comment body to a temporary file, then post it, in one shell call:
 
 ```bash
+body_file=$(mktemp); trap 'rm -f -- "$body_file"' EXIT
+cat > "$body_file" <<'COMMENT'
+<comment with marker>
+COMMENT
 gh api --method POST "repos/$proj_path/pulls/$number/comments" \
-  -F body=@comment.md \
+  -F "body=@$body_file" \
   -f commit_id="$head_sha" \
   -f path="$file" \
   -F line="$line" \
@@ -74,24 +82,25 @@ gh api --method POST "repos/$proj_path/pulls/$number/comments" \
 
 ## Post an inline comment on GitLab
 
-Build the JSON body with `jq --arg`, so a file path or a comment cannot break the JSON or the shell command:
+Build the JSON body with `jq --arg`, so a file path or a comment cannot break the JSON or the shell command. Write it and post it in one shell call:
 
 ```bash
-jq -n --rawfile body comment.md --arg base "$base_sha" --arg start "$start_sha" --arg head "$head_sha" \
+body_file=$(mktemp); payload=$(mktemp); trap 'rm -f -- "$body_file" "$payload"' EXIT
+cat > "$body_file" <<'COMMENT'
+<comment with marker>
+COMMENT
+jq -n --rawfile body "$body_file" --arg base "$base_sha" --arg start "$start_sha" --arg head "$head_sha" \
   --arg old_path "$old_path" --arg new_path "$new_path" --argjson new_line "$new_line" \
   '{body: $body, position: {position_type: "text", base_sha: $base, start_sha: $start, head_sha: $head,
-    old_path: $old_path, new_path: $new_path, new_line: $new_line}}' > payload.json
+    old_path: $old_path, new_path: $new_path, new_line: $new_line}}' > "$payload"
+glab api --hostname "$proj_host" --method POST "projects/$proj_enc/merge_requests/$iid/discussions" \
+  -H "Content-Type: application/json" --input "$payload"
 ```
 
 - `base_sha`, `start_sha`, and `head_sha` come from `diff_refs`.
 - `old_path` and `new_path` come from the diff of the file. They differ for a renamed file, and GitLab rejects or misplaces the comment when both carry the new path.
 - For an added line, set `new_line`. For a deleted line, set `old_line` instead. For a context line, set both.
 - `-f position[...]` flags are silently dropped, and the comment then lands as a general comment. Always send JSON.
-
-```bash
-glab api --hostname "$proj_host" --method POST "projects/$proj_enc/merge_requests/$iid/discussions" \
-  -H "Content-Type: application/json" --input payload.json
-```
 
 - Without the `Content-Type` header, GitLab returns HTTP 415.
 - Check that the response has a `position` that is not null. Before a retry, read the discussions again, so you do not post the same comment twice.
