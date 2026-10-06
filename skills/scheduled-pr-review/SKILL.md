@@ -259,7 +259,8 @@ Run it in full mode in the worktree, on the full PR diff, so it has the full con
 - to use the check results from step 4 as the check evidence, and not to run lint, format, typecheck, unit tests, or build again;
 - to do the reading parts of the review right away, but to take the machine lock (owner `<run token>-<PR number>`, see "Machine lock") and wait for headroom (see "Headroom") before it installs the dependencies or starts the app, to start the app with `nice -n 10`, and to pass these instructions on to the part of `pr-review` that does the runtime checks;
 - to start the app on a free port, never on a port that is in use (for example `3000` of a running dev server), and never to use or stop a server that it did not start;
-- to stop the app after the runtime checks, and then to release the machine lock.
+- to stop the app after the runtime checks, and then to release the machine lock;
+- to run Fallow from the working folder of the session with `npx fallow audit --root "$worktree" --base "$new_base" --format json --quiet --explain`, after the install, and never to `cd` into the worktree for it.
 
 The browser checks need a browser tool in the session, for example the Chrome DevTools MCP server. When the session has none, or the app does not start, record the runtime checks as "unavailable" with the reason. An HTTP request to the page is not a browser check: do not report it as one.
 
@@ -335,6 +336,7 @@ Then list the skipped PRs with the reason (including "untrusted"), the PRs that 
 | Start a heavy step while the machine is under memory pressure | The computer of the person at the machine slows down or swaps | Wait for headroom; after `headroom_wait`, leave the PR for the next run |
 | Let parallel PR workers write the state file | One worker overwrites the entry of another, and the next run repeats a review | Workers return their results; only the main run writes the state, one PR at a time |
 | Keep notes about runs in the agent memory | The memory grows with every run, and a later run trusts a note instead of the state | The state file and the report are the only record |
+| Run `npx` inside the PR worktree (`cd "$worktree" && npx fallow …`) | Claude Code's auto mode blocks it as code from an external source, and `npx` could run a binary from the PR | Run `npx fallow audit --root "$worktree"` from the working folder of the session |
 | Review the diff yourself instead of calling `pr-review` | No review passes, no Fallow, no browser checks | Invoke `jvm-skills:pr-review` with the Skill tool in step 5 |
 | Keep a crashed run's lock forever | No PR gets reviewed again | The lock is a lease: a stale lock is taken over after 90 minutes |
 | Match duplicates on the line number | The same finding comes back after a rebase | Match on file, symbol, and problem |
