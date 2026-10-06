@@ -31,8 +31,10 @@ Run it in the repository whose PRs you want to review:
 Override a setting in the invocation:
 
 ```text
-/jvm-skills:scheduled-pr-review max_rounds=3 copy_files=".env.integration localhost-key.pem localhost.pem"
+/jvm-skills:scheduled-pr-review max_rounds=3 copy_files="config/dev.keystore"
 ```
+
+Env files (`.env` and `.env.*`) and certificates or keys (`.pem`, `.crt`, `.cer`, `.key`, `.p12`, `.pfx`) are discovered automatically, including in subfolders and when ignored by Git. The copy keeps relative paths and skips tracked files, dependencies, build outputs, caches, and symlinks. It never overwrites an existing worktree file. Use `copy_files` for extra local files with other names.
 
 | Setting | Default | Meaning |
 | --- | --- | --- |
@@ -44,7 +46,7 @@ Override a setting in the invocation:
 | `max_age` | 30 days | Skip a PR when its last update is older than this. |
 | `include_own` | true | Review PRs that the current user opened. |
 | `headroom_wait` | 30 minutes | How long a heavy step waits for free memory and CPU before the PR waits for the next run. |
-| `copy_files` | `.env localhost-key.pem localhost.pem` | Files in the project root that the app needs to start, copied from the main checkout into each worktree when they exist. |
+| `copy_files` | empty | Extra local files to copy in addition to automatic env and certificate discovery. Paths are relative to the main checkout and can include subfolders. |
 | `provider` | `auto` | Set `github` or `gitlab` for a host whose name does not show the provider (GitHub Enterprise, self-managed GitLab). |
 
 ### As a scheduled task
@@ -61,7 +63,7 @@ Start the task once by hand before you enable the schedule. Then you can approve
 
 - Inline comments on the PRs, for P0 to P2 findings only. Each comment ends with a hidden `scheduled-pr-review` marker.
 - The state file `${XDG_STATE_HOME:-$HOME/.local/state}/scheduled-pr-review/<project key>.json`, a lock folder next to it while a run works, and the folder `machine.lock` during a heavy step.
-- A temporary worktree for each reviewed PR, with copies of the `copy_files`. It removes the worktree after the review, also after a failure.
+- A temporary worktree for each reviewed PR, with copies of local env files, certificates, and the extra files of `copy_files`. It removes the worktree after the review, also after a failure.
 
 It adds no labels, assignments, approvals, or merges, and it never commits or pushes. The run report stays in the run.
 
