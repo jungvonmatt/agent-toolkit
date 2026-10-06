@@ -139,6 +139,8 @@ has_headroom() {
 
 Do step 1 for all open PRs. Then do steps 2 to 9 for each selected PR. PRs can run in parallel, but their heavy steps take turns through the machine lock.
 
+When PRs run in parallel, each worker does steps 2 to 8 and returns its result: the head SHA, the findings with `posted` and the reason, and whether every post is done. Only the main run writes the state file (step 9), so two workers never overwrite each other's entry.
+
 ### 1. Select the PRs
 
 Skip a PR in this run when one of these conditions is true. Give the reason in the report.
@@ -259,7 +261,7 @@ When every post of step 7 is done, set `last_reviewed_sha` to the head, add 1 to
 
 When a post is not done, do not change `last_reviewed_sha` or `rounds`. Append only the findings that are posted, and report the failed post. The next run then reviews the same head again and retries the missing comment. The re-read of the comments stops a second copy of the others.
 
-Write the state after each PR, not only at the end of the run.
+Write the state after each PR, not only at the end of the run. Write it from the main run only, one PR at a time: read the file, change only the entry of this PR, and write it atomically. The same applies to `head_seen` from step 1 and to the empty delta of step 2.
 
 ## Report
 
@@ -288,6 +290,7 @@ Then list the skipped PRs with the reason (including "untrusted"), the PRs that 
 | Run lint and tests that CI already ran | Slow runs | Step 4 uses the CI results first |
 | Run the checks or the app of several PRs at the same time | The machine runs out of memory | Take the machine lock before each heavy step |
 | Start a heavy step while the machine is under memory pressure | The computer of the person at the machine slows down or swaps | Wait for headroom; after `headroom_wait`, leave the PR for the next run |
+| Let parallel PR workers write the state file | One worker overwrites the entry of another, and the next run repeats a review | Workers return their results; only the main run writes the state, one PR at a time |
 | Keep notes about runs in the agent memory | The memory grows with every run, and a later run trusts a note instead of the state | The state file and the report are the only record |
 | Review the diff yourself instead of calling `pr-review` | No review passes, no Fallow, no browser checks | Invoke `jvm-skills:pr-review` with the Skill tool in step 5 |
 | Keep a crashed run's lock forever | No PR gets reviewed again | The lock is a lease: a stale lock is taken over after 90 minutes |
