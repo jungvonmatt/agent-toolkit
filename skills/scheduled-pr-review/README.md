@@ -73,10 +73,11 @@ Start the task once by hand before you enable the schedule. Then you can approve
 ## What it changes
 
 - Inline comments on the PRs, for P0 to P2 findings only. Each comment ends with a hidden `scheduled-pr-review` marker.
+- A round note when a round posts no inline comment: an approval when nothing is open and no check failed, else a comment. The note lists the minor (P3) findings as optional follow-ups, so a clean review is visible on the PR.
 - The state file `${XDG_STATE_HOME:-$HOME/.local/state}/scheduled-pr-review/<project key>.json`, a lock folder next to it while a run works, and the folder `machine.lock` during a heavy step.
 - A temporary worktree for each reviewed PR, with copies of local env files, certificates, and the extra files of `copy_files`. It removes the worktree after the review, also after a failure.
 
-It adds no labels, assignments, approvals, or merges, and it never commits or pushes. The run report stays in the run.
+It adds no labels, assignments, or merges, and it never commits or pushes. The run report stays in the run.
 
 ## Output
 

@@ -128,3 +128,39 @@ glab api --hostname "$proj_host" --method POST "projects/$proj_enc/merge_request
 
 - Without the `Content-Type` header, GitLab returns HTTP 415.
 - Check that the response has a `position` that is not null. Before a retry, read the discussions again, so you do not post the same comment twice.
+
+## Post the round note
+
+Write the note to a temporary file, then post it in one shell call. `event` is `APPROVE` or `COMMENT` (see step 9).
+
+GitHub (one review that carries the note and the approval):
+
+```bash
+body_file=$(mktemp); trap 'rm -f -- "$body_file"' EXIT
+cat > "$body_file" <<'NOTE'
+<note with marker>
+NOTE
+gh api --method POST "repos/$proj_path/pulls/$number/reviews" \
+  -F "body=@$body_file" \
+  -f event="$event" \
+  -f commit_id="$head_sha"
+```
+
+- Check that the response `state` is `APPROVED` or `COMMENTED`. HTTP 422 on `APPROVE` means the current user opened the PR: post the note with `event=COMMENT` instead.
+
+GitLab (a note, and for an approval also the approve call):
+
+```bash
+body_file=$(mktemp); payload=$(mktemp); trap 'rm -f -- "$body_file" "$payload"' EXIT
+cat > "$body_file" <<'NOTE'
+<note with marker>
+NOTE
+jq -n --rawfile body "$body_file" '{body: $body}' > "$payload"
+glab api --hostname "$proj_host" --method POST "projects/$proj_enc/merge_requests/$iid/notes" \
+  -H "Content-Type: application/json" --input "$payload"
+# Only for an approval:
+glab api --hostname "$proj_host" --method POST "projects/$proj_enc/merge_requests/$iid/approve" -f sha="$head_sha"
+```
+
+- `sha` makes GitLab refuse the approval (HTTP 409) when the head moved since the review. Then leave the note, and let the next run review the new head.
+- `glab api` exits with 0 on HTTP errors. Read both responses.

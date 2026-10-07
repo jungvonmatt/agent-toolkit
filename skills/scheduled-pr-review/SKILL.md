@@ -17,7 +17,7 @@ Fix commits are small, so later rounds have little new code to comment on and th
 
 ## Rules for every run
 
-- **Read-only.** The only writes are the inline comments of step 7, the state file, the run lock, and the machine lock. No labels, assignments, approvals, merge actions, commits, or pushes.
+- **Read-only.** The only writes are the inline comments of step 7, the round note of step 9 (an approval or a comment), the state file, the run lock, and the machine lock. No labels, assignments, merge actions, commits, or pushes.
 - **Trusted PRs only.** The skill runs the code of a PR on this machine, with the env and certificate files of the project. So it reviews only trusted PRs (see "Trust") and skips all others.
 - **Secret files stay secret.** Copy local env files, certificates, and the extra files of `copy_files` with `cp` only. Never print or read their content, and remove them with the worktree.
 - **No memory.** Do not write to the agent memory (for example `MEMORY.md` or memory notes), and do not use memory notes as a record of earlier runs. The state file and the report are the only record of a run.
@@ -87,7 +87,7 @@ The state folder is `${XDG_STATE_HOME:-$HOME/.local/state}/scheduled-pr-review/`
 - `rounds` counts the completed rounds. The current round is `rounds + 1`, and the markers of step 7 carry the current round.
 - If the `project` field is not `<host>/<project path>` of this repository, stop and report it. Do not write to the file.
 - Write the file atomically: write a temporary file in the same folder, then rename it.
-- If a PR has no entry, rebuild the entry from the markers of step 7. Use only comments by the current user. A marker proves that one comment was posted, not that its round finished. So set `rounds` to the highest marker round minus 1, add the marked findings as posted, and leave `last_reviewed_sha` empty. The run then reviews the head again, and the duplicate check stops a second copy of the posted comments. A PR without markers starts at round 1.
+- If a PR has no entry, rebuild the entry from the markers of step 7 and step 9. Use only comments by the current user. A marker proves that one comment or note was posted, not that its round finished. So set `rounds` to the highest marker round minus 1, add the marked findings as posted, and leave `last_reviewed_sha` empty. The run then reviews the head again, and the duplicate check stops a second copy of the posted comments. A PR without markers starts at round 1.
 
 ## Run lock
 
@@ -178,9 +178,9 @@ has_headroom() {
 
 ## Workflow
 
-Do step 1 for all open PRs. Then do steps 2 to 9 for each selected PR. PRs can run in parallel, but their heavy steps take turns through the machine lock.
+Do step 1 for all open PRs. Then do steps 2 to 10 for each selected PR. PRs can run in parallel, but their heavy steps take turns through the machine lock.
 
-When PRs run in parallel, each worker does steps 2 to 8 and returns its result: the head SHA, the findings with `posted` and the reason, and whether every post is done. Only the main run writes the state file (step 9), so two workers never overwrite each other's entry.
+When PRs run in parallel, each worker does steps 2 to 9 and returns its result: the head SHA, the findings with `posted` and the reason, and whether every post is done. Only the main run writes the state file (step 10), so two workers never overwrite each other's entry.
 
 ### 1. Select the PRs
 
@@ -337,9 +337,33 @@ A post is done when the provider accepted it, or when the re-read shows that the
 
 For each finding that you posted in an earlier round, check whether the head fixes it. Report "fixed" or "still open". Do not post this on the PR.
 
-### 9. Update the state
+### 9. Post the round note
 
-When every post of step 7 is done, set `last_reviewed_sha` to the head, add 1 to `rounds`, and append the new findings, posted and held back.
+A round that posts no inline comment leaves no trace on the PR, so the author cannot tell a clean review from no review. So when step 7 posted no comment in this round, post one review note on the head SHA with the recipe "Post the round note" in `references/providers.md`:
+
+| Condition | Note |
+| --- | --- |
+| No earlier finding is still open (step 8), no check of step 4 failed, and the current user did not open the PR | Approve, with the note |
+| Else | Comment, with the note. Do not approve. |
+
+- Start the note with the result in one sentence, for example "Approved. The first-pass review found no P0–P2 issues on `<short sha>`."
+- Then list the held-back P3 findings as optional follow-ups that do not block the merge: the file, the symbol, and one short sentence each. Leave out the findings held back because another comment already has them.
+- For a comment note, also list the earlier findings that are still open and the failed checks.
+- End the note with this hidden marker:
+
+  ```text
+  <!-- scheduled-pr-review round=<n> sha=<head sha> note=<approve|comment> -->
+  ```
+
+- A provider does not let the author approve their own PR (GitHub returns HTTP 422). That is why an own PR gets a comment note.
+- When step 7 posted at least one comment, post no note: the comments already show the review.
+- Before you retry a failed note, read the reviews and comments again, and look for a marker with this head SHA.
+
+The note counts as a post for step 10.
+
+### 10. Update the state
+
+When every post of step 7 and step 9 is done, set `last_reviewed_sha` to the head, add 1 to `rounds`, and append the new findings, posted and held back.
 
 When a post is not done, do not change `last_reviewed_sha` or `rounds`. Append only the findings that are posted, and report the failed post. The next run then reviews the same head again and retries the missing comment. The re-read of the comments stops a second copy of the others.
 
@@ -354,6 +378,7 @@ Reply with the project key and one block per reviewed PR:
 - the runtime checks: done, or "unavailable" with the reason
 - other failed or cancelled CI jobs, with name and link
 - the posted findings
+- the round note: approve, comment, or none (because comments were posted), with the link
 - the held-back findings, with the reason
 - the earlier findings, fixed or still open
 
@@ -377,6 +402,7 @@ Then list the skipped PRs with the reason (including "untrusted"), the PRs that 
 | Run `npx` inside the PR worktree (`cd "$worktree" && npx fallow …`) | Claude Code's auto mode blocks it as code from an external source, and `npx` could run a binary from the PR | Run `npx fallow audit --root "$worktree"` from the working folder of the session |
 | Review the diff yourself instead of calling `pr-review` | No review passes, no Fallow, no browser checks | Invoke `jvm-skills:pr-review` with the Skill tool in step 5 |
 | Keep a crashed run's lock forever | No PR gets reviewed again | The lock is a lease: a stale lock is taken over after 90 minutes |
+| Post nothing when a round finds only P3 findings | The PR shows no review at all, and the author waits | Step 9 posts an approval note with the P3 findings as optional follow-ups |
 | Match duplicates on the line number | The same finding comes back after a rebase | Match on file, symbol, and problem |
 | Let the CLI find the project from the remote | SSH host aliases (for example `altssh.gitlab.com`) break the lookup | Pass the project path explicitly |
 | Trust the exit code of `glab api` | It exits 0 on HTTP errors, and a retry posts twice | Read the response, then read the comments before a retry |
