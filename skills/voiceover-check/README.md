@@ -33,20 +33,23 @@ Run a screen reader pass on the checkout dialog: is the title read when it opens
 The agent will:
 
 1. **Check the machine**: macOS, VoiceOver, and AppleScript control. If one is missing, it tells you what to do and starts nothing.
-2. **Ask first**: what it checks and how long it takes.
-3. **Prepare**: open the page in a visible browser, set the page state, focus the start element, and start VoiceOver.
-4. **Walk**: move the VoiceOver cursor item by item and log what is spoken.
-5. **Listen**: move to the control, press VO-Space while it listens, and log every announcement. It repeats each check 3 times and passes only at 3 of 3.
-6. **Stop and report**: quit VoiceOver and report expected versus spoken text per criterion.
+2. **Check in the browser**: find the component in an accessibility snapshot, list the browser's own accessibility issues, and choose the checks for the component (dialog, form, live region, menu) from [references/checks.md](references/checks.md).
+3. **Ask first**: what it checks, in which browser, and how long it takes. After your OK, you click into the browser window and keep your hands off the keyboard.
+4. **Start**: wait until the browser is in front, then start VoiceOver.
+5. **Walk**: move the VoiceOver cursor item by item and log what is spoken. Usage hints do not replace the item text.
+6. **Listen**: move to the control, press VO-Space while it listens, and log every announcement. It repeats each check 3 times and passes only at 3 of 3.
+7. **Stop and report**: quit VoiceOver, confirm each finding in the DOM, and report expected versus spoken text per check, with severity, WCAG criterion, and a fix pointer.
 
 ## Output
 
 ```text
 voiceover-check/
-├── SKILL.md              — Agent instructions
-├── README.md             — This file
-├── references/setup.md   — One-time setup and troubleshooting
-└── scripts/vo.sh         — check, start, stop, front, last, walk, seek, act, into, out, poll
+├── SKILL.md                         — Agent instructions
+├── README.md                        — This file
+├── references/setup.md              — One-time setup and troubleshooting
+├── references/checks.md             — Checks per component, WCAG criteria, severity
+├── references/report-template.md    — Report format
+└── scripts/vo.sh                    — check, wait, start, stop, front, last, walk, seek, act, into, out, poll
 ```
 
 ## When to use it

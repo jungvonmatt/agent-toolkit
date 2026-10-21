@@ -77,10 +77,11 @@ codex plugin add jvm-skills@jvm-skills
 | `/jvm-skills:pr-description` | Generate a PR/MR description from the current branch |
 | `/jvm-skills:pr-review` | Review the current PR/MR for merge readiness |
 | `/jvm-skills:scheduled-pr-review` | Run one scheduled first-pass review over all open PRs/MRs |
-| `/jvm-skills:voiceover-check` | Check reading order and announcements with VoiceOver on macOS |
 | `/jvm-skills:repo-diagnostics` | Run git-based repository diagnostics |
 | `/jvm-skills:jvm-design` | Bootstrap the JvM CI 2026 design system into a project |
 | `/jvm-skills:design-md` | Reverse-engineer a DESIGN.md from any design source |
+
+Skills without a command file are invoked the same way, for example `/jvm-skills:voiceover-check <page URL and what must be announced>`.
 
 ### Companion Skills
 

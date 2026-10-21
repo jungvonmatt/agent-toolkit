@@ -3,9 +3,11 @@
 #
 # usage:
 #   bash vo.sh check                       check that this Mac can run the check; starts nothing
-#   bash vo.sh start                       run check, start VoiceOver, and confirm that it answers AppleScript
+#   bash vo.sh wait <app> [seconds]        wait until <app> is in front (default 30 s); starts nothing
+#   bash vo.sh start [app]                 run check, start VoiceOver, and confirm that it answers AppleScript;
+#                                          with <app>: start only while <app> is in front, and check it again after
 #   bash vo.sh stop [--force]              quit the VoiceOver that start started (--force: also the user's)
-#   bash vo.sh front                       print the name of the app in front
+#   bash vo.sh front                       print the name of the app in front; it does not change it
 #   bash vo.sh last                        print the last phrase VoiceOver spoke
 #   bash vo.sh walk <app> <steps> [delay]  move the VoiceOver cursor <steps> items forward, print each phrase
 #   bash vo.sh seek <app> <text> [max]     move forward until the spoken phrase contains <text>
@@ -45,7 +47,7 @@ die() {
 }
 
 usage() {
-  sed -n '2,18p' "$0" | sed -E 's/^# ?//' >&2
+  awk 'NR > 1 && /^#/ { sub(/^# ?/, ""); print; next } NR > 1 { exit }' "$0" >&2
   exit 1
 }
 
@@ -85,24 +87,45 @@ guard() {
 keep_awake() { caffeinate -di -w $$ & }
 
 # Moves the VoiceOver cursor one item forward and prints the phrase.
-# The cursor counts as moved when its position or the phrase changes, so two equal items in a row are fine.
+# With hints on, VoiceOver replaces the item's phrase with a usage hint after a short pause. So only a
+# phrase that is new within ITEM_WINDOW seconds of the move counts as the item; a later one is the hint.
+# Without a new phrase, the item has the same text as the one before, or the cursor did not move:
+# the cursor position tells the two apart.
+ITEM_WINDOW=0.8
 step() {
-  local app=$1 delay=$2 n=$3 text before after
+  local app=$1 delay=$2 n=$3 text now before after timer window
   need_running
   guard "$app"
   before=$(cursor)
   must 'tell vo cursor to move right'
-  sleep "$delay"
-  text=$(read_phrase) || exit $?
+  sleep "$delay" &
+  timer=$!
+  sleep "$(awk -v d="$delay" -v w="$ITEM_WINDOW" 'BEGIN { print (d < w) ? d : w }')" &
+  window=$!
+  text=$PREV
+  while kill -0 "$window" 2>/dev/null; do
+    # A read that returns after the window closed may already be the hint.
+    if now=$(phrase) && kill -0 "$window" 2>/dev/null && [ "$now" != "$PREV" ]; then
+      text=$now
+      break
+    fi
+    sleep 0.1
+  done
+  kill "$window" 2>/dev/null
+  wait "$timer" "$window" 2>/dev/null
+  read_phrase >/dev/null || exit $? # VoiceOver must still answer
   after=$(cursor)
-  if [ "$text" = "$PREV" ] && [ "$after" = "$before" ]; then
+  if [ "$text" != "$PREV" ]; then
+    STUCK=0
+    printf '%03d  %s\n' "$n" "${text:-(empty phrase)}"
+  elif [ "$after" != "$before" ]; then
+    STUCK=0
+    printf '%03d  (same text) %s\n' "$n" "$text"
+  else
     # Do not step into the item here: on a plain control, VoiceOver then interacts with its parts.
     STUCK=$((STUCK + 1))
     [ "$STUCK" -ge 3 ] && die "stopped at step $n: the VoiceOver cursor does not move (end of the content, a focus trap, or a dialog to step into with: into)" 4
     printf '%03d  (no move) %s\n' "$n" "$text"
-  else
-    STUCK=0
-    printf '%03d  %s\n' "$n" "$text"
   fi
   PREV=$text
 }
@@ -132,8 +155,28 @@ cmd_check() {
   echo "This Mac is ready. On the first start, macOS can ask the user to allow Automation for VoiceOver."
 }
 
+cmd_wait() {
+  local app=$1 seconds=$2 end front
+  int "$seconds" seconds
+  end=$((SECONDS + seconds))
+  while :; do
+    front=$(frontmost)
+    if [ "$front" = "$app" ]; then
+      echo "\"$app\" is in front."
+      return 0
+    fi
+    [ "$SECONDS" -ge "$end" ] && die "\"$app\" did not come to the front within $seconds s: \"$front\" is in front. Ask the user to click into \"$app\", then run wait again. Do not bring it forward yourself." 2
+    sleep 0.5
+  done
+}
+
 cmd_start() {
+  local app=${1:-} front
   cmd_check
+  if [ -n "$app" ] && ! running; then
+    front=$(frontmost)
+    [ "$front" = "$app" ] || die "not started: \"$front\" is in front, not \"$app\". Ask the user to click into \"$app\", then run: wait \"$app\", and start again." 2
+  fi
   if running && owned; then
     echo "VoiceOver is already running: start launched it in an earlier attempt."
   elif running; then
@@ -159,6 +202,11 @@ Turn on \"Allow VoiceOver to be controlled with AppleScript\" (references/setup.
     esac
   fi
   echo "VoiceOver is running and answers AppleScript."
+  if [ -n "$app" ]; then
+    front=$(frontmost)
+    [ "$front" = "$app" ] || die "VoiceOver runs, but \"$front\" came to the front, not \"$app\". Run stop, ask the user to click into \"$app\", then run: wait \"$app\", and start again." 2
+    echo "\"$app\" is in front."
+  fi
 }
 
 cmd_stop() {
@@ -265,7 +313,8 @@ cmd_move() {
 
 case "${1:-}" in
   check) cmd_check ;;
-  start) cmd_start ;;
+  wait) [ $# -ge 2 ] || usage; cmd_wait "$2" "${3:-30}" ;;
+  start) cmd_start "${2:-}" ;;
   stop) cmd_stop "${2:-}" ;;
   front) frontmost ;;
   last) need_running; read_phrase ;;
