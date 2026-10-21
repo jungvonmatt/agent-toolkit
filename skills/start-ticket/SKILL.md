@@ -1,6 +1,7 @@
 ---
 name: start-ticket
 description: Use when starting work on an existing Jira, Asana, Linear, GitHub, or GitLab issue — given its key or URL — that must become an implementation plan before any code is written.
+argument-hint: "<ticket URL or key, e.g. PROJ-123>"
 ---
 
 # Start Ticket

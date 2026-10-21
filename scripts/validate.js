@@ -208,6 +208,9 @@ function checkSkillRefs(file, pluginName, skills) {
 
 function checkCommands(pluginName, skills) {
   for (const file of walk(path.join(root, '.claude', 'commands'), '.md')) {
+    const name = path.basename(file, '.md');
+    // A command and a skill with the same name share one slash command, and the command hides the skill.
+    if (skills.includes(name)) fail(file, `command "${name}" hides the skill of the same name; delete it and move its argument-hint into skills/${name}/SKILL.md`);
     const data = frontmatter(file);
     if (data && !data.description) fail(file, 'description is required');
     checkLinks(file);
@@ -231,7 +234,7 @@ function checkReadme(pluginName, skills) {
     const listed = [...commandSection.matchAll(/^\|\s*`\/[\w-]+:([a-z0-9-]+)`\s*\|/gm)].map((match) => match[1]);
     const commands = walk(path.join(root, '.claude', 'commands'), '.md').map((command) => path.basename(command, '.md'));
     for (const command of commands) if (!listed.includes(command)) fail(file, `command "${command}" is missing from the Commands table`);
-    for (const command of listed) if (!commands.includes(command)) fail(file, `Commands table lists "${command}" but .claude/commands/${command}.md does not exist`);
+    for (const command of listed) if (!commands.includes(command) && !skills.includes(command)) fail(file, `Commands table lists "${command}", which is neither a skill nor a .claude/commands file`);
   }
 
   const section = text.split(/^## Skills[ \t]*$/m)[1]?.split(/^#{1,3} /m)[0];

@@ -9,7 +9,7 @@
   "plugins": [
     {
       "name": "jvm-skills",
-      "version": "1.2.0",
+      "version": "1.2.1",
       "source": {
         "source": "github",
         "repo": "jungvonmatt/agent-toolkit"

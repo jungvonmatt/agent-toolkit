@@ -1,6 +1,7 @@
 ---
 name: scheduled-pr-review
 description: Use when running a recurring or unattended first-pass review of all open pull requests or merge requests, for example from a scheduled task, a cron job, or a loop that checks for new commits since the last run, on GitHub or GitLab.
+argument-hint: "[max_rounds=5] [max_prs_per_run=5] [copy_files=\".env localhost-key.pem localhost.pem\"]"
 ---
 
 # Scheduled PR Review

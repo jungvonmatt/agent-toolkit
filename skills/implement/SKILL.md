@@ -1,6 +1,7 @@
 ---
 name: implement
 description: Use when executing an implementation plan under docs/plans/ (for example one written by start-ticket), or when asked to implement the next planned task or the whole plan ("auto").
+argument-hint: "[auto to run the whole plan; else the next task only]"
 ---
 
 # Implement

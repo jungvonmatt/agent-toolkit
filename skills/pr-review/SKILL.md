@@ -1,6 +1,7 @@
 ---
 name: pr-review
 description: Use when reviewing a pull request or merge request for merge readiness, regressions, security, performance, accessibility, or requirement compliance.
+argument-hint: "[target branch — required in local mode; PR/MR target comes from the remote] [quick]"
 ---
 
 # PR Review

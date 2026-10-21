@@ -1,6 +1,7 @@
 ---
 name: write-ticket
 description: Use when writing, refining, or structuring a ticket, issue, user story, or bug report for Jira, Linear, GitHub Issues, GitLab Issues, or Asana, or when a raw idea, bug report, or meeting notes must be turned into a development-ready ticket.
+argument-hint: "[idea, bug report, or existing ticket key/URL to refine]"
 ---
 
 # Write Ticket
