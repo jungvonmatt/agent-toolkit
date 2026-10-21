@@ -1,0 +1,17 @@
+{
+  "skill_name": "voiceover-check",
+  "trigger": {
+    "positive": [
+      { "prompt": "Check with VoiceOver that the error toast is announced after a failed add to cart." },
+      { "prompt": "Run a screen reader pass on the checkout dialog: is the dialog title announced when it opens?" },
+      { "prompt": "Does VoiceOver read the product page in a sensible order? Test it on localhost." },
+      { "prompt": "The ticket's definition of done asks for a screen reader check of the main flow. Please do that." },
+      { "prompt": "Teste mal mit VoiceOver, ob die Fehlermeldung vorgelesen wird.", "lexical": false }
+    ],
+    "negative": [
+      { "prompt": "Write a unit test for the toast component.", "owner": "writing-tests" },
+      { "prompt": "Review this PR before I merge it.", "owner": "pr-review" },
+      { "prompt": "Turn this bug report into a ticket.", "owner": "write-ticket" }
+    ]
+  }
+}
