@@ -33,7 +33,9 @@ Agents ask before every shell command. To skip the prompts during a walk, allow 
 
 ## Check the setup
 
-Run these three commands. VoiceOver speaks while they run.
+First run `bash scripts/vo.sh check`. It starts nothing and reports whether this Mac has VoiceOver and whether AppleScript control is on.
+
+Then run these three commands. VoiceOver speaks while they run.
 
 ```bash
 bash scripts/vo.sh start
@@ -47,6 +49,8 @@ bash scripts/vo.sh stop
 
 | Symptom | Cause | Fix |
 | --- | --- | --- |
+| `check` exits with code 3 | AppleScript control is off | Step 1 |
+| `check` exits with code 6 | This is not macOS, or VoiceOver is missing | Do the screen reader check by hand, with VoiceOver on a Mac or NVDA on Windows |
 | `start` exits with code 3 and error -1743 | Automation is not allowed | Step 4 |
 | `start` exits with code 3 and error -1712 | The Automation prompt was not answered in time | Answer the prompt (step 4), then run `start` again |
 | `start` exits with code 3 and another error | AppleScript control is off | Step 1 |

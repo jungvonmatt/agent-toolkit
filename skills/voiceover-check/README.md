@@ -32,11 +32,12 @@ Run a screen reader pass on the checkout dialog: is the title read when it opens
 
 The agent will:
 
-1. **Ask first**: what it checks and how long it takes.
-2. **Prepare**: open the page in a visible browser, set the page state, focus the start element, and start VoiceOver.
-3. **Walk**: move the VoiceOver cursor item by item and log what is spoken.
-4. **Listen**: move to the control, press VO-Space while it listens, and log every announcement. It repeats each check 3 times and passes only at 3 of 3.
-5. **Stop and report**: quit VoiceOver and report expected versus spoken text per criterion.
+1. **Check the machine**: macOS, VoiceOver, and AppleScript control. If one is missing, it tells you what to do and starts nothing.
+2. **Ask first**: what it checks and how long it takes.
+3. **Prepare**: open the page in a visible browser, set the page state, focus the start element, and start VoiceOver.
+4. **Walk**: move the VoiceOver cursor item by item and log what is spoken.
+5. **Listen**: move to the control, press VO-Space while it listens, and log every announcement. It repeats each check 3 times and passes only at 3 of 3.
+6. **Stop and report**: quit VoiceOver and report expected versus spoken text per criterion.
 
 ## Output
 
@@ -45,7 +46,7 @@ voiceover-check/
 ├── SKILL.md              — Agent instructions
 ├── README.md             — This file
 ├── references/setup.md   — One-time setup and troubleshooting
-└── scripts/vo.sh         — start, stop, front, last, walk, seek, act, into, out, poll
+└── scripts/vo.sh         — check, start, stop, front, last, walk, seek, act, into, out, poll
 ```
 
 ## When to use it

@@ -11,17 +11,24 @@ All commands use `scripts/vo.sh`. Call it through `bash` with its absolute path,
 
 **When not to use it:**
 
-- Not on macOS: tell the user that a screen reader pass needs a person with VoiceOver or NVDA.
 - In CI or in an unattended or scheduled run: VoiceOver takes over the machine and the user's keyboard.
 - Instead of the cheap checks: run axe and a keyboard test first (for example with the `a11y-debugging` skill). Use VoiceOver for what those cannot show.
 
-## Step 1 — Ask before you start
+## Step 1 — Check the machine
+
+Run `bash scripts/vo.sh check`. It starts nothing, so it needs no OK from the user. It reads whether this is a Mac with VoiceOver and whether AppleScript control of VoiceOver is on.
+
+- **Exit code 6:** this is not macOS, or VoiceOver is missing. Tell the user that a person must do the screen reader check, with VoiceOver on a Mac or NVDA on Windows. Stop here.
+- **Exit code 3:** AppleScript control is off. Tell the user to open VoiceOver Utility → General and turn on "Allow VoiceOver to be controlled with AppleScript", as in step 1 of [references/setup.md](references/setup.md). Do not change the setting yourself. Stop here.
+- **Exit code 0:** go on. `start` runs the same check again.
+
+## Step 2 — Ask before you start
 
 VoiceOver speaks aloud, takes over the keyboard, and reads whatever app is in front. Tell the user what you will check and how long it takes (about 1.5 s per item). Ask them not to type or switch apps until you report back. Wait for their OK.
 
 If you cannot ask the user yourself, for example as a subagent, do not start VoiceOver. Hand the question back to your caller.
 
-## Step 2 — Prepare the page, then start VoiceOver
+## Step 3 — Prepare the page, then start VoiceOver
 
 1. **Choose the browser.** Use the visible browser that your browser automation controls, often Chrome, when you must set up a page state. Use Safari, VoiceOver's reference browser, when no setup is needed: `open -a Safari "<url>"`. A headless browser is invisible to VoiceOver. Use local or test URLs only.
 2. **Set the page state** before VoiceOver runs: signed in, item in the bag, size selected. If the criterion needs an error, cause a real one when you can. If you simulate it (offline mode, a stubbed request), say so in the report.
@@ -29,9 +36,9 @@ If you cannot ask the user yourself, for example as a subagent, do not start Voi
 4. **Bring the browser to the front** once, now. Run `bash scripts/vo.sh front` and use the printed name as `<app>` in every later command ("Safari", "Google Chrome", "Google Chrome Canary").
 5. **Start VoiceOver:** `bash scripts/vo.sh start`. Give the call up to 3 minutes: on the first run, macOS can wait for the user to answer an Automation prompt. Then check the cursor position with `bash scripts/vo.sh last`.
 
-If `start` reports that VoiceOver was already running, the session is the user's. Do not stop it at the end without their OK.
+`start` remembers the VoiceOver it launched, also across a retry. `stop` quits only that one and leaves the user's own session on. Use `stop --force` only with the user's OK.
 
-## Step 3 — Check the reading order and the names
+## Step 4 — Check the reading order and the names
 
 Run `bash scripts/vo.sh walk "<app>" 40`. The script moves the VoiceOver cursor 40 items forward and prints one line per item. A line marked `(no move)` means the cursor stayed in place. To stop on a control, use `bash scripts/vo.sh seek "<app>" "<part of its name>"` instead.
 
@@ -39,7 +46,7 @@ If the cursor stops on a dialog or a group, run `bash scripts/vo.sh into "<app>"
 
 Compare each line with the expected name, role, and state. Quote the spoken text verbatim in your report. VoiceOver speaks the roles in the macOS system language and reads the page text as it is. On a German system, "Taste" is a button, "Überschrift-Ebene 2" is a heading level 2, "reduziert" is collapsed, and "Einblendmenü" means a popup. Take the expected texts from the source, for example the translation files, not from the ticket.
 
-## Step 4 — Check announcements
+## Step 5 — Check announcements
 
 A live announcement replaces the last phrase, so a walk misses it. Use `act`, which listens first and then presses VO-Space, the way a screen reader user does:
 
@@ -51,11 +58,11 @@ Run each check 3 times. Before each run, reload the page and set the state again
 
 VoiceOver often drops a polite announcement that arrives in the same moment as a focus move. It reads the newly focused element and skips the message. A common fix is to send the announcement about 1 s after the focus move.
 
-To catch an announcement that another action causes, run `bash scripts/vo.sh poll 15` in the same shell call as that action.
+To catch an announcement that another action causes, run `bash scripts/vo.sh poll "<app>" 15` in the same shell call as that action.
 
-## Step 5 — Stop VoiceOver and report
+## Step 6 — Stop VoiceOver and report
 
-Run `bash scripts/vo.sh stop`, also after a failure or an interruption. The script confirms that VoiceOver is off. The only exception: VoiceOver was already running before Step 2.
+Run `bash scripts/vo.sh stop`, also after a failure or an interruption. The script confirms that VoiceOver is off, or that it left the user's own session on.
 
 Report per criterion: what the user must hear, what VoiceOver said (verbatim), pass or fail with the run count, the browser, and whether an error was real or simulated.
 
@@ -67,8 +74,10 @@ Report per criterion: what the user must hear, what VoiceOver said (verbatim), p
 | macOS asks whether an app may control VoiceOver | Only the user answers this prompt. Wait. Do not run `stop`, because it sends the same request. |
 | Any other system dialog (password, update, permission) | Do not touch it. Run `stop` and ask the user. |
 | Exit code 3 from `start` | Follow the message. It names the setup step in [references/setup.md](references/setup.md) and says when the user must turn VoiceOver off with Cmd+F5. |
+| Exit code 3 from another command | VoiceOver rejected an AppleScript command. Run `stop` and report it. Do not report it as a defect of the page. |
 | Exit code 4: the cursor does not move | Check the last lines. VoiceOver says "end of content" in the system language at the end of the page (German: "Ende Inhalt"). Otherwise it is a focus trap, or a dialog: then run `into` once. |
 | Exit code 5 from `seek` | The control was not spoken. Check its accessible name before you try again. |
+| Exit code 6 | This is not macOS, or VoiceOver is missing. Tell the user that a person must do the screen reader check. |
 | The screen locks | VoiceOver stops reading. Ask the user to unlock it. |
 
 ## Rules
