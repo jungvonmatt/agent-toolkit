@@ -29,10 +29,15 @@
 #             7 `do` got a name that is not a VoiceOver command on this Mac.
 set -uo pipefail
 
-STARTER=/System/Library/CoreServices/VoiceOver.app/Contents/MacOS/VoiceOverStarter
+# VoiceOver is found by bundle ID through Launch Services, so a moved app bundle on another macOS version is still found.
+VO_BUNDLE_ID=com.apple.VoiceOver
 APPLESCRIPT_MARKER=/private/var/db/Accessibility/.VoiceOverAppleScriptEnabled
 # The English command names that `tell commander to perform command` accepts on this macOS version.
-COMMAND_MAP=/System/Library/PrivateFrameworks/ScreenReader.framework/Versions/A/Resources/SCRStringsToCommandsMap.scrconfig
+# The first readable file wins; the framework layout differs between macOS versions.
+COMMAND_MAPS=(
+  /System/Library/PrivateFrameworks/ScreenReader.framework/Resources/SCRStringsToCommandsMap.scrconfig
+  /System/Library/PrivateFrameworks/ScreenReader.framework/Versions/*/Resources/SCRStringsToCommandsMap.scrconfig
+)
 # Holds the process ID of the VoiceOver that start launched, so a retry and stop can tell it from the user's own session.
 OWNER_FILE="${TMPDIR:-/tmp}/voiceover-check.pid"
 # Holds the profile directory of the browser instance that launch started.
@@ -88,12 +93,17 @@ read_phrase() { phrase || die "could not read the last phrase from VoiceOver" 3;
 # The cursor bounds are optional. Without them, the phrase alone shows whether the cursor moved.
 cursor() { vo 'return bounds of vo cursor' 2>/dev/null || true; }
 
-frontmost() {
-  lsappinfo info -only name "$(lsappinfo front)" | sed -E 's/.*"LSDisplayName"="([^"]*)".*/\1/'
+# AppKit gives the app in front as data, so no text output format of a system tool has to be parsed.
+# Prints "<pid><TAB><name>"; it needs no permission.
+front_app() {
+  osascript -l JavaScript -e "ObjC.import('AppKit'); var a = \$.NSWorkspace.sharedWorkspace.frontmostApplication; a.isNil() ? '' : a.processIdentifier + '\t' + a.localizedName.js" 2>/dev/null
 }
+frontmost() { front_app | cut -f2-; }
+front_pid() { front_app | cut -f1; }
 
-front_pid() {
-  lsappinfo info -only pid "$(lsappinfo front)" | sed -E 's/.*"pid"=([0-9]+).*/\1/'
+# Prints the path of VoiceOver.app, or nothing when this Mac has no VoiceOver.
+vo_app() {
+  osascript -l JavaScript -e "ObjC.import('AppKit'); var u = \$.NSWorkspace.sharedWorkspace.URLForApplicationWithBundleIdentifier('$VO_BUNDLE_ID'); u.isNil() ? '' : u.path.js" 2>/dev/null
 }
 
 activate_pid() {
@@ -179,9 +189,21 @@ applescript_setting() {
   fi
 }
 
+# Older macOS versions ship VoiceOverStarter inside the app; newer ones only the app, which `open` starts.
+# Running the VoiceOver binary directly is killed by the system, so it is never used.
+launch_voiceover() {
+  local starter
+  starter="$(vo_app)/Contents/MacOS/VoiceOverStarter"
+  if [ -x "$starter" ]; then
+    "$starter" >/dev/null 2>&1
+  else
+    open -b "$VO_BUNDLE_ID" >/dev/null 2>&1
+  fi
+}
+
 cmd_check() {
   [ "$(uname -s)" = Darwin ] || die "This is not macOS ($(uname -s)), and VoiceOver runs only on a Mac. Tell the user that a person must do the screen reader check: VoiceOver on a Mac, or NVDA on Windows." 6
-  [ -x "$STARTER" ] || die "VoiceOver was not found on this Mac ($STARTER). Tell the user that a person must do the screen reader check." 6
+  [ -n "$(vo_app)" ] || die "VoiceOver ($VO_BUNDLE_ID) was not found on this Mac. Tell the user that a person must do the screen reader check." 6
   case $(applescript_setting) in
     off) die "AppleScript control of VoiceOver is off. Ask the user to open VoiceOver Utility > General and turn on \"Allow VoiceOver to be controlled with AppleScript\" (references/setup.md, step 1). Do not change it yourself." 3 ;;
     on) echo "AppleScript control of VoiceOver is on." ;;
@@ -215,7 +237,13 @@ instance_pid() {
 }
 
 cmd_commands() {
-  plutil -convert xml1 -o - "$COMMAND_MAP" 2>/dev/null |
+  local map=${COMMAND_MAPS[0]} f xml
+  for f in "${COMMAND_MAPS[@]}"; do
+    [ -r "$f" ] && { map=$f; break; }
+  done
+  xml=$(plutil -convert xml1 -o - "$map" 2>/dev/null) ||
+    die "the VoiceOver command list was not found on this macOS version, so do and commands are unavailable. Use walk, seek, back, act, into, and out." 7
+  printf '%s\n' "$xml" |
     sed -nE 's/.*<key>([^<]*)<\/key>.*/\1/p' |
     grep -iF -- "${1:-}" || die "no VoiceOver command matches \"${1:-}\" on this Mac" 7
 }
@@ -341,7 +369,7 @@ cmd_start() {
   elif running; then
     echo "VoiceOver was already running. It is the user's session: stop leaves it on."
   else
-    "$STARTER" >/dev/null 2>&1
+    launch_voiceover
     for _ in 1 2 3 4 5 6 7 8 9 10; do
       running && break
       sleep 0.5
