@@ -6,6 +6,8 @@
       { "prompt": "Run a screen reader pass on the checkout dialog: is the dialog title announced when it opens?" },
       { "prompt": "Does VoiceOver read the product page in a sensible order? Test it on localhost." },
       { "prompt": "The ticket's definition of done asks for a screen reader check of the main flow. Please do that." },
+      { "prompt": "Use VoiceOver in targeted mode to test only the main navigation and its submenus in the already-open Chrome tab." },
+      { "prompt": "Run a targeted screen reader check of the newsletter module: field names, validation errors, and the success announcement. There is no PR." },
       { "prompt": "Teste mal mit VoiceOver, ob die Fehlermeldung vorgelesen wird.", "lexical": false }
     ],
     "negative": [

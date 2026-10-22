@@ -174,6 +174,24 @@ Shared package              -> shared-library; infer runtimes from consumers
 
 When classification is ambiguous, activate the smallest set of affected profiles and state the uncertainty. Do not treat a framework repository as a full-stack diff automatically.
 
+For an attended full review, plan a targeted `voiceover-check` when the diff
+changes accessible names, roles, focus, dialogs, live announcements, or
+screen-reader navigation, or requirements explicitly ask for it. Styling-only
+changes do not require VoiceOver. Build the packet defined in
+[`../voiceover-check/SKILL.md`](../voiceover-check/SKILL.md), under "Modes and
+handoff", from the affected flow and consumers. Include entry, owned
+interactions, relevant states, local reading order, and focus return. Shared
+components may need several materially different contexts, not every route
+with the same behavior. Derive expectations from requirements and semantic
+contracts, not labels copied from the implementation.
+
+Mark the screen-reader plan as `planned`, `skipped — quick mode`,
+`skipped — unattended`, or `skipped — no relevant changes`. A scheduled review
+is unattended even if it requests full depth. Never start real VoiceOver in
+that context. If a required check cannot run, preserve it as missing coverage,
+not a pass. Keep prior code knowledge explicit: this is guided verification,
+not blind discovery.
+
 Before executing the review, read
 [`references/review-checklist.md`](references/review-checklist.md) and apply
 the applicable criteria to the classified diff.
@@ -192,6 +210,7 @@ head SHA          the pinned source head commit
 diff source       local checkout | verified local checkout | remote fallback | local-only
 profile           classified runtimes | surfaces | signals from Phase 1.3
 requirements      normalized requirements with their source (may be empty)
+screen-reader     plan status and targeted handoff packet when applicable
 ```
 
 Keep the packet compact: a profile and file list, not raw diffs or comment
@@ -272,6 +291,16 @@ specialists.
 
 #### Runtime specialist (capability-dependent)
 
+**VoiceOver ordering takes precedence over runtime parallelism.** When the
+screen-reader plan is `planned`, choose Option B: the orchestrator owns the
+consent and VoiceOver pass in Phase 3. Do not dispatch a browser runtime peer
+or take DOM/accessibility snapshots beforehand. Static specialists can still
+run in parallel. After VoiceOver is confirmed off, run browser automation and
+cause verification. If VoiceOver is skipped or unavailable, record why before
+continuing browser checks. If the user's own VoiceOver stays on, defer browser
+automation until they agree to stop it. Resume an already active browser worker
+only after this handoff; do not let it interact during the screen-reader pass.
+
 Runtime/browser checks need a running dev server (shared state) and Chrome
 DevTools MCP tooling. There is no data dependency on the other specialists — the
 routes to visit come from the Phase 1 profile, not from their findings — so
@@ -316,10 +345,28 @@ here. They depend on none of the specialist findings — the affected routes com
 from the Phase 1 profile:
 
 1. Start or confirm the application using the repository's documented command.
-2. Visit every affected route.
-3. Take a DOM/accessibility snapshot and exercise each new interaction.
-4. Read console messages; inspect network requests when data fetching changed.
-5. Run accessibility checks for markup or interaction changes.
+2. When a screen-reader check is planned, load `voiceover-check` if available
+  and pass its targeted packet. The orchestrator explains scope and obtains
+  explicit consent before starting it. Follow that skill's execution counts,
+  resets, safety stops, and cleanup, rather than duplicating them here. No
+  total time budget or automatic cutoff applies. If the skill, macOS support,
+  or permissions are missing, report `unavailable — <reason>` without installing
+  anything. Declined consent means `skipped — consent declined`. Neither is a
+  pass; a required missing check prevents `Ready`.
+3. After VoiceOver is off, visit affected routes with browser automation. For
+  screen-reader findings, inspect the same test instance and state before its
+  cleanup. If tools cannot attach, preserve the cause as unverified and follow
+  the VoiceOver cleanup rules.
+4. Take a DOM/accessibility snapshot and exercise each new interaction.
+5. Read console messages; inspect network requests when data fetching changed.
+6. Run the remaining accessibility checks for markup or interaction changes.
+
+Carry the tested scope, spoken evidence, actual run counts, repeat reasons,
+and blockers into the review report. A finding observed on HEAD is not proof
+that the PR introduced it. Use an existing baseline or a scoped comparison
+with the target revision before claiming a regression. If a new real
+VoiceOver comparison is needed, agree its additional scope with the user and
+perform it serially. Otherwise report introduction as unverified.
 
 If runtime checks cannot run, state the exact blocker and treat the missing
 coverage as a residual risk. Do not infer runtime correctness from static code.

@@ -33,6 +33,16 @@ Modes and depths:
 - **Full** (default) — parallel specialist fan-out, runtime checks, aggregation.
 - **Quick** — parallel specialist fan-out and aggregation, runtime skipped.
 
+In an attended full review, changes to names, roles, focus, dialogs, live
+announcements, or screen-reader navigation trigger a targeted
+[`voiceover-check`](../voiceover-check/SKILL.md) when available. The review
+passes the affected flow, relevant consumers, scenarios, expectations, and
+scope boundaries. The orchestrator asks for consent and runs VoiceOver before
+browser automation. Each distinct state is checked once by default, with
+justified local repeats and no total time budget. Quick and unattended reviews
+never start VoiceOver. Missing capability or consent is reported as missing
+coverage, not a pass.
+
 The agent will:
 
 1. Resolve the change, target branch, and any linked ticket.

@@ -7,17 +7,24 @@ Quote VoiceOver verbatim, in the system language it used. Keep one row per check
 
 **Browser:** <Safari | Chrome + VoiceOver> · **VoiceOver language:** <system language> · **Errors:** <real | simulated: how>
 
+**Mode:** <full | targeted> · **Scope:** <feature, owned interactions, represented consumers, exclusions>
+
+**Context:** <manual | review handoff> · **Prior knowledge:** <requirements, diff, earlier browser inspection, or none>
+
+**Elapsed time:** <measured setup/navigation, checks, verification durations, or not measured; no time cutoff>
+
 | Check | Expected | VoiceOver said | Result |
 | --- | --- | --- | --- |
-| <check> | <name, role, state> | `<verbatim phrase>` | Pass: 3/3 valid, 3 successful, 0 failed, 0 blocked |
-| <check> | <name, role, state> | `<verbatim phrase>` | Fail: 3/3 valid, 1 successful, 2 failed, 0 blocked |
-| <check> | <name, role, state> | `<verbatim phrase or no valid observation>` | Incomplete: 2/3 valid, 2 successful, 0 failed, 1 blocked: <reason> |
+| <check> | <name, role, state> | `<verbatim phrase>` | Pass: 1/1 valid, 1 successful, 0 failed, 0 blocked |
+| <check> | <name, role, state> | `<verbatim phrase>` | Fail: 2/2 valid, 1 successful, 1 failed, 0 blocked; follow-up reason: <reason> |
+| <check> | <name, role, state> | `<verbatim phrase or no valid observation>` | Incomplete: 0/1 valid, 0 successful, 0 failed, 1 blocked: <reason> |
 
 ### Findings
 
 1. **<what is wrong, in one line>** — <critical | serious | moderate | minor> · WCAG <criterion>
    - Heard: `<verbatim phrase>`
    - Cause: <element and attribute, verified in the same tab and state> — or: cause unverified
+   - Attribution: <baseline comparison proves introduced | pre-existing | introduction unverified>
    - Fix: <one line> (modern-web-guidance: `<id>`, when used)
 
 **Not checked:** <checks for this component from checks.md that were not run, and why>
@@ -35,6 +42,7 @@ Quote VoiceOver verbatim, in the system language it used. Keep one row per check
 
 - Keep an observed failure separate from its cause. Verify causes in the same test instance, tab, and state before closing it. Static source or another browser at the same URL may support a hypothesis, but cannot prove the runtime state.
 - A usage hint ("You are currently on …", German "Du bist jetzt auf …") is never an item or a finding.
-- Announcement checks pass only with 3 successful valid runs. Other checks use their planned count. Report completed/planned, successful, failed, and blocked counts explicitly. A valid failure is a finding. Missing repetitions or tooling interruptions without an observed failure mean incomplete, not fail. When a valid failure and a blocker coexist, report both.
+- Apply Step 6 of [../SKILL.md](../SKILL.md) to execution counts. Report completed/planned, successful, failed, and blocked counts, plus reasons for follow-ups or an explicit repetition requirement. Different states are separate scenarios. A valid failure cannot become a pass through retries; when a failure and a blocker coexist, report both. A successful 1/1 is not a reliability claim.
+- Limit the verdict to the tested scope and represented contexts. Code-informed targeted checks are guided, not blind discovery. Attribute a failure to a PR only with baseline evidence; otherwise mark its introduction unverified.
 - Do not claim the whole scope passed while required checks remain incomplete. Sampling the last phrase cannot prove every repeated identical or rapidly replaced announcement; disclose that limit when it affects the result.
 - Mark a finding seen only in Chrome as "Chrome + VoiceOver" unless you confirmed it in Safari.

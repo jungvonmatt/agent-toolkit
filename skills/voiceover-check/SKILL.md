@@ -1,7 +1,7 @@
 ---
 name: voiceover-check
 description: Use when a web change must be checked with a real screen reader on macOS — a ticket or definition of done asks for a VoiceOver or screen reader test, or the change adds or alters live regions, toasts, dialogs, focus moves, or accessible names, and you must know what VoiceOver actually announces and in which reading order.
-argument-hint: "[page URL and what must be announced]"
+argument-hint: "[page URL] [mode: full | targeted] [scope: feature or flow]"
 ---
 
 # VoiceOver Check
@@ -15,6 +15,33 @@ All commands use `scripts/vo.sh`. Call it through `bash` with its absolute path,
 - In CI or in an unattended or scheduled run: VoiceOver takes over the machine and the user's keyboard.
 - For color contrast, target size, zoom, reduced motion, or visible focus: these need no screen reader. Use the `a11y-debugging` or `accessibility` skill.
 
+## Modes and handoff
+
+**Full** checks the whole page. **Targeted** checks a named feature or user flow, including its entry, relevant states, local reading order, and exit or focus return. Both use the same evidence and safety rules. With no explicit mode, a named component selects targeted; otherwise use full. Targeted needs a scope: ask only if it cannot be established from the request. A manual targeted check needs no PR or Git diff.
+
+Accept natural language or these fields as skill instructions, not shell flags:
+
+```text
+/jvm-skills:voiceover-check https://example.test
+mode: targeted
+scope: Main navigation including its submenus
+browser: Chrome, existing tab
+```
+
+For a handoff from a review or implementation skill, read this packet before Step 1:
+
+| Input | Use |
+| --- | --- |
+| URL, browser/tab, starting state | Honor the requested environment and existing state |
+| Feature or flow, affected consumers | Select the smallest complete user flow, not just changed lines |
+| Scenarios and expected behavior, with requirement source | Define what to verify independently of what the implementation happens to expose |
+| Included interactions and excluded destinations | Keep owned submenus/dialogs in scope and unrelated features out |
+| Prior knowledge and baseline evidence, if any | Label code-informed checks as guided; attribute a regression only with comparison evidence |
+
+The caller derives scope from the diff and the changed component's consumers. Static code knowledge can identify risk, but cannot prove what VoiceOver announces. Declare prior code or browser inspection rather than calling the check blind. Obtain names and navigate through VoiceOver during the actual pass; DOM labels, selectors, and snapshots are not navigation instructions. A failure on the changed branch is not automatically introduced by that branch.
+
+Plan one valid execution per distinct check and state in either mode; Step 6 defines when to repeat. Complete the agreed scope without a total time budget or elapsed-time cutoff. Command timeouts and bounded navigation still protect against tool failures and lost context. Record elapsed time for setup/navigation, checks, and verification when measured, but never use it as a pass criterion.
+
 ## Step 1 — Check the machine
 
 Run `bash scripts/vo.sh check`. It starts nothing, so it needs no OK from the user. It reads whether this is a Mac with VoiceOver and whether AppleScript control of VoiceOver is on.
@@ -25,17 +52,17 @@ Run `bash scripts/vo.sh check`. It starts nothing, so it needs no OK from the us
 
 ## Step 2 — Prepare the page
 
-Test the page the way a screen reader user meets it. Before and during the VoiceOver run, use no browser automation, accessibility snapshot, DOM query, or page source. Find, name, and operate the component through VoiceOver only. The DOM is for the cause analysis in Step 7.
+Test the page the way a screen reader user meets it. Before and during the VoiceOver run, use no browser automation, accessibility snapshot, DOM query, or page source to discover test targets. In a guided handoff, the caller may already know the diff, but must defer browser inspection until Step 7. Find, name, and operate the component through VoiceOver only. The DOM is for cause analysis after VoiceOver is off.
 
 1. **Choose the browser.** Use the browser the user names. Without a named browser, use Safari in its existing window and tab. When the user requests an existing page or says it is already open, use that page, including in Chromium. Otherwise, use a separate Chromium instance with a fresh profile in Step 4 (`launch`). A headless browser is invisible to VoiceOver. Never switch to another browser than the one the user names.
 2. **Open the page** only when it is not open yet: `open -a "<app>" "<url>"`. Skip this command when planning to use `launch`, which opens the URL itself. When the user says it is open, do not open, reload, or navigate it.
-3. **Fix the scope.** When the user names no component, test the whole page, and do not ask for a component. When the user names one, test only that component. A control in it that opens something else, such as a button that opens a dialog, gets its name, role, and state checked. Do not open the target and test it. If you think a wider check is needed, ask before the run.
+3. **Fix the scope.** Apply the mode above. For a targeted check, include the feature's owned interactions, such as opening and closing navigation submenus, plus entry and focus return. A link to another page or a trigger for an unrelated feature gets its name, role, and state checked, not its destination tested. For shared components, cover materially different affected contexts identified in the handoff; record which consumers are represented and which remain untested. Ask before widening the agreed scope.
 4. **Choose the checks.** Take the sections for the component from [references/checks.md](references/checks.md): page, controls, dialog, form, live region, or menu. Take only the sections that fit the scope. Take the expectations from the user, the ticket, and the checks: role, state, a name that makes sense, and the reading order. Do not copy expected texts out of the DOM.
 5. **Set the page state.** If a check needs a state (signed in, item in the bag, an error), ask the user to set it in the test window before the run. For a separate Chromium instance, explain the fresh profile and run `launch` before the handoff so they can prepare that instance. This starts no VoiceOver. Do not launch another instance afterward. Cause a real error when you can. If the user simulates it, say so in the report.
 
 ## Step 3 — Ask before you start
 
-VoiceOver speaks aloud, takes over the keyboard, and reads whatever app is in front. Tell the user what you will check, in which browser, and how long it takes: about 1.5 s per item, and 3 runs per announcement.
+VoiceOver speaks aloud, takes over the keyboard, and reads whatever app is in front. Tell the user the mode, scope, browser, and planned scenarios. Explain that each distinct state is checked once by default and additional attempts need a reason. Give a duration estimate only when grounded in the planned steps; it is not a time limit.
 
 Tell the user that you will bring the chosen browser forward after their OK. Ask them not to type or switch apps until you report back. Wait for their OK. They do not need to click the browser or reply from it.
 
@@ -54,9 +81,11 @@ If you cannot ask the user yourself, for example as a subagent, do not start Voi
 
 ## Step 5 — Check the reading order and the names
 
-**Choose navigation for the question.** First discover the commands this Mac provides with `bash scripts/vo.sh commands "find next"`. Use only names returned by that list. From inside the web area, `do "<app>" "find next heading"` or `do "<app>" "find next landmark"` can establish the page structure. Filter `commands` for `button`, `control`, `link`, `text field`, or `find previous` when those fit the task. These jumps find structure and controls; they do not prove the sequential reading order.
+**Choose navigation for the question.** Discover the commands this Mac provides once per session with `bash scripts/vo.sh commands "find next"`. Use only names returned by that list. From inside the web area, `do "<app>" "find next heading"` or `do "<app>" "find next landmark"` can locate the target or establish page structure. Filter `commands` for `button`, `control`, `link`, `text field`, or `find previous` when those fit the task. Reuse known commands instead of rediscovering them for every check. These jumps do not prove the sequential reading order.
 
 **Check order with a walk.** Run `bash scripts/vo.sh walk "<app>" 15` for a short page segment. For a whole-page check, cover the page through "end of content" (German: "Ende Inhalt"). For a component, use small batches and stop at its boundary. Use `seek "<app>" "<spoken name>" <max>` to find a control already heard, and `back` or `seekback` to return. `seek` moves before matching, so use `act` directly when already on the target. Keep searches bounded to the chosen scope. Do not write your own loops over `osascript` or `front`.
+
+In targeted mode, choose a structural jump before a long linear search. Use an explicit small search bound, for example `seek "<app>" "<spoken name>" 12`, adjusted to the feature. Reaching it means reassess the cursor context with one suitable alternative, not that the feature failed. Once inside, walk the relevant local sequence and complete the feature's states without returning to the page start for every check.
 
 **Investigate before declaring missing content.** If content does not follow its trigger, first confirm activation and the announced expanded state or focus change. Check whether VoiceOver must interact with an announced group or dialog. Then try one suitable navigation method within the component. A different reading position is not proof of inaccessible content. Record a confusing order when observed, but mark reachability unverified if the cursor context or activation remains uncertain. Do not search or test unrelated page content to force an answer.
 
@@ -74,13 +103,17 @@ Compare each line with the expectations from Step 2. Quote the spoken text verba
 
 A live announcement replaces the last phrase, so a walk misses it. Use `act`, which listens first and then presses VO-Space, the way a screen reader user does:
 
-1. Move to the control: `bash scripts/vo.sh seek "<app>" "Add to bag"`.
+1. Move to the control using its spoken name, for example `bash scripts/vo.sh seek "<app>" "Add to bag" 12`, or use `act` directly when already on it.
 2. Run `bash scripts/vo.sh act "<app>" 10`. It prints a timestamped `[act]` line, then every new phrase for 10 s. Run each `act` in its own shell call. Count only the lines after that call's own `[act]` line, never lines from an earlier log.
 3. When nothing is spoken, note it. Step 7 checks whether the text reached the live region in the DOM: never rendered, or rendered but not spoken.
 
-Plan 3 runs for each announcement check. Count only valid runs: the intended action occurred in the confirmed context, the required state was set, and recording completed. Pass requires 3 successful valid runs. An observed expectation failure in a valid run is a finding, even if later runs pass. A focus loss, rejected command, uncertain activation, or interrupted recording is a blocked attempt, not a page failure. If fewer than 3 valid runs completed and none failed, report **incomplete**, with the blocker. Always give completed/planned, successful, failed, and blocked counts. Reset between runs, so that an old phrase cannot pass as the new one:
+**One valid run per distinct scenario is the default**, in both modes. Initial labels, invalid submission, successful submission, and a repeated-identical-message scenario are separate checks when applicable, not reasons to repeat the whole feature. Count a run only when the intended action occurred in the confirmed context, the required state was set, and recording completed. A successful 1/1 proves only that observation, not ongoing reliability.
 
-- **Live region, toast, or status message:** reload the page and set the state again before each run. A region that keeps its text can stay silent. Run `stop`, ask the user to reload and set the state, then run `focus` and `start` again. Do not reload the browser yourself by switching apps or sending keys.
+Repeat only the affected step when investigating a missing or contradictory announcement, recovering from an invalid attempt, or meeting an explicit repeatability requirement. Record the reason and count. For an unclear result, try one controlled follow-up; if still uncertain, report the blocker instead of looping. A known intermittent bug or an explicit reliability requirement needs an agreed repetition count. A valid observed failure remains a finding even when a later attempt succeeds. Focus loss, rejected commands, uncertain activation, and interrupted recording are blocked attempts, not page failures. Missing planned valid runs without an observed failure mean **incomplete**. Report completed/planned, successful, failed, and blocked counts.
+
+Reset state only when the next scenario or a justified repeat needs it, so an old phrase cannot pass as a new one:
+
+- **Live region, toast, or status message:** use the feature's normal VoiceOver-operated dismissal or reset when it restores the required state. If a fresh document is required or the state cannot be restored reliably, run `stop`, ask the user to reload and set the state, then run `focus` and `start` again. A region that keeps its text can stay silent. Do not reload by switching apps or sending keys, and do not reload between every check by default.
 - **Focus move**, for example to the first invalid field after a submit: no reload is needed. `seek` back to the control and `act` again. The focus move makes VoiceOver speak again.
 
 The script samples changes to the last phrase, not the audio stream. Identical repeated phrases and rapid changes may be missed. If that limitation prevents a conclusion, report incomplete and request a listening check. A polite announcement can compete with a focus move; verify the cause before recommending a timing change.

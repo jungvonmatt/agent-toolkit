@@ -51,6 +51,14 @@ When running a11y checks, cover at least:
 Record the accessibility status as `passed`, `findings`, `skipped — <reason>`,
 or `unavailable — <reason>`. Do not treat an unavailable audit as a clean pass.
 
+For accessible-name, role, focus, dialog, live-announcement, or screen-reader
+navigation changes, apply the targeted VoiceOver handoff in
+[../SKILL.md](../SKILL.md). Include the affected flow and relevant shared
+consumers, not unrelated page content. Real VoiceOver requires an attended
+full review and explicit consent. The orchestrator owns it before browser
+automation; quick and unattended reviews skip it explicitly. Keep observed
+failures separate from unverified causes and unverified regression attribution.
+
 ## Verification coverage
 
 For every applicable check, record exactly one status:

@@ -7,7 +7,7 @@ How to check:
 - **VO**: with `scripts/vo.sh` (`walk`, `seek`, `act`, `do`).
 - **Browser**: with the browser automation you control (accessibility snapshot, `evaluate_script`), after VoiceOver is off and before closing the test instance. Inspect the same tab and state.
 
-A blocked or interrupted attempt is not a failed page check. For announcement checks, record valid runs out of 3 planned, successful runs, observed failures, and blocked attempts. Fewer than 3 valid runs without a failure means incomplete. A valid observed failure remains a finding even if other runs pass. Missing targets or `(no move)` require a context check, not an automatic failure.
+A blocked or interrupted attempt is not a failed page check. Use the execution and repetition rules in Step 6 of [../SKILL.md](../SKILL.md): one valid run per distinct scenario by default. Record actual valid/planned, successful, failed, and blocked counts. Missing planned observations mean incomplete. A valid observed failure remains a finding even if a follow-up passes. Missing targets or `(no move)` require a context check, not an automatic failure.
 
 ## Page
 
@@ -47,13 +47,13 @@ A blocked or interrupted attempt is not a failed page check. For announcement ch
 | After a failed submit, focus moves to the first invalid field and VoiceOver reads its error | VO: `act` on the submit button | 3.3.1 | No focus move, or focus on the form or the top of the page |
 | Each error is read with its field, once | VO | 3.3.1, 1.3.1 | No `aria-describedby` or `aria-errormessage`; `role="alert"` inside an `aria-live` region reads it twice |
 | With several errors, the number of errors is announced | VO | Practice | No error summary |
-| A successful submit is announced | VO: `act`, 3 runs | 4.1.3 | Success text shown without a live region or a focus move |
+| A successful submit is announced | VO: `act` in the success scenario | 4.1.3 | Success text shown without a live region or a focus move |
 
 ## Live region, toast, and status message
 
 | Check | How | WCAG | Usual cause |
 | --- | --- | --- | --- |
-| The message is announced in 3 of 3 valid runs | VO: `act`; exclude blocked attempts and state the collection limits | 4.1.3 | The region is added together with its text, so VoiceOver does not see a change |
+| The message is announced after the intended action | VO: `act`; record valid attempts and collection limits | 4.1.3 | The region is added together with its text, so VoiceOver does not see a change |
 | Only critical, time-sensitive messages interrupt (`assertive`, `role="alert"`); others wait (`polite`, `role="status"`) | Browser: attribute; VO: listen | 4.1.3 | `assertive` for routine messages |
 | The message survives a focus move at the same moment | VO: `act` | 4.1.3 | Announcement and focus move at once; a delay of about 1 s helps |
 | The same message twice is announced twice | VO: `act` twice | 4.1.3 | The region is not cleared before the new text |

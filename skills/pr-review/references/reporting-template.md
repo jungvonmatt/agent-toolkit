@@ -50,6 +50,14 @@ Include only when performance signals are present. List confirmed risks first an
 
 Include only when UI accessibility signals are present. State `Checked` with key findings or `Skipped` with an explicit reason.
 
+Report browser/static checks separately from real VoiceOver. For VoiceOver,
+state the targeted scope, represented consumers, browser, prior knowledge,
+actual valid/planned counts, reasons for repeats, and remaining coverage.
+Quote spoken evidence for findings. An observed failure, its cause, and whether
+the PR introduced it are separate claims. Attribute introduction only with
+baseline evidence. Record quick mode, unattended operation, declined consent,
+or missing capability explicitly; none implies a successful screen-reader test.
+
 ## Requirements Traceability
 
 Include only when PR/MR or ticket requirements were available. A local review
