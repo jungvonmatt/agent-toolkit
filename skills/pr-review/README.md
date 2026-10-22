@@ -57,6 +57,8 @@ The agent will:
 4. Aggregate findings, ordered by severity, with evidence and a concrete fix direction.
 5. Trace each requirement to implementation evidence when a ticket or PR description is available.
 
+The review also enforces the repository's own standards (`CODING_STANDARDS.md`, `CONTRIBUTING.md`, `AGENTS.md`, `CLAUDE.md`, `.github/copilot-instructions.md`), read from the target branch so a PR cannot weaken them. When the PR description states a merge danger (one-way or two-way door, blast radius), the review verifies that claim against the diff.
+
 ## Output
 
 ```text

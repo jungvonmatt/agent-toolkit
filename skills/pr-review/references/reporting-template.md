@@ -34,6 +34,8 @@ Report findings in severity order. Do not invent findings to fill a category.
 
 - Tests, typecheck, lint, build, and relevant commands that were actually run
 - Remote provider and target branch
+- Repository standards sources read from the target ref, or `none found`
+- Declared merge risk: `confirmed`, `understated — <finding>`, or `not stated`
 - Review mode: `PR/MR` or `Local`
 - Diff source: `local checkout`, `verified local checkout`, `remote fallback`, or `local-only`
 - Fallow verdict and introduced findings, when applicable

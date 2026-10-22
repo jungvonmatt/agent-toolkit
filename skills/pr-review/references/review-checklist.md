@@ -9,6 +9,18 @@ Use this checklist to keep the review comprehensive and consistent.
 - Confirm behavior remains backward compatible where required.
 - Record the evidence used for each material conclusion; use `unverified` when it cannot be established.
 
+## Repository standards
+
+- Check the diff against the review rules from `CODING_STANDARDS.md`, `CONTRIBUTING.md`, `AGENTS.md`, `CLAUDE.md`, and `.github/copilot-instructions.md`, read from the target ref.
+- Cite the rule's source file in every `standards` finding.
+- For a mechanical violation that no automated check catches, recommend the lint rule, hook, or CI job that would catch it.
+
+## Declared merge risk
+
+- When the PR/MR states a merge risk (door and blast radius), verify it against the diff.
+- Flag a `two-way` claim when the diff has a one-way signal: destructive migration, removed public field or export, changed persisted state or URLs, outbound side effects, secret or permission changes.
+- Flag a blast radius that misses affected consumers of changed shared code.
+
 ## Security and robustness
 
 - Check input validation and output encoding.
