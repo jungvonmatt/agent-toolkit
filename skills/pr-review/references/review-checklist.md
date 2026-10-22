@@ -62,8 +62,11 @@ navigation changes, apply the targeted VoiceOver handoff in
 [../SKILL.md](../SKILL.md). Include the affected flow and relevant shared
 consumers, not unrelated page content. Real VoiceOver requires an attended
 full review and explicit consent. The orchestrator owns it before browser
-automation; quick and unattended reviews skip it explicitly. Keep observed
-failures separate from unverified causes and unverified regression attribution.
+automation; quick and unattended reviews skip it explicitly. The VoiceOver
+check is optional: when the host or consent does not allow it, record
+`skipped`/`unavailable — <reason>` as residual risk; it does not block `Ready`.
+Keep observed failures separate from unverified causes and unverified
+regression attribution.
 
 ## Verification coverage
 

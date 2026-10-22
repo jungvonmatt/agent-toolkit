@@ -4,7 +4,7 @@ Runs one unattended first-pass review over the open pull requests (GitHub) or me
 
 - It reviews only trusted PRs: the author has write access, the branch is in the same repository, and the author is not a bot. It skips all other PRs and lists them in the report.
 - It reviews only PRs with new commits. It waits for running CI, but not longer than `ci_wait_limit` (2 hours) after the head commit. It skips drafts and stale PRs, and it reviews at most 5 PRs in one run.
-- It checks out each PR in a temporary worktree, copies the env and certificate files of the project into it, and lets [`pr-review`](../pr-review/README.md) review the code and check the running app in a browser.
+- It checks out each PR in a temporary worktree, copies the env and certificate files of the project into it, and lets [`pr-review`](../pr-review/README.md) review the code and check the running app in a browser. The run is unattended, so `pr-review` never starts VoiceOver.
 - It uses the CI results for lint, format, typecheck, unit tests, and build, and runs a check in the worktree only when CI did not run it.
 - After round 1, it posts minor findings only on lines that changed since the last round. Serious findings always get through.
 - It never posts the same finding twice, also when a teammate or another bot found it first.

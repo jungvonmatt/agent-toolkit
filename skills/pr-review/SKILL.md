@@ -187,10 +187,19 @@ contracts, not labels copied from the implementation.
 
 Mark the screen-reader plan as `planned`, `skipped — quick mode`,
 `skipped — unattended`, or `skipped — no relevant changes`. A scheduled review
-is unattended even if it requests full depth. Never start real VoiceOver in
-that context. If a required check cannot run, preserve it as missing coverage,
-not a pass. Keep prior code knowledge explicit: this is guided verification,
+(for example from `scheduled-pr-review`) or any other background run is
+unattended even if it requests full depth. In that context, never start real
+VoiceOver, never ask for consent, and do not plan or wait for it; mark it
+`skipped — unattended`. Keep prior code knowledge explicit: this is guided verification,
 not blind discovery.
+
+The VoiceOver check is **optional**. It depends on the host (macOS,
+VoiceOver, accessibility permissions, the `voiceover-check` skill) and on user
+consent, which the running system may not provide. When a precondition is not
+met, record `skipped — <reason>` or `unavailable — <reason>` and list it as
+residual risk. A skipped or unavailable VoiceOver check is never a pass, but it
+does not block `Ready` on its own; the browser accessibility audit in step 5
+remains required.
 
 Before executing the review, read
 [`references/review-checklist.md`](references/review-checklist.md) and apply
@@ -355,7 +364,8 @@ from the Phase 1 profile:
   total time budget or automatic cutoff applies. If the skill, macOS support,
   or permissions are missing, report `unavailable — <reason>` without installing
   anything. Declined consent means `skipped — consent declined`. Neither is a
-  pass; a required missing check prevents `Ready`.
+  pass; record it as residual risk and continue. Because the check is
+  optional, it does not prevent `Ready`.
 3. After VoiceOver is off, visit affected routes with browser automation. For
   screen-reader findings, inspect the same test instance and state before its
   cleanup. If tools cannot attach, preserve the cause as unverified and follow
@@ -439,7 +449,8 @@ Verdict precedence is: `Blocked` when required context or verification is
 unavailable; otherwise `Needs changes` when actionable findings remain;
 otherwise `Unverified` when a material claim could not be established;
 otherwise `Ready`. `Ready` requires every applicable required check to have
-completed successfully.
+completed successfully. Optional checks such as VoiceOver do not block `Ready`
+when skipped or unavailable; report them as residual risk.
 
 ## Companion persona
 

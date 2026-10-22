@@ -45,8 +45,9 @@ passes the affected flow, relevant consumers, scenarios, expectations, and
 scope boundaries. The orchestrator asks for consent and runs VoiceOver before
 browser automation. Each distinct state is checked once by default, with
 justified local repeats and no total time budget. Quick and unattended reviews
-never start VoiceOver. Missing capability or consent is reported as missing
-coverage, not a pass.
+never start VoiceOver. The VoiceOver check is optional: missing capability or
+consent is reported as residual risk, not a pass, and does not block a `Ready`
+verdict.
 
 The agent will:
 

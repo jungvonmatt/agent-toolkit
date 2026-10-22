@@ -59,6 +59,8 @@ Quote spoken evidence for findings. An observed failure, its cause, and whether
 the PR introduced it are separate claims. Attribute introduction only with
 baseline evidence. Record quick mode, unattended operation, declined consent,
 or missing capability explicitly; none implies a successful screen-reader test.
+VoiceOver is optional, so list a skipped or unavailable run under residual
+risks rather than as a blocker.
 
 ## Requirements Traceability
 

@@ -295,6 +295,7 @@ Invoke the `pr-review` skill with the Skill tool: `jvm-skills:pr-review`, or `pr
 
 Run it in full mode in the worktree, on the full PR diff, so it has the full context and also starts the app and checks it in a browser. Tell it:
 
+- that the review is unattended: it must never start VoiceOver, ask for consent, or wait for user input, and must record the screen-reader check as `skipped — unattended`;
 - to use the check results from step 4 as the check evidence, and not to run lint, format, typecheck, unit tests, or build again;
 - to do the reading parts of the review right away, but to take the machine lock (owner `<run token>-<PR number>`, see "Machine lock") and wait for headroom (see "Headroom") before it installs the dependencies or starts the app, to start the app with `nice -n 10`, and to pass these instructions on to the part of `pr-review` that does the runtime checks;
 - to start the app on a free port, never on a port that is in use (for example `3000` of a running dev server), and never to use or stop a server that it did not start;
@@ -402,6 +403,7 @@ Then list the skipped PRs with the reason (including "untrusted"), the PRs that 
 | Keep notes about runs in the agent memory | The memory grows with every run, and a later run trusts a note instead of the state | The state file and the report are the only record |
 | Run `npx` inside the PR worktree (`cd "$worktree" && npx fallow …`) | Claude Code's auto mode blocks it as code from an external source, and `npx` could run a binary from the PR | Run `npx fallow audit --root "$worktree"` from the working folder of the session |
 | Review the diff yourself instead of calling `pr-review` | No review passes, no Fallow, no browser checks | Invoke `jvm-skills:pr-review` with the Skill tool in step 5 |
+| Let `pr-review` start VoiceOver | VoiceOver takes over the keyboard and speech of the person at the machine, and the run waits for a consent nobody gives | Tell `pr-review` the review is unattended; it records VoiceOver as `skipped — unattended` |
 | Keep a crashed run's lock forever | No PR gets reviewed again | The lock is a lease: a stale lock is taken over after 90 minutes |
 | Post nothing when a round finds only P3 findings | The PR shows no review at all, and the author waits | Step 9 posts an approval note with the P3 findings as optional follow-ups |
 | Match duplicates on the line number | The same finding comes back after a rebase | Match on file, symbol, and problem |
