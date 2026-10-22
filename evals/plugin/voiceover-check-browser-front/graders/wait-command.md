@@ -1,4 +1,4 @@
 ---
 type: regex
-pattern: '(vo\.sh|\$\{?\w+\}?)"?\s+wait\s+["'']?Safari'
+pattern: '(vo\.sh|\$\{?\w+\}?)"?\s+focus\s+["'']?Safari'
 ---

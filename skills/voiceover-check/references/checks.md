@@ -1,19 +1,21 @@
 # VoiceOver Checks by Component
 
-Choose the sections for the component under test in Step 2, before VoiceOver starts. Each row names what a screen reader user must hear, how to check it, the WCAG 2.2 criterion, and the usual cause of a failure. "Practice" marks a common expectation that is not a WCAG criterion.
+Choose the sections for the component under test in Step 2, before VoiceOver starts. Run the Browser checks only in Step 7, after VoiceOver is off. Each row names what a screen reader user must hear, how to check it, the WCAG 2.2 criterion, and the usual cause of a failure. "Practice" marks a common expectation that is not a WCAG criterion.
 
 How to check:
 
-- **VO**: with `scripts/vo.sh` (`walk`, `seek`, `act`).
-- **Browser**: with the browser automation you control (accessibility snapshot, `evaluate_script`, key presses). `vo.sh` sends no keys, so a key like Escape is checked here.
+- **VO**: with `scripts/vo.sh` (`walk`, `seek`, `act`, `do`).
+- **Browser**: with the browser automation you control (accessibility snapshot, `evaluate_script`), after VoiceOver is off and before closing the test instance. Inspect the same tab and state.
+
+A blocked or interrupted attempt is not a failed page check. For announcement checks, record valid runs out of 3 planned, successful runs, observed failures, and blocked attempts. Fewer than 3 valid runs without a failure means incomplete. A valid observed failure remains a finding even if other runs pass. Missing targets or `(no move)` require a context check, not an automatic failure.
 
 ## Page
 
 | Check | How | WCAG | Usual cause |
 | --- | --- | --- | --- |
 | VoiceOver reads the page in its language: the right voice, the right pronunciation | Browser: `document.documentElement.lang`; VO: listen | 3.1.1, 3.1.2 | `lang` missing or wrong, or a part in another language without its own `lang` |
-| Headings form an outline and skip no level | Browser: snapshot | 1.3.1, 2.4.6 | Headings chosen for their size, text styled as a heading |
-| Main content and navigation sit in landmarks | Browser: snapshot | 1.3.1 | `div` instead of `main`, `nav`, `header`, `footer` |
+| Headings form an outline and skip no level | VO: discover heading commands, then `do`; Browser: snapshot afterward | 1.3.1, 2.4.6 | Headings chosen for their size, text styled as a heading |
+| Main content and navigation sit in landmarks | VO: discover landmark commands, then `do`; Browser: snapshot afterward | 1.3.1 | `div` instead of `main`, `nav`, `header`, `footer` |
 | The reading order follows the visual order | VO: `walk`, compared with a screenshot | 1.3.2, 2.4.3 | CSS `order`, absolute positioning, DOM order unlike the layout |
 
 ## Buttons, links, and other controls
@@ -32,7 +34,7 @@ How to check:
 | --- | --- | --- | --- |
 | On open, VoiceOver says the dialog's name and role, and the cursor is inside it | VO: `act` on the control that opens it | 4.1.2, 2.4.3 | No `aria-labelledby`, focus not moved into the dialog |
 | The cursor stays inside: walking past the last item never reaches the page behind the dialog | VO: `walk` until a few items past the end of the dialog | 2.4.3, 1.3.2 | No `showModal()`, no `aria-modal="true"`, background not `inert` |
-| Escape closes the dialog | Browser: press Escape | Practice (WAI-ARIA dialog pattern) | No key handler on a custom dialog |
+| Escape closes the dialog | VO: `do "<app>" "escape"`; the next phrase names the control that opened it | Practice (WAI-ARIA dialog pattern) | No key handler on a custom dialog |
 | On close, focus returns to the control that opened it | VO: `act` on the close button; the next phrase names that control | 2.4.3 | Focus not restored, or sent to the top of the page |
 | A control says it opens a dialog only when it does | VO | 4.1.2 | Wrong `aria-haspopup` value |
 
@@ -51,7 +53,7 @@ How to check:
 
 | Check | How | WCAG | Usual cause |
 | --- | --- | --- | --- |
-| The message is announced in 3 of 3 runs | VO: `act` | 4.1.3 | The region is added together with its text, so VoiceOver does not see a change |
+| The message is announced in 3 of 3 valid runs | VO: `act`; exclude blocked attempts and state the collection limits | 4.1.3 | The region is added together with its text, so VoiceOver does not see a change |
 | Only critical, time-sensitive messages interrupt (`assertive`, `role="alert"`); others wait (`polite`, `role="status"`) | Browser: attribute; VO: listen | 4.1.3 | `assertive` for routine messages |
 | The message survives a focus move at the same moment | VO: `act` | 4.1.3 | Announcement and focus move at once; a delay of about 1 s helps |
 | The same message twice is announced twice | VO: `act` twice | 4.1.3 | The region is not cleared before the new text |
@@ -64,7 +66,7 @@ How to check:
 | --- | --- | --- | --- |
 | The control says collapsed or expanded, and the state changes after activation | VO: `act`, then `last` | 4.1.2 | `aria-expanded` missing or not updated |
 | The popup type matches what opens: menu, listbox, or dialog | VO; Browser: `aria-haspopup` | 4.1.2 | `aria-haspopup` copied from another control |
-| After opening, the next items are the popup's items | VO: `walk` | 2.4.3, 1.3.2 | The popup is rendered at the end of the page |
+| After opening, the popup is reachable in a meaningful order | VO: confirm activation and expanded state, check group interaction, then `walk` or a suitable `do` within scope | 2.4.3, 1.3.2 | Focus or reading order separates the popup from its trigger; non-adjacency alone does not prove inaccessibility |
 
 ## Not covered by this skill
 

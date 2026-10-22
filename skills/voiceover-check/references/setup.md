@@ -57,6 +57,6 @@ bash scripts/vo.sh stop
 | The agent reports that its sandbox blocks `osascript`, `pgrep`, or `lsappinfo` | The agent's shell sandbox | Allow these commands for this run, or run the check yourself |
 | The walk starts in the wrong place | The VoiceOver cursor does not follow the keyboard focus | Step 3, Navigation default |
 | The log shows usage hints instead of item names | Hints are on | Step 3 |
-| `wait` or `start` exits with code 2 | macOS keeps the terminal in front, so the browser never came forward | Click into the browser window, then let the agent run `wait` and `start` again |
+| `focus`, `wait`, or `start` exits with code 2 | The browser did not come forward, or another app took focus | Let the agent start `wait`, then click into the browser during the wait. Do not return to the chat to reply |
 | Role names come out in another language | VoiceOver uses the macOS system language | Expected. Read the roles in that language. |
 | Every walk stops with exit code 2 | Another window takes the focus, for example a second browser that an automation tool opened | Close it, or pass that browser's name to `walk` |
