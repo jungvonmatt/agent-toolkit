@@ -37,18 +37,20 @@ Report findings in severity order. Do not invent findings to fill a category.
 - Review mode: `PR/MR` or `Local`
 - Diff source: `local checkout`, `verified local checkout`, `remote fallback`, or `local-only`
 - Fallow verdict and introduced findings, when applicable
-- Runtime/browser checks and their result, when applicable
+- `modern-web-guidance` status and the guide IDs cited, for web UI signals
+- Runtime/browser checks and their result, when applicable, including the
+  browser accessibility audit and performance measurement statuses
 - Every applicable specialist status: `passed`, `findings`, `skipped — <reason>`, or `unavailable — <reason>`
 - Skipped or unavailable checks with a concrete reason and residual risk
 - Target-ref and diff-source verification status
 
 ## Performance Review
 
-Include only when performance signals are present. List confirmed risks first and distinguish measured evidence from static inference. Mention skipped runtime or performance checks and the reason.
+Include only when performance signals are present. List confirmed risks first and distinguish measured evidence from static inference. For measured results, name the route, the metric (LCP, CLS, INP, request count or size), the value, and whether it was compared with the target revision. Mention skipped runtime or performance checks and the reason.
 
 ## Accessibility Review
 
-Include only when UI accessibility signals are present. State `Checked` with key findings or `Skipped` with an explicit reason.
+Include only when UI accessibility signals are present. State `Checked` with key findings or `Skipped` with an explicit reason. Separate static findings from the browser audit (keyboard, focus, contrast, Lighthouse accessibility).
 
 Report browser/static checks separately from real VoiceOver. For VoiceOver,
 state the targeted scope, represented consumers, browser, prior knowledge,

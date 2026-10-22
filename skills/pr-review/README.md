@@ -30,8 +30,13 @@ Modes and depths:
 
 - **PR/MR mode** — remote change metadata plus a local checkout for the primary diff.
 - **Local mode** — current checkout plus a required target branch and optional ticket context.
-- **Full** (default) — parallel specialist fan-out, runtime checks, aggregation.
+- **Full** (default) — parallel specialist fan-out, runtime checks, aggregation. For UI changes, runtime includes a browser accessibility audit (keyboard, focus, contrast, Lighthouse) and performance measurement (LCP, CLS, INP, network) on affected routes.
 - **Quick** — parallel specialist fan-out and aggregation, runtime skipped.
+
+Web UI changes are also checked against
+[`modern-web-guidance`](https://github.com/GoogleChrome/modern-web-guidance)
+for native platform features and obsolete patterns. It runs through `npx`, so
+it does not need to be installed.
 
 In an attended full review, changes to names, roles, focus, dialogs, live
 announcements, or screen-reader navigation trigger a targeted

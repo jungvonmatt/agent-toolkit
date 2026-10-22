@@ -25,6 +25,8 @@ Use this checklist to keep the review comprehensive and consistent.
 - Check server-side query patterns (N+1, missing limits, missing indexes assumptions).
 - Check rendering risks: layout thrashing, large DOM updates, heavy synchronous work.
 - Distinguish measured performance evidence from static inference and record skipped measurements.
+- In full mode, measure affected browser routes (trace for LCP, CLS, and INP of new interactions; network requests) as described in SKILL.md step 5. Compare with the target revision before claiming a regression.
+- For web UI changes, check `modern-web-guidance` for native features that replace hand-rolled code and for obsolete patterns.
 
 ## Accessibility decision rule
 
@@ -47,6 +49,10 @@ When running a11y checks, cover at least:
 - keyboard navigation and focus order
 - focus visibility and trapped focus
 - color contrast in touched UI areas
+
+In full mode, verify keyboard, focus, and contrast in the browser and run a
+Lighthouse accessibility audit on affected routes (SKILL.md step 5). The static
+specialist alone does not cover these.
 
 Record the accessibility status as `passed`, `findings`, `skipped — <reason>`,
 or `unavailable — <reason>`. Do not treat an unavailable audit as a clean pass.

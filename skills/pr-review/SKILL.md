@@ -231,8 +231,8 @@ others from the diff profile:
 |---|---|---|
 | correctness + architecture + tests | always | spec match, edge/error paths, backward compat, structure, test adequacy |
 | `security-and-hardening` | auth, sessions, user input, uploads, secrets, external APIs | injection, authz, validation, secret exposure, boundary failure contracts |
-| `performance-optimization` / `webperf-*` | loading, rendering, assets, bundle, query signals | N+1, unbounded ops, bundle impact, layout thrash (static) |
-| `a11y-debugging` | UI markup, forms, controls, focus, ARIA, contrast | semantics, accessible names, keyboard/focus, contrast (static) |
+| `performance-optimization` / `webperf-*` | loading, rendering, assets, bundle, query signals | N+1, unbounded ops, bundle impact, layout thrash (static; runtime measurement is step 5) |
+| `a11y-debugging` | UI markup, forms, controls, focus, ARIA, contrast | semantics, accessible names, keyboard/focus, contrast (static; browser audit is step 5) |
 | `fallow` (run + clean) | JS/TS diff, including embedded scripts in `.vue`/`.svelte` | run the audit, parse, strip false positives, return introduced findings |
 
 Scope notes carried into the relevant briefs:
@@ -248,6 +248,9 @@ Scope notes carried into the relevant briefs:
   authorization, validation, timeout, retry, and query checks.
 - For framework-specific API or version migration, add `source-driven-development`
   guidance to the core brief.
+- The `a11y-debugging` and `performance-optimization` / `webperf-*` specialists
+  apply their skills' static criteria only. They never drive the browser; the
+  browser-based parts of those skills run in step 5 under the runtime owner.
 - For `markup`, `styling`, or browser `js-ts` signals, have the core specialist
   run the `modern-web-guidance` `search` → `retrieve` flow to flag hand-rolled
   code where a native platform feature fits, and obsolete patterns. Judge
@@ -359,7 +362,33 @@ from the Phase 1 profile:
   the VoiceOver cleanup rules.
 4. Take a DOM/accessibility snapshot and exercise each new interaction.
 5. Read console messages; inspect network requests when data fetching changed.
-6. Run the remaining accessibility checks for markup or interaction changes.
+6. **Accessibility audit** — when the diff changes markup, controls, focus,
+  ARIA, or styling that affects contrast or focus visibility (the
+  accessibility decision rule in the checklist), on each affected route:
+  - tab through every new or changed control and confirm focus order, visible
+    focus, no keyboard traps, and focus return after dialogs or menus close;
+  - check accessible names and roles in the snapshot from step 4;
+  - check computed contrast of touched text and focus indicators;
+  - run `lighthouse_audit` with the accessibility category and report only
+    failures in touched UI areas.
+  Load `a11y-debugging` for the procedure when available. Record the status as
+  `passed`, `findings`, `skipped — <reason>`, or `unavailable — <reason>`.
+7. **Performance measurement** — when the profile has loading, rendering,
+  assets-rendering, data-fetching, or new-dependency signals on a browser
+  surface, on each affected route:
+  - record a performance trace on load (`performance_start_trace` with reload)
+    and read LCP and CLS plus the relevant insights;
+  - when a new interaction was added, trace that interaction and read INP or the
+    long tasks it causes;
+  - inspect network requests for new, duplicate, uncached, or oversized
+    requests and assets the diff introduced.
+  Load `webperf-*` or `performance-optimization` for interpretation when
+  available. Dev-server numbers are noisy and unminified: use them for
+  relative comparison and for confirming or refuting static findings, not as
+  absolute budgets. Before calling anything a regression, measure the same
+  route and conditions on the target revision, or report the introduction as
+  `unverified`. Mark measured results `confidence: measured`. Record the status
+  as `passed`, `findings`, `skipped — <reason>`, or `unavailable — <reason>`.
 
 Carry the tested scope, spoken evidence, actual run counts, repeat reasons,
 and blockers into the review report. A finding observed on HEAD is not proof
@@ -420,7 +449,9 @@ Use [`references/reviewer-persona.md`](references/reviewer-persona.md) for the r
 
 | Rationalization | Reality |
 |---|---|
-| "This is a small change — no need for runtime checks" | Small UI changes cause layout shifts. Snapshot the affected route. |
+| "This is a small change — no need for runtime checks" | Small UI changes cause layout shifts. Trace the affected route and read CLS. |
+| "The static performance review found nothing" | Static review cannot see LCP, CLS, or INP. Measure the affected route in full mode. |
+| "The a11y specialist already checked accessibility" | It checked code only. Keyboard, focus, and contrast need the browser audit in step 5. |
 | "The tests pass, so the change is correct" | Tests verify intent, not absence of regressions. Check runtime too. |
 | "I can infer correctness from the code" | Do not infer runtime correctness from static code. Run it. |
 | "Fallow is not installed — skip code health" | `npx fallow` fetches it on demand. The `fallow` subagent runs the command. |
@@ -451,6 +482,8 @@ After the review is complete:
 - [ ] The evidence of every P0/P1 finding was checked at its cited location before the verdict
 - [ ] All findings have severity, location, and a concrete suggestion
 - [ ] Runtime ran (Option A or B) or is recorded as `skipped`/`unavailable — <reason>`
+- [ ] In full mode, the browser accessibility audit and performance measurement ran for applicable UI changes or are recorded as `skipped`/`unavailable — <reason>`
+- [ ] For web UI signals, `modern-web-guidance` ran and its status and cited guide IDs are in the report
 - [ ] The verdict follows precedence: Blocked > Needs changes > Unverified > Ready
 - [ ] `Ready` was issued only when every required check completed successfully
 - [ ] No code, comments, tickets, or merge state were modified

@@ -74,6 +74,13 @@ If your scope produced no findings, return one status line instead:
 <axis>: unavailable — <reason>
 ```
 
+When your brief includes the `modern-web-guidance` flow, also return one
+`web-guidance:` status line (`passed`, `findings`, `skipped — <reason>`, or
+`unavailable — <reason>`) listing the guide IDs you retrieved. Report its
+findings under the axis the guide concerns (`a11y`, `performance`, or
+`architecture` for native-alternative findings), with the guide ID in
+`evidence`.
+
 ## Deduplication expectation
 
 The orchestrator merges findings across specialists by `(file, line, symbol)`.
