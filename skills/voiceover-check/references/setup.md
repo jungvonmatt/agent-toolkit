@@ -54,7 +54,7 @@ bash scripts/vo.sh stop
 | `start` exits with code 3 and error -1743 | Automation is not allowed | Step 4 |
 | `start` exits with code 3 and error -1712 | The Automation prompt was not answered in time | Answer the prompt (step 4), then run `start` again |
 | `start` exits with code 3 and another error | AppleScript control is off | Step 1 |
-| The agent reports that its sandbox blocks `osascript`, `pgrep`, or `lsappinfo` | The agent's shell sandbox | Allow these commands for this run, or run the check yourself |
+| The agent reports that its sandbox blocks `osascript` or `pgrep` | The agent's shell sandbox | Allow these commands for this run, or run the check yourself |
 | The walk starts in the wrong place | The VoiceOver cursor does not follow the keyboard focus | Step 3, Navigation default |
 | The log shows usage hints instead of item names | Hints are on | Step 3 |
 | `focus`, `wait`, or `start` exits with code 2 | The browser did not come forward, or another app took focus | Let the agent start `wait`, then click into the browser during the wait. Do not return to the chat to reply |

@@ -19,6 +19,12 @@ function fixture(context, options = {}) {
   const commands = {
     osascript: `#!/bin/bash
 case "$*" in
+  *frontmostApplication*)
+    printf '%s\\t%s\\n' "$(cat "$TEST_FRONT_PID" 2>/dev/null)" "$(cat "$TEST_FRONT")"
+    exit 0 ;;
+  *URLForApplicationWithBundleIdentifier*)
+    echo /nonexistent/VoiceOver.app
+    exit 0 ;;
   *activateWithOptions*)
     echo "$*" | sed -E 's/.*Identifier\\(([0-9]+)\\).*/\\1/' > "$TEST_FRONT_PID"
     printf 'Google Chrome' > "$TEST_FRONT"
@@ -55,15 +61,6 @@ if [ "$1" = -na ]; then
   printf '%s' "$!" > "$TEST_FRONT_PID"
 fi
 printf '%s' "$2" > "$TEST_FRONT"
-`,
-    lsappinfo: `#!/bin/bash
-if [ "$1" = front ]; then
-  printf 'test-process'
-elif [ "$3" = pid ]; then
-  printf '"pid"=%s\\n' "$(cat "$TEST_FRONT_PID" 2>/dev/null)"
-else
-  printf '\"LSDisplayName\"=\"%s\"\\n' "$(cat "$TEST_FRONT")"
-fi
 `,
     pgrep: '#!/bin/bash\nexit 0\n',
     plutil: `#!/bin/bash
@@ -109,6 +106,13 @@ XML
     },
   };
 }
+
+test('front prints the full name of the app in front, including spaces', (context) => {
+  const browser = fixture(context, { front: 'Google Chrome Canary' });
+  const result = browser.run('front');
+  assert.equal(result.status, 0, result.stderr);
+  assert.equal(result.stdout, 'Google Chrome Canary\n');
+});
 
 test('commands lists the VoiceOver command names of this Mac, filtered', (context) => {
   const browser = fixture(context);
