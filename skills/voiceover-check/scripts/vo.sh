@@ -29,7 +29,9 @@
 #             7 `do` got a name that is not a VoiceOver command on this Mac.
 set -uo pipefail
 
-STARTER=/System/Library/CoreServices/VoiceOver.app/Contents/MacOS/VoiceOverStarter
+VO_APP=/System/Library/CoreServices/VoiceOver.app
+# Older macOS versions ship VoiceOverStarter; newer ones only the app bundle, which `open` launches.
+STARTER=$VO_APP/Contents/MacOS/VoiceOverStarter
 APPLESCRIPT_MARKER=/private/var/db/Accessibility/.VoiceOverAppleScriptEnabled
 # The English command names that `tell commander to perform command` accepts on this macOS version.
 COMMAND_MAP=/System/Library/PrivateFrameworks/ScreenReader.framework/Versions/A/Resources/SCRStringsToCommandsMap.scrconfig
@@ -89,11 +91,16 @@ read_phrase() { phrase || die "could not read the last phrase from VoiceOver" 3;
 cursor() { vo 'return bounds of vo cursor' 2>/dev/null || true; }
 
 frontmost() {
-  lsappinfo info -only name "$(lsappinfo front)" | sed -E 's/.*"LSDisplayName"="([^"]*)".*/\1/'
+  local out
+  out=$(lsappinfo info -only name "$(lsappinfo front)" | head -n 1)
+  case $out in
+  *'"LSDisplayName"="'*) printf '%s\n' "$out" | sed -E 's/.*"LSDisplayName"="([^"]*)".*/\1/' ;;
+  *) printf '%s\n' "$out" | sed -E 's/^"([^"]*)".*/\1/' ;;
+  esac
 }
 
 front_pid() {
-  lsappinfo info -only pid "$(lsappinfo front)" | sed -E 's/.*"pid"=([0-9]+).*/\1/'
+  lsappinfo info -only pid "$(lsappinfo front)" | tr '\n' ' ' | sed -E 's/.*"pid"=([0-9]+).*/\1/; s/.*pid = ([0-9]+).*/\1/'
 }
 
 activate_pid() {
@@ -179,9 +186,17 @@ applescript_setting() {
   fi
 }
 
+launch_voiceover() {
+  if [ -x "$STARTER" ]; then
+    "$STARTER" >/dev/null 2>&1
+  else
+    open -a "$VO_APP" >/dev/null 2>&1
+  fi
+}
+
 cmd_check() {
   [ "$(uname -s)" = Darwin ] || die "This is not macOS ($(uname -s)), and VoiceOver runs only on a Mac. Tell the user that a person must do the screen reader check: VoiceOver on a Mac, or NVDA on Windows." 6
-  [ -x "$STARTER" ] || die "VoiceOver was not found on this Mac ($STARTER). Tell the user that a person must do the screen reader check." 6
+  [ -d "$VO_APP" ] || die "VoiceOver was not found on this Mac ($VO_APP). Tell the user that a person must do the screen reader check." 6
   case $(applescript_setting) in
     off) die "AppleScript control of VoiceOver is off. Ask the user to open VoiceOver Utility > General and turn on \"Allow VoiceOver to be controlled with AppleScript\" (references/setup.md, step 1). Do not change it yourself." 3 ;;
     on) echo "AppleScript control of VoiceOver is on." ;;
@@ -341,7 +356,7 @@ cmd_start() {
   elif running; then
     echo "VoiceOver was already running. It is the user's session: stop leaves it on."
   else
-    "$STARTER" >/dev/null 2>&1
+    launch_voiceover
     for _ in 1 2 3 4 5 6 7 8 9 10; do
       running && break
       sleep 0.5
