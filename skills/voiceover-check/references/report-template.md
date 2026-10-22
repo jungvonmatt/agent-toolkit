@@ -29,6 +29,8 @@ Quote VoiceOver verbatim, in the system language it used. Keep one row per check
 
 **Not checked:** <checks for this component from checks.md that were not run, and why>
 
+**Other screen readers:** <untested: NVDA, JAWS, TalkBack, iOS VoiceOver — name the custom widgets or live regions most at risk, or "low risk: native elements only">
+
 **Incomplete:** <checks started but not completed, their blockers, and what remains to verify>
 
 **Cleanup:** <VoiceOver stopped or user session preserved; launched browser closed or remaining blocker>

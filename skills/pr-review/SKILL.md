@@ -201,6 +201,11 @@ residual risk. A skipped or unavailable VoiceOver check is never a pass, but it
 does not block `Ready` on its own; the browser accessibility audit in step 5
 remains required.
 
+Screen-reader coverage is VoiceOver on macOS only. When the diff changes custom
+widgets (tabs, comboboxes, menus, grids) or live regions, list NVDA, JAWS,
+TalkBack, and iOS VoiceOver as untested residual risk even when VoiceOver
+passed.
+
 Before executing the review, read
 [`references/review-checklist.md`](references/review-checklist.md) and apply
 the applicable criteria to the classified diff.
@@ -379,6 +384,10 @@ from the Phase 1 profile:
     focus, no keyboard traps, and focus return after dialogs or menus close;
   - check accessible names and roles in the snapshot from step 4;
   - check computed contrast of touched text and focus indicators;
+  - confirm a focused control is not hidden behind sticky headers, cookie
+    banners, or overlays (WCAG 2.2 Focus Not Obscured, 2.4.11), and that new
+    pointer targets are at least 24×24 CSS px or spaced accordingly (Target
+    Size, 2.5.8);
   - run `lighthouse_audit` with the accessibility category and report only
     failures in touched UI areas.
   Load `a11y-debugging` for the procedure when available. Record the status as
