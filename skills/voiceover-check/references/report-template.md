@@ -23,6 +23,7 @@ Quote VoiceOver verbatim, in the system language it used. Keep one row per check
 
 1. **<what is wrong, in one line>** — <critical | serious | moderate | minor> · WCAG <criterion>
    - Heard: `<verbatim phrase>`
+   - Repro by hand: <VoiceOver keys a person presses, from "Reproduce by hand" below>
    - Cause: <element and attribute, verified in the same tab and state> — or: cause unverified
    - Attribution: <baseline comparison proves introduced | pre-existing | introduction unverified>
    - Fix: <one line> (modern-web-guidance: `<id>`, when used)
@@ -48,3 +49,18 @@ Quote VoiceOver verbatim, in the system language it used. Keep one row per check
 - Limit the verdict to the tested scope and represented contexts. Code-informed targeted checks are guided, not blind discovery. Attribute a failure to a PR only with baseline evidence; otherwise mark its introduction unverified.
 - Do not claim the whole scope passed while required checks remain incomplete. Sampling the last phrase cannot prove every repeated identical or rapidly replaced announcement; disclose that limit when it affects the result.
 - Mark a finding seen only in Chrome as "Chrome + VoiceOver" unless you confirmed it in Safari.
+
+## Reproduce by hand
+
+Developers reproduce findings with the keyboard. Translate the `vo.sh` steps of each finding into these default keys (VO = Control + Option). These keys are for the person reading the report; the agent never sends them.
+
+| `vo.sh` step | VoiceOver keys |
+| --- | --- |
+| Start or stop VoiceOver | Command + F5 |
+| `walk` / `back` | VO + Right Arrow / VO + Left Arrow |
+| `act` | VO + Space |
+| `into` / `out` | VO + Shift + Down Arrow / VO + Shift + Up Arrow |
+| `last` | VO + Z (repeat last phrase) |
+| `do "find next heading"` / `"… link"` / `"… form control"` / `"… table"` | VO + Command + H / L / J / T |
+| `do "escape"` | Escape |
+| Landmarks and other lists | VO + U (rotor), Left/Right to switch lists |
