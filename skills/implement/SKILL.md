@@ -43,7 +43,7 @@ The plan file under `docs/plans/` is the durable record of progress — not the 
 
 ## Default: one task, human gate before the commit
 
-Read the plan and pick the first task with an unticked acceptance checkbox. Before you start, run `git status --porcelain`. If uncommitted changes exist that are not the plan file itself, stop and ask the user to commit, stash, or confirm how to handle them — the task's commit must contain only the task's work. Then:
+Read the plan and pick the first task with an unticked acceptance checkbox. Before you start, check for a clean baseline: run `git status --porcelain`. If uncommitted changes exist that are not the plan file itself, stop and ask the user to commit, stash, or confirm how to handle them — the task's commit must contain only the task's work. Then:
 
 1. **Read the task.** Load its acceptance criteria, its `Files` list, its `Edge cases & fallbacks`, and any `Depends on` note. Confirm every dependency task is already complete.
 2. **Load context.** Read the existing code, patterns, and types the task builds on. Follow the closest precedent the plan cites rather than inventing a new pattern.
@@ -69,7 +69,7 @@ Read the plan and pick the first task with an unticked acceptance checkbox. Befo
 Use this when the plan is trusted and you want to collapse the run into one pass. It removes the manual stepping between tasks — not the verification. Every task still earns a passing test and its own commit.
 
 1. **Require a plan.** Locate the plan under `docs/plans/` (the newest matching one, or the plan the argument names). If none exists, stop and tell the user to run `start-ticket` first — do not invent requirements.
-2. **Establish a clean baseline.** Run `git status --porcelain`. If uncommitted changes exist that are not the plan file itself, stop and ask the user to commit, stash, or confirm how to handle them. Per-task commits must not absorb unrelated local work, or the clean-rollback guarantee breaks.
+2. **Establish a clean baseline** as in the default mode. Per-task commits must not absorb unrelated local work, or the clean-rollback guarantee breaks.
 3. **Single checkpoint.** Present the plan's task list and wait for an unambiguous affirmative (`approve`, `go`, `yes`). Treat a hedged reply (`looks reasonable`, `I guess`) as **not** approved. This is the only routine human gate — after approval, run autonomously.
 4. **Execute every task in order.** Use each task's `Depends on` note for order; otherwise follow the plan's task order. Skip any task whose acceptance checkboxes are all ticked — resume at the first task with an unticked one. For each task, run the full default loop above (steps 1–7), then tick its acceptance checkboxes and commit the work plus that tick per task **without pausing for review** — stage only the files that task touched plus the plan's tick (never `git add -A` blindly), and make one commit per task so any point is a clean rollback. Between tasks, do not stop to report: no summary that names the next task without starting it, no "Want me to continue?", no list of options that block nothing. Put the status note in the same message as the next action.
 5. **Still pause before the commit** at:
@@ -88,10 +88,6 @@ Use this when the plan is trusted and you want to collapse the run into one pass
    - **Blocked on you** — open decisions, approvals, and blockers the user must resolve (or `none`),
    - **Changed** — tasks completed, commits made, tests added, checkpoints reached,
    - **Found** — anything skipped, flagged, or discovered outside the plan's scope.
-
-## Why the gate is before the commit
-
-The plan's own template already asks the executor to pause **before** the commit at review gates and multi-file tasks, so the reviewer reads a live diff rather than committed history. This skill makes that the default rhythm for every task in single-task mode. The change stays in the working tree, so the reviewer opens it in VS Code, a diff viewer, or `git diff`, comments on the real lines, and approves — then the commit records an already-reviewed change. Amending or rewording after the fact is never needed.
 
 ## Companion skills
 

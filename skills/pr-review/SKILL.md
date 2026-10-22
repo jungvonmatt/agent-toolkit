@@ -46,12 +46,8 @@ session-title API.
 
 ## Execution model
 
-Run the review as an **orchestrator plus parallel read-only specialists**. The
-main agent (orchestrator) owns everything that touches shared state — remotes,
-tickets, ref resolution, the dev server, and the final verdict. Each
-independent, read-only analysis of the already-captured diff is delegated to a
-subagent. This keeps the orchestrator context lean and lets the specialists run
-concurrently instead of serially.
+Run the review as an **orchestrator plus parallel read-only specialists**, so
+the orchestrator context stays lean and the specialists run concurrently.
 
 ```text
 Phase 1  Orchestrator (serial, once)   context + baseline + classification -> context packet
@@ -62,17 +58,6 @@ Phase 3  Orchestrator (serial)         runtime checks + mechanical aggregation +
 The split rule: anything needing remote/provider access, a running dev server,
 or the merge decision stays on the orchestrator; anything that is a pure
 read-only analysis of the pinned diff becomes a subagent.
-
-Every subagent is dispatched with
-[`references/subagent-contract.md`](references/subagent-contract.md) prepended
-verbatim, followed by the immutable **context packet** and the specialist's
-scope brief. Subagents have no provider access and never re-fetch the diff or
-ticket data; they rely only on the packet. They return findings in the shared
-schema so the orchestrator can deduplicate and merge them mechanically by
-`(file, line, symbol)`.
-
-Dispatch all applicable specialists in a single turn so they execute in
-parallel. One dispatch per turn would serialize them and defeat the purpose.
 
 ## Workflow
 
@@ -239,9 +224,10 @@ streams. Stamp the head SHA so every specialist reviews the same pinned state.
 ### Phase 2 — Specialists: parallel fan-out (read-only subagents)
 
 Dispatch every applicable specialist **in a single turn** so they run
-concurrently. Each dispatch is
-[`references/subagent-contract.md`](references/subagent-contract.md) + the
-context packet + the scope brief below. Activate a specialist only when its
+concurrently; one dispatch per turn would serialize them. Each dispatch is
+[`references/subagent-contract.md`](references/subagent-contract.md) prepended
+verbatim + the context packet + the scope brief below. Specialists return
+findings in the contract's shared schema. Activate a specialist only when its
 signal is present in the profile; record `skipped — <reason>` for the rest.
 
 Always dispatch the core specialist (correctness, architecture, tests). Add the
