@@ -51,7 +51,7 @@ The agent will:
 2. **Prepare**: honor the browser and existing page you request. Check the whole page unless you name a component, then restrict the checks to it. Choose from [references/checks.md](references/checks.md) without inspecting the DOM before the run.
 3. **Ask first**: what it checks, in which browser, and how long it takes. After your OK, keep your hands off the keyboard.
 4. **Start**: bring the chosen browser forward, verify focus, then start VoiceOver. Unless you request an existing page, Chromium uses a separate instance with a fresh profile and PID-bound interactions. This does not guarantee the initial cursor position: the agent confirms the page and its web-content role through VoiceOver. If activation fails, click during a timed wait without replying again.
-5. **Navigate**: discover this Mac's VoiceOver commands for headings, landmarks, and controls. Use those to locate content and a sequential walk to check reading order. Log spoken text, not usage hints.
+5. **Navigate**: discover this Mac's VoiceOver commands for headings, landmarks, and controls. Jump to content and past option groups the way a screen reader user does, and use a sequential walk only where reading order matters. Log spoken text, not usage hints.
 6. **Listen**: activate the control while sampling changes to VoiceOver's last phrase. Check each relevant state once and record the reason for any repeat. Observed failures, blocked attempts, and incomplete checks are reported separately. A successful 1/1 does not prove ongoing reliability; identical repeated or rapidly replaced phrases can be missed by sampling.
 7. **Stop, verify, and clean up**: stop VoiceOver, inspect causes in the same test instance and state when possible, then close the launched browser. If only source or another browser is available, leave runtime causes unverified. Report expected versus spoken text, run counts, severity, and applicable WCAG criteria.
 
@@ -64,7 +64,7 @@ voiceover-check/
 ├── references/setup.md              — One-time setup and troubleshooting
 ├── references/checks.md             — Checks per component, WCAG criteria, severity
 ├── references/report-template.md    — Report format
-└── scripts/vo.sh                    — check, launch, close, focus, wait, start, stop, front, last, walk, seek, back, seekback, act, into, out, commands, do, web, poll
+└── scripts/vo.sh                    — check, launch, close, focus, wait, start, stop, front, last, walk, seek, back, seekback, act, into, out, commands, do, jump, web, poll
 ```
 
 ## When to use it

@@ -35,6 +35,7 @@ case "$2" in
   *"move right"*) position=$((position + 1)); echo right >> "$TEST_MOVES" ;;
   *"move left"*) position=$((position - 1)); echo left >> "$TEST_MOVES" ;;
   *'perform command "find next heading"'*) position=$((position + 10)); echo 'find next heading' >> "$TEST_MOVES" ;;
+  *'perform command "find next control"'*) position=$((position + 3)); echo 'find next control' >> "$TEST_MOVES" ;;
   *'perform command "jump to top level"'*) position=0; echo 'jump to top level' >> "$TEST_MOVES" ;;
   *"into item"*) echo into >> "$TEST_MOVES" ;;
   *"perform command"*) echo other-command >> "$TEST_MOVES" ;;
@@ -67,6 +68,7 @@ printf '%s' "$2" > "$TEST_FRONT"
 cat <<'XML'
 <plist><dict>
 <key>escape</key><string>SCRWorkspace.escapeKey</string>
+<key>find next control</key><string>Global.findNextControl</string>
 <key>find next heading</key><string>Global.findNextHeading</string>
 <key>find next landmark</key><string>SCRWebArea.nextLandmark</string>
 <key>jump to top level</key><string>SCRWorkspace.escapeToTopLevel</string>
@@ -118,7 +120,7 @@ test('commands lists the VoiceOver command names of this Mac, filtered', (contex
   const browser = fixture(context);
   const result = browser.run('commands', 'NEXT');
   assert.equal(result.status, 0, result.stderr);
-  assert.equal(result.stdout, 'find next heading\nfind next landmark\n');
+  assert.equal(result.stdout, 'find next control\nfind next heading\nfind next landmark\n');
 });
 
 test('web skips a matching tab title and enters the named web area', (context) => {
@@ -204,6 +206,44 @@ test('do runs a VoiceOver command and prints what VoiceOver says next', (context
   assert.equal(result.status, 0, result.stderr);
   assert.deepEqual(browser.moves(), ['find next heading']);
   assert.equal(result.stdout, '001  item 15\n');
+});
+
+test('do repeats a VoiceOver command the given number of times', (context) => {
+  const browser = fixture(context, { front: 'Safari' });
+  const result = browser.run('do', 'Safari', 'find next control', '2');
+  assert.equal(result.status, 0, result.stderr);
+  assert.deepEqual(browser.moves(), ['find next control', 'find next control']);
+  assert.equal(result.stdout, '001  item 8\n002  item 11\n');
+});
+
+test('jump repeats a find command until the phrase contains the text', (context) => {
+  const browser = fixture(context, { front: 'Safari' });
+  const result = browser.run('jump', 'Safari', 'find next control', 'item 14', '5');
+  assert.equal(result.status, 0, result.stderr);
+  assert.deepEqual(browser.moves(), ['find next control', 'find next control', 'find next control']);
+});
+
+test('jump stops after its bound without a match', (context) => {
+  const browser = fixture(context, { front: 'Safari' });
+  const result = browser.run('jump', 'Safari', 'find next control', 'Missing', '2');
+  assert.equal(result.status, 5);
+  assert.equal(browser.moves().length, 2);
+});
+
+test('jump refuses a name that is not a VoiceOver command on this Mac', (context) => {
+  const browser = fixture(context, { front: 'Safari' });
+  const result = browser.run('jump', 'Safari', 'press tab', 'item', '2');
+  assert.equal(result.status, 7);
+  assert.deepEqual(browser.moves(), []);
+});
+
+test('walk moves on as soon as the next item is spoken', (context) => {
+  const browser = fixture(context, { front: 'Safari' });
+  const started = Date.now();
+  const result = browser.run('walk', 'Safari', '4');
+  assert.equal(result.status, 0, result.stderr);
+  assert.equal(result.stdout, '001  item 6\n002  item 7\n003  item 8\n004  item 9\n');
+  assert.ok(Date.now() - started < 4 * 1300, 'a spoken item does not wait for the full delay');
 });
 
 test('do marks a command that changes nothing', (context) => {

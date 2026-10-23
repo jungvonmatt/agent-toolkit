@@ -60,6 +60,21 @@ A blocked or interrupted attempt is not a failed page check. Use the execution a
 | With several errors, the number of errors is announced | VO | Practice | No error summary |
 | A successful submit is announced | VO: `act` in the success scenario | 4.1.3 | Success text shown without a live region or a focus move |
 
+## Option group
+
+Radio groups, swatches, chips, segmented controls, and similar sets of choices.
+
+| Check | How | WCAG | Usual cause |
+| --- | --- | --- | --- |
+| The group is reachable as a group and says its label and role | VO: `jump` with `find next radio group` or the matching find command. A miss is a possible finding | 1.3.1 | No `fieldset`/`legend` or `role="radiogroup"` with a name; options are loose buttons |
+| Each option says its name, role, position ("3 of 15"), and selected state | VO: the first option and the chosen one | 1.3.1, 4.1.2 | `div` with a click handler; selection shown only visually |
+| An unavailable option says so, for example "dimmed" or "unavailable" | VO: on an unavailable option | 1.3.1, 4.1.2 | Only greyed out or struck through |
+| Choosing an option announces its new state and any change it causes elsewhere | VO: `act` on the option | 4.1.3 | Silent DOM update without a live region |
+| An action that needs a choice explains a missing one | VO: `act` on the action with no option chosen | 3.3.1, 3.3.2 | Disabled button without a reason, or an error that does not name the group |
+| One Tab stop per group, arrow keys move between options | Keyboard, without VO, for example with the `a11y-debugging` skill | 2.1.1 | Every option is its own Tab stop; arrows do nothing |
+
+Read every option only in a full reading-order check or when the names differ in meaning. Otherwise, the first, the chosen, and the last option, plus the announced count, are enough.
+
 ## Live region, toast, and status message
 
 | Check | How | WCAG | Usual cause |

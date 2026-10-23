@@ -12,21 +12,24 @@
 #   bash vo.sh stop [--force]              quit the VoiceOver that start started (--force: also the user's)
 #   bash vo.sh front                       print the name of the app in front; it does not change it
 #   bash vo.sh last                        print the last phrase VoiceOver spoke
-#   bash vo.sh walk <app> <steps> [delay]  move the VoiceOver cursor <steps> items forward, print each phrase
+#   bash vo.sh walk <app> <steps> [delay]  move the VoiceOver cursor <steps> items forward, print each phrase;
+#                                          [delay] is the longest wait for a silent item (default 1.3 s)
 #   bash vo.sh seek <app> <text> [max]     move forward until the spoken phrase contains <text>
 #   bash vo.sh back <app> <steps> [delay]  like walk, but backward
 #   bash vo.sh seekback <app> <text> [max] like seek, but backward
 #   bash vo.sh act <app> [seconds]         activate the item under the cursor (VO-Space), print what follows
 #   bash vo.sh into <app> | out <app>      move into or out of the item under the cursor (a dialog, a group)
 #   bash vo.sh commands [filter]           list the VoiceOver command names of this Mac, for example: commands heading
-#   bash vo.sh do <app> <command>          run a VoiceOver command by name, print what VoiceOver says next
+#   bash vo.sh do <app> <command> [times]  run a VoiceOver command by name, print what VoiceOver says next
+#   bash vo.sh jump <app> <command> <text> [max]  repeat a VoiceOver command until the phrase contains <text>,
+#                                          for example: jump Safari "find next heading" "Contact" 5
 #   bash vo.sh web <app> <title> [max]     move the VoiceOver cursor into the web area whose name starts with <title>
 #   bash vo.sh poll <app> <seconds> [interval]  print every new phrase until the time runs out
 #
 # <app> is the app that must stay in front, as `front` prints it, for example "Safari".
 # Exit codes: 1 usage or VoiceOver off, 2 another app is in front, 3 AppleScript control is off or fails,
-#             4 the VoiceOver cursor does not move, 5 `seek` did not find the text, 6 not macOS or no VoiceOver,
-#             7 `do` got a name that is not a VoiceOver command on this Mac.
+#             4 the VoiceOver cursor does not move, 5 `seek` or `jump` did not find the text,
+#             6 not macOS or no VoiceOver, 7 `do` or `jump` got a name that is not a VoiceOver command on this Mac.
 set -uo pipefail
 
 # VoiceOver is found by bundle ID through Launch Services, so a moved app bundle on another macOS version is still found.
@@ -131,42 +134,53 @@ guard() {
 
 keep_awake() { caffeinate -di -w $$ & }
 
-# Moves the VoiceOver cursor one item in $DIRECTION and prints the phrase.
+# Moves the VoiceOver cursor one item in $DIRECTION, or runs $ACTION, and prints the phrase.
 # With hints on, VoiceOver replaces the item's phrase with a usage hint after a short pause. So only a
 # phrase that is new within ITEM_WINDOW seconds of the move counts as the item; a later one is the hint.
+# The phrase is compared with the one read right before the move, so a hint that arrived after the
+# previous step is not taken for the next item. A step ends SETTLE seconds after the new phrase;
+# <delay> is only the longest wait for an item without a new phrase.
 # Without a new phrase, the item has the same text as the one before, or the cursor did not move:
 # the cursor position tells the two apart.
 ITEM_WINDOW=0.8
+SETTLE=0.2
 step() {
-  local app=$1 delay=$2 n=$3 text now before after timer window
+  local app=$1 delay=$2 n=$3 text="" found=0 base now before after timer window
   need_running
   guard "$app"
   before=$(cursor)
+  base=$(phrase) || base=$PREV
   must "${ACTION:-tell vo cursor to move $DIRECTION}"
   sleep "$delay" &
   timer=$!
   sleep "$(awk -v d="$delay" -v w="$ITEM_WINDOW" 'BEGIN { print (d < w) ? d : w }')" &
   window=$!
-  text=$PREV
   while kill -0 "$window" 2>/dev/null; do
     # A read that returns after the window closed may already be the hint.
-    if now=$(phrase) && kill -0 "$window" 2>/dev/null && [ "$now" != "$PREV" ]; then
+    if now=$(phrase) && kill -0 "$window" 2>/dev/null && [ "$now" != "$base" ]; then
       text=$now
+      found=1
       break
     fi
     sleep 0.1
   done
   kill "$window" 2>/dev/null
+  if [ "$found" = 1 ]; then
+    kill "$timer" 2>/dev/null
+    sleep "$SETTLE"
+  fi
   wait "$timer" "$window" 2>/dev/null
   read_phrase >/dev/null || exit $? # VoiceOver must still answer
   after=$(cursor)
-  if [ "$text" != "$PREV" ]; then
+  if [ "$found" = 1 ] && [ "$text" != "$PREV" ]; then
     STUCK=0
     printf '%03d  %s\n' "$n" "${text:-(empty phrase)}"
-  elif [ "$after" != "$before" ]; then
+  elif [ "$found" = 1 ] || [ "$after" != "$before" ]; then
     STUCK=0
+    text=$PREV
     printf '%03d  (same text) %s\n' "$n" "$text"
   else
+    text=$PREV
     # Do not step into the item here: on a plain control, VoiceOver then interacts with its parts.
     STUCK=$((STUCK + 1))
     [ "$STUCK" -ge 3 ] && die "stopped at step $n: the VoiceOver cursor does not move (end of the content, a focus trap, or a dialog to step into with: into)" 4
@@ -248,16 +262,40 @@ cmd_commands() {
     grep -iF -- "${1:-}" || die "no VoiceOver command matches \"${1:-}\" on this Mac" 7
 }
 
+# Only names from the system list reach AppleScript, so the name cannot inject code.
+use_command() {
+  local name
+  name=$(cmd_commands 2>/dev/null | grep -ixF -- "$1" | head -n 1)
+  [ -n "$name" ] || die "\"$1\" is not a VoiceOver command on this Mac. List them with: commands <filter>" 7
+  ACTION="tell commander to perform command \"$name\""
+}
+
 cmd_do() {
-  local app=$1 name
-  # Only names from the system list reach AppleScript, so the name cannot inject code.
-  name=$(cmd_commands 2>/dev/null | grep -ixF -- "$2" | head -n 1)
-  [ -n "$name" ] || die "\"$2\" is not a VoiceOver command on this Mac. List them with: commands <filter>" 7
+  local app=$1 times=$3 i
+  int "$times" times
+  use_command "$2"
   need_running
   keep_awake
   PREV=$(read_phrase) || exit $?
-  ACTION="tell commander to perform command \"$name\""
-  step "$app" 1.3 1
+  for ((i = 1; i <= times; i++)); do
+    step "$app" 1.3 "$i"
+  done
+}
+
+# Like seek, but each step is a VoiceOver command, for example "find next heading" or "find next control".
+cmd_jump() {
+  local app=$1 needle=$3 max=$4 i
+  int "$max" max
+  use_command "$2"
+  need_running
+  keep_awake
+  PREV=$(read_phrase) || exit $?
+  shopt -s nocasematch
+  for ((i = 1; i <= max; i++)); do
+    step "$app" 1.3 "$i"
+    [[ $PREV == *"$needle"* ]] && return 0
+  done
+  die "\"$needle\" was not spoken within $max jumps of \"$2\"" 5
 }
 
 # Find commands search only the area that holds the cursor, so they need the cursor inside the web area.
@@ -515,7 +553,8 @@ case "${1:-}" in
   into) [ $# -ge 2 ] || usage; cmd_move "$2" into ;;
   out) [ $# -ge 2 ] || usage; cmd_move "$2" "out of" ;;
   commands) cmd_commands "${2:-}" ;;
-  do) [ $# -ge 3 ] || usage; cmd_do "$2" "$3" ;;
+  do) [ $# -ge 3 ] || usage; cmd_do "$2" "$3" "${4:-1}" ;;
+  jump) [ $# -ge 4 ] || usage; cmd_jump "$2" "$3" "$4" "${5:-10}" ;;
   web) [ $# -ge 3 ] || usage; cmd_web "$2" "$3" "${4:-15}" ;;
   poll) [ $# -ge 3 ] || usage; int "$3" seconds; num "${4:-0.1}" interval; cmd_poll "$2" "$3" "${4:-0.1}" ;;
   *) usage ;;
