@@ -1,0 +1,258 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Agent Toolkit — Jung von Matt TECH</title>
+  <meta name="description" content="Reusable agent skills for AI-assisted development as used at Jung von Matt TECH — from raw idea to merged pull request.">
+  <meta name="theme-color" content="#0a342d">
+  <link rel="icon" href="assets/horse-green.svg" type="image/svg+xml">
+  <link rel="preload" href="fonts/CarloschiHeadline-Black.woff2" as="font" type="font/woff2" crossorigin>
+  <link rel="preload" href="fonts/Carloschi-Regular.woff2" as="font" type="font/woff2" crossorigin>
+  <link rel="stylesheet" href="assets/tokens.css">
+  <link rel="stylesheet" href="assets/site.css">
+</head>
+<body>
+  <a class="skip-link" href="#main">Skip to content</a>
+
+  <header class="site-header" data-theme="dark">
+    <a class="brand" href="./">
+      <span class="logo" role="img" aria-label="Jung von Matt"></span>
+      <span class="brand-suffix">Tech · Agent Toolkit</span>
+    </a>
+    <nav aria-label="Main">
+      <ul class="nav-links">
+        <li><a href="#flow">Flow</a></li>
+        <li><a href="#how">How to use</a></li>
+        <li><a href="#skills">Skills</a></li>
+        <li><a href="https://github.com/jungvonmatt/agent-toolkit">GitHub</a></li>
+      </ul>
+    </nav>
+    <a class="button button-primary button-small" href="#install">Install</a>
+  </header>
+
+  <main id="main">
+    <!-- Hero -->
+    <section class="hero" data-theme="dark" aria-labelledby="hero-title">
+      <div class="binary" aria-hidden="true">
+        <span>1 1 0 0 1 0 1</span><span>0 1 1 1 0</span><span>1 0 0 1 1 0 0 1</span><span>0 1 0</span>
+      </div>
+      <p class="label">Jung von Matt TECH</p>
+      <h1 id="hero-title" class="display">
+        <span>Agent</span>
+        <span class="accent">Toolkit</span>
+      </h1>
+      <div class="hero-copy">
+        <p class="lead">Your agents deserve better skills. A reusable skill pack that takes work from raw idea to merged pull request — with a human in the loop at every door that matters.</p>
+        <div class="copy-block">
+          <code id="cmd-hero">npx skills add jungvonmatt/agent-toolkit</code>
+          <button class="copy" type="button" data-copy="cmd-hero">Copy</button>
+        </div>
+        <p class="hint">Works with Claude Code, Copilot, Cursor, Codex, Cline, and more.</p>
+      </div>
+    </section>
+
+    <!-- Intro -->
+    <section class="intro" data-theme="light" aria-labelledby="intro-title">
+      <div class="narrow">
+        <h2 id="intro-title" class="intro-title">One ticket in. One reviewed pull request out.</h2>
+        <p>Every skill does one job and hands a concrete artifact to the next one: a ticket, a plan, reviewed commits, a pull request description, a review verdict. You can chain the whole flow, or pick the single step you need today.</p>
+        <p>All skills are namespaced under <code>jvm-skills</code>, so they do not collide with other skill packs.</p>
+      </div>
+    </section>
+
+    <!-- Flow diagram -->
+    <section id="flow" class="flow" data-theme="dark" aria-labelledby="flow-title">
+      <p class="label">The flow</p>
+      <h2 id="flow-title" class="headline">From idea to merge</h2>
+
+      <ol class="pipeline">
+        <li class="stage">
+          <span class="stage-num">01</span>
+          <h3 class="stage-word">Ticket</h3>
+          <p class="stage-cmd"><code>write-ticket</code></p>
+          <p class="stage-desc">Coaches a raw idea into a development-ready ticket.</p>
+          <p class="artifact"><span class="label-sm">Out</span> Jira, GitHub, GitLab, Linear, or Asana issue</p>
+        </li>
+        <li class="stage">
+          <span class="stage-num">02</span>
+          <h3 class="stage-word">Plan</h3>
+          <p class="stage-cmd"><code>start-ticket</code></p>
+          <p class="stage-desc">Reads the ticket and the codebase, pressure-tests the requirement.</p>
+          <p class="artifact"><span class="label-sm">Out</span> <code>docs/plans/&lt;ticket&gt;.md</code></p>
+          <p class="gate">You answer open questions</p>
+        </li>
+        <li class="stage stage-build">
+          <span class="stage-num">03</span>
+          <h3 class="stage-word">Build</h3>
+          <p class="stage-cmd"><code>implement</code></p>
+          <p class="stage-desc">Builds, tests, and verifies one vertical slice at a time.</p>
+          <p class="artifact"><span class="label-sm">Out</span> Reviewed commits</p>
+          <p class="gate">You approve each diff — or run <code>auto</code></p>
+        </li>
+        <li class="stage">
+          <span class="stage-num">04</span>
+          <h3 class="stage-word">Describe</h3>
+          <p class="stage-cmd"><code>pr-description</code></p>
+          <p class="stage-desc">Writes the PR from the diff, with evidence and merge danger.</p>
+          <p class="artifact"><span class="label-sm">Out</span> Pull request description</p>
+        </li>
+        <li class="stage">
+          <span class="stage-num">05</span>
+          <h3 class="stage-word">Review</h3>
+          <p class="stage-cmd"><code>pr-review</code><br><code>scheduled-pr-review</code></p>
+          <p class="stage-desc">Severity-ranked findings, on demand or on a schedule.</p>
+          <p class="artifact"><span class="label-sm">Out</span> Merge-ready verdict</p>
+        </li>
+      </ol>
+
+      <div class="lanes">
+        <div class="lane lane-auto">
+          <p class="label-sm">Auto-invoked while you build</p>
+          <ul class="chips">
+            <li><code>writing-tests</code> <span>behavior-first tests</span></li>
+            <li><code>technical-writing</code> <span>comments &amp; docs</span></li>
+            <li><code>voiceover-check</code> <span>real screen reader, on request</span></li>
+          </ul>
+        </div>
+        <div class="lane">
+          <p class="label-sm">Anytime, outside the flow</p>
+          <ul class="chips">
+            <li><code>repo-diagnostics</code> <span>churn, bus factor, hotspots</span></li>
+            <li><code>design-md</code> <span>reverse-engineer a DESIGN.md</span></li>
+            <li><code>jvm-design</code> <span>bootstrap the JvM CI</span></li>
+          </ul>
+        </div>
+      </div>
+    </section>
+
+    <!-- How to use: staggered words, jvm.tech style -->
+    <section id="how" class="how" data-theme="light" aria-labelledby="how-title">
+      <p class="label label-center">How to use it</p>
+      <h2 id="how-title" class="visually-hidden">How to use it</h2>
+
+      <ol class="steps">
+        <li class="step">
+          <span class="step-word" aria-hidden="true">Install</span>
+          <div class="step-body">
+            <h3>1 · Install the pack</h3>
+            <p>Add every skill once per machine or per project. Native plugin installs for Claude Code and Codex are below.</p>
+            <pre><code>npx skills add jungvonmatt/agent-toolkit</code></pre>
+          </div>
+        </li>
+        <li class="step step-right">
+          <span class="step-word" aria-hidden="true">Ticket</span>
+          <div class="step-body">
+            <h3>2 · Start from a ticket</h3>
+            <p>Have an idea? Turn it into a ticket. Already have one? Pass its key or URL and get a plan.</p>
+            <pre><code>/jvm-skills:write-ticket  checkout loses the voucher on reload
+/jvm-skills:start-ticket  SHOP-1234</code></pre>
+          </div>
+        </li>
+        <li class="step">
+          <span class="step-word" aria-hidden="true">Build</span>
+          <div class="step-body">
+            <h3>3 · Implement slice by slice</h3>
+            <p>Run one task and review the working-tree diff before each commit. Trust the plan? Add <code>auto</code> to run it in one approved pass.</p>
+            <pre><code>/jvm-skills:implement
+/jvm-skills:implement auto</code></pre>
+          </div>
+        </li>
+        <li class="step step-right">
+          <span class="step-word" aria-hidden="true">Ship</span>
+          <div class="step-body">
+            <h3>4 · Describe and review</h3>
+            <p>Generate the PR description, then review for merge readiness — or let a scheduled task do a first pass over every open PR.</p>
+            <pre><code>/jvm-skills:pr-description
+/jvm-skills:pr-review</code></pre>
+          </div>
+        </li>
+      </ol>
+      <p class="note narrow">Slash commands shown for Claude Code. In other agents, ask in plain words — "start ticket SHOP-1234" — and the matching skill loads.</p>
+    </section>
+
+    <!-- Skills catalog -->
+    <section id="skills" class="skills" data-theme="dark" aria-labelledby="skills-title">
+      <p class="label">The skills</p>
+      <h2 id="skills-title" class="headline">Twelve skills</h2>
+
+      <ul class="skill-grid">
+        <li class="skill"><span class="skill-tag">Flow</span><h3><code>write-ticket</code></h3><p>Turns a raw idea, bug report, or feature request into a development-ready ticket and publishes it to your tracker.</p></li>
+        <li class="skill"><span class="skill-tag">Flow</span><h3><code>start-ticket</code></h3><p>Fetches a ticket, pulls design specs, explores the codebase, pressure-tests the requirement, and writes a plan.</p></li>
+        <li class="skill"><span class="skill-tag">Flow</span><h3><code>implement</code></h3><p>Executes a plan task by task, pausing for a human review of the diff before every commit.</p></li>
+        <li class="skill"><span class="skill-tag">Flow</span><h3><code>pr-description</code></h3><p>Writes a concise PR/MR description with a small visual, before/after evidence, and the merge danger.</p></li>
+        <li class="skill"><span class="skill-tag">Flow</span><h3><code>pr-review</code></h3><p>Reviews a PR against a target branch with severity-ranked findings, ticket traceability, accessibility, and performance checks.</p></li>
+        <li class="skill"><span class="skill-tag">Flow</span><h3><code>scheduled-pr-review</code></h3><p>Runs an unattended first-pass review over all open PRs/MRs from a scheduled task, round after round.</p></li>
+        <li class="skill"><span class="skill-tag">Auto</span><h3><code>writing-tests</code></h3><p>Enforces behavior-first, mutation-sensitive tests that query by role or test ID, never by class name.</p></li>
+        <li class="skill"><span class="skill-tag">Auto</span><h3><code>technical-writing</code></h3><p>Comments that say why, one Diátaxis mode per page, Simplified Technical English, and a cut test.</p></li>
+        <li class="skill"><span class="skill-tag">A11y</span><h3><code>voiceover-check</code></h3><p>Drives the real macOS VoiceOver and compares what it says with what the user must hear.</p></li>
+        <li class="skill"><span class="skill-tag">Insight</span><h3><code>repo-diagnostics</code></h3><p>Git-based churn hotspots, bus factor, bug clusters, and velocity — before you read any code.</p></li>
+        <li class="skill"><span class="skill-tag">Design</span><h3><code>jvm-design</code></h3><p>Bootstraps the Jung von Matt CI 2026 design system into a project. This page is built with it.</p></li>
+        <li class="skill"><span class="skill-tag">Design</span><h3><code>design-md</code></h3><p>Reverse-engineers a design system from Figma, a website, a screenshot, or tokens into a DESIGN.md.</p></li>
+      </ul>
+    </section>
+
+    <!-- Install -->
+    <section id="install" class="install" data-theme="light" aria-labelledby="install-title">
+      <p class="label">Get started</p>
+      <h2 id="install-title" class="headline">Install</h2>
+
+      <div class="install-grid">
+        <div class="install-card">
+          <h3>Skills CLI</h3>
+          <p>Any agent. Install all, browse first, or pick one.</p>
+          <div class="copy-block">
+            <code id="cmd-cli">npx skills add jungvonmatt/agent-toolkit</code>
+            <button class="copy" type="button" data-copy="cmd-cli">Copy</button>
+          </div>
+          <pre><code>npx skills add jungvonmatt/agent-toolkit --list
+npx skills add jungvonmatt/agent-toolkit --skill pr-review</code></pre>
+        </div>
+        <div class="install-card">
+          <h3>Claude Code</h3>
+          <p>Native plugin. No Node needed.</p>
+          <pre><code>claude plugin marketplace add jungvonmatt/agent-toolkit
+claude plugin install jvm-skills@jvm-skills</code></pre>
+        </div>
+        <div class="install-card">
+          <h3>Codex CLI</h3>
+          <p>Native plugin. No Node needed.</p>
+          <pre><code>codex plugin marketplace add jungvonmatt/agent-toolkit
+codex plugin add jvm-skills@jvm-skills</code></pre>
+        </div>
+      </div>
+      <p class="note">Some skills route to companion skills such as <a href="https://github.com/addyosmani/agent-skills">addyosmani/agent-skills</a> and <a href="https://github.com/mattpocock/skills">mattpocock/skills</a>. They work without them. See the <a href="https://github.com/jungvonmatt/agent-toolkit#companion-skills">README</a>.</p>
+    </section>
+  </main>
+
+  <footer class="site-footer" data-theme="dark">
+    <img class="horse" src="assets/horse-white.svg" alt="" width="120" height="199">
+    <div class="footer-cta">
+      <p class="headline footer-title">Better skills.<br><span class="accent">Better tech.</span></p>
+      <a class="button button-primary" href="https://github.com/jungvonmatt/agent-toolkit">View on GitHub</a>
+    </div>
+    <div class="footer-meta">
+      <span class="logo" role="img" aria-label="Jung von Matt"></span>
+      <ul>
+        <li><a href="https://jvm.tech">jvm.tech</a></li>
+        <li><a href="https://github.com/jungvonmatt/agent-toolkit/blob/main/CONTRIBUTING.md">Contributing</a></li>
+      </ul>
+    </div>
+  </footer>
+
+  <script>
+    document.querySelectorAll('[data-copy]').forEach((button) => {
+      button.addEventListener('click', async () => {
+        const text = document.getElementById(button.dataset.copy).textContent;
+        try {
+          await navigator.clipboard.writeText(text);
+          button.textContent = 'Copied';
+        } catch {
+          button.textContent = 'Press ⌘C';
+        }
+        setTimeout(() => { button.textContent = 'Copy'; }, 2000);
+      });
+    });
+  </script>
+</body>
+</html>
