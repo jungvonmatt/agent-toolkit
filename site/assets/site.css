@@ -126,10 +126,9 @@ pre {
   background: var(--color-accent);
   color: var(--color-primary);
 }
-.button-primary:hover {
-  background: var(--color-surface);
-  color: var(--color-primary);
-}
+.button-primary:hover,
+.button-primary:active { background: var(--color-accent-pressed); }
+.button-primary:active { transform: scale(0.98); }
 
 /* --- Logo (mask so it can take the current text color) --- */
 .logo {
@@ -234,7 +233,8 @@ pre {
   background: var(--color-accent);
   color: var(--color-primary);
 }
-.copy:hover { background: var(--color-surface); }
+.copy:hover,
+.copy:active { background: var(--color-accent-pressed); }
 
 /* --- Intro --- */
 .intro { padding: var(--section-gap) var(--margin); }

@@ -5,6 +5,7 @@ description: Jung von Matt design system — bold agency CI for use across agent
 colors:
   primary: "#0a342d"
   accent: "#00eb73"
+  accent-pressed: "#00b85a"
   surface: "#ffffff"
   on-primary: "#ffffff"
   on-surface: "#0a342d"
@@ -73,7 +74,7 @@ components:
     rounded: "{rounded.none}"
     padding: 20px 64px
   button-primary-hover:
-    backgroundColor: "{colors.surface}"
+    backgroundColor: "{colors.accent-pressed}"
     textColor: "{colors.primary}"
   nav-link:
     typography: "{typography.body-web}"
@@ -106,6 +107,7 @@ The palette has a three-color brand core plus two text utilities.
 
 - **Primary — Deep Forest Green (`#0a342d`):** The signature JvM dark green. Used as the full-bleed background on dark-mode surfaces (pages, sections, footer). Also the primary text color on white surfaces.
 - **Accent — Electric Neon Green (`#00eb73`):** The brand's electric pulse. Used for decorative oversized wordmarks, primary CTA buttons, and key accent moments. Never use it for body text, running copy, or as a large fill area. When it appears it dominates.
+- **Accent Pressed — Darker Neon Green (`#00b85a`):** Hover and pressed state of accent buttons, as on jvm.tech. Never swap an accent button to white on hover: on a white surface it disappears.
 - **Surface — Pure White (`#ffffff`):** The light-theme canvas for content-heavy sections.
 - **On-Primary — White (`#ffffff`):** All text rendered on top of the Primary dark-green background.
 - **On-Surface — Deep Forest Green (`#0a342d`):** All text rendered on top of the white surface.

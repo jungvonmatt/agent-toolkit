@@ -74,7 +74,9 @@
     border-radius: 0;
     transition: background-color .2s ease, color .2s ease;
   }
-  .btn:hover { background: #fff; color: var(--color-primary); }
+  .btn:hover,
+  .btn:active { background: var(--color-accent-pressed); }
+  .btn:active { transform: scale(0.98); }
   .btn--lg { padding: 24px 64px; font-size: 16px; }
   .btn--block { display: block; width: 100%; text-align: center; }
 

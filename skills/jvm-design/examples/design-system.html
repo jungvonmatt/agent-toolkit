@@ -155,10 +155,9 @@
     background: var(--color-accent);
     color: var(--color-primary);
   }
-  .btn--primary:hover {
-    background: var(--color-surface);
-    color: var(--color-primary);
-  }
+  .btn--primary:hover,
+  .btn--primary:active { background: var(--color-accent-pressed); }
+  .btn--primary:active { transform: scale(0.98); }
   .btn--ghost {
     background: transparent;
     color: #fff;
