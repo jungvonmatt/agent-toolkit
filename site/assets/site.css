@@ -188,8 +188,10 @@ pre {
 }
 .hero-copy {
   max-width: 640px;
+  min-width: 0;
   margin-left: auto;
   display: grid;
+  grid-template-columns: minmax(0, 1fr);
   gap: 24px;
 }
 .lead { font-size: clamp(20px, 2vw, 26px); line-height: 1.3; font-weight: var(--weight-book); }
@@ -219,11 +221,13 @@ pre {
 [data-theme="light"] .copy-block { background: var(--color-primary); color: var(--color-surface); }
 .copy-block code {
   flex: 1;
+  min-width: 0;
   padding: 16px 20px;
   overflow-x: auto;
   white-space: nowrap;
 }
 .copy {
+  flex: none;
   border: 0;
   border-radius: 0;
   padding: 0 24px;
@@ -391,23 +395,21 @@ pre {
 /* --- Install --- */
 .install { padding: var(--section-gap) var(--margin); }
 .install .headline { margin-bottom: 64px; }
+/* Columns only as narrow as the longest command, so cards wrap instead of overlapping. */
 .install-grid {
   display: grid;
-  grid-template-columns: repeat(3, 1fr);
-  gap: var(--gutter);
+  grid-template-columns: repeat(auto-fit, minmax(min(100%, 540px), 1fr));
+  gap: var(--content-gap) var(--gutter);
 }
 .install-card {
   display: grid;
+  grid-template-columns: minmax(0, 1fr);
   align-content: start;
   gap: 16px;
   min-width: 0;
 }
 .install-card h3 { font-size: 22px; font-weight: var(--weight-regular); }
 .install .note { margin-top: var(--content-gap); }
-
-@media (max-width: 1000px) {
-  .install-grid { grid-template-columns: 1fr; }
-}
 
 /* --- Footer --- */
 .site-footer {
@@ -432,5 +434,7 @@ pre {
 .footer-meta ul { display: flex; gap: 24px; }
 
 @media (max-width: 640px) {
-  .site-footer { grid-template-columns: 1fr; }
+  .site-footer { grid-template-columns: minmax(0, 1fr); }
+  .footer-meta { flex-wrap: wrap; }
+  .footer-cta .button { padding-inline: 32px; }
 }
