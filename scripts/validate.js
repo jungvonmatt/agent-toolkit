@@ -244,11 +244,44 @@ function checkReadme(pluginName, skills) {
   for (const skill of listed) if (!skills.includes(skill)) fail(file, `Skills table lists unknown skill "${skill}"`);
 }
 
+const NUMBER_WORDS = ['Zero', 'One', 'Two', 'Three', 'Four', 'Five', 'Six', 'Seven', 'Eight', 'Nine', 'Ten',
+  'Eleven', 'Twelve', 'Thirteen', 'Fourteen', 'Fifteen', 'Sixteen', 'Seventeen', 'Eighteen', 'Nineteen', 'Twenty'];
+
+// The site copy is hand-written; this keeps its skill lists and count in step with skills/.
+function checkSite(pluginName, skills) {
+  const file = path.join(root, 'site', 'index.html');
+  if (!fs.existsSync(file)) return;
+  const text = read(file);
+  if (pluginName) checkSkillRefs(file, pluginName, skills);
+
+  const sectionOf = (id) => text.match(new RegExp(`<section[^>]*\\bid="${id}"[\\s\\S]*?</section>`))?.[0];
+
+  const catalog = sectionOf('skills');
+  if (!catalog) return fail(file, 'missing <section id="skills">');
+  const listed = [...catalog.matchAll(/<li class="skill">[\s\S]*?<h3><code>([a-z0-9-]+)<\/code><\/h3>/g)].map((match) => match[1]);
+  for (const skill of skills) if (!listed.includes(skill)) fail(file, `skill "${skill}" is missing from the skills grid`);
+  for (const skill of listed) if (!skills.includes(skill)) fail(file, `skills grid lists unknown skill "${skill}"`);
+
+  const count = catalog.match(/<h2[^>]*>\s*(\w+) skills\s*<\/h2>/)?.[1];
+  const expected = NUMBER_WORDS[skills.length] ?? String(skills.length);
+  if (count !== expected) fail(file, `skills headline says "${count} skills", expected "${expected} skills"`);
+
+  const flow = sectionOf('flow');
+  if (!flow) return fail(file, 'missing <section id="flow">');
+  const placed = [
+    ...[...flow.matchAll(/<p class="stage-cmd">([\s\S]*?)<\/p>/g)].flatMap((match) => [...match[1].matchAll(/<code>([^<]+)<\/code>/g)]),
+    ...flow.matchAll(/<li><code>([^<]+)<\/code>\s*<span>/g),
+  ].map((match) => match[1]);
+  for (const skill of skills) if (!placed.includes(skill)) fail(file, `skill "${skill}" is missing from the flow section (pipeline or lanes)`);
+  for (const skill of placed) if (!skills.includes(skill)) fail(file, `flow section lists unknown skill "${skill}"`);
+}
+
 function main() {
   const pluginName = checkManifests();
   const skills = checkSkills();
   checkCommands(pluginName, skills);
   checkReadme(pluginName, skills);
+  checkSite(pluginName, skills);
 
   if (errors.length) {
     console.error(`✖ ${errors.length} problem${errors.length === 1 ? '' : 's'}:\n${errors.map((error) => `  ${error}`).join('\n')}`);

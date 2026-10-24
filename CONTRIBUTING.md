@@ -16,7 +16,7 @@ Every contribution should:
 - not include sensitive or proprietary information
 - include clear examples where appropriate
 - have updated relevant documentation — when you add, rename, or remove a skill, update the README tables and the skill list in `site/index.html` (the GitHub Pages site, deployed by `.github/workflows/pages.yml` on every push to `main` that touches `site/`)
-- pass `npm test` (checks skill frontmatter, links, README tables, matching versions across all plugin manifests, and keyword-based skill routing)
+- pass `npm test` (checks skill frontmatter, links, README tables, the site's skill grid, flow, and skill count, matching versions across all plugin manifests, and keyword-based skill routing)
 - ship a routing case file for every new skill in `evals/cases/<skill>.json` with at least 3 positive and 2 negative prompts (optional per prompt: `"with": ["<skill>"]` for skills that must load alongside, `"lexical": false` for prompts the keyword check cannot match, e.g. non-English or implicit asks)
 - run `npm run eval:model` (GitHub Copilot CLI; `-- --runner claude` for Claude Code) after changing a skill description, and compare with `npm run eval:model -- --ref origin/main`
 - optionally run `npm run eval:behavior` (Claude Code 2.1.273+, costs roughly $1–2 per full run) to check that a skill fires inside a real task; cases live in `evals/plugin/<case>/` as `prompt.md` plus `graders/*.md`
