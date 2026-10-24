@@ -436,7 +436,9 @@ pre {
   margin-top: var(--section-gap);
 }
 .footer-meta .logo { width: 140px; }
-.footer-meta ul { display: flex; gap: 24px; }
+.footer-meta ul { display: flex; flex-wrap: wrap; gap: 8px 24px; }
+.footer-credits { grid-column: 1 / -1; max-width: 60ch; margin-top: var(--section-gap); }
+.footer-credits + .footer-meta { margin-top: var(--content-gap); }
 
 @media (max-width: 640px) {
   .site-footer { grid-template-columns: minmax(0, 1fr); }

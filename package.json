@@ -3,6 +3,7 @@
   "homepage": "https://jvm.tech",
   "version": "1.4.0",
   "description": "Reusable Agent skills, rules, prompts, and workflows for AI-assisted development.",
+  "license": "MIT",
   "private": true,
   "scripts": {
     "test": "node --test scripts/voiceover-focus.test.js && node scripts/validate.js && node scripts/run-evals.js --min-rank1 85",

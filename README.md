@@ -130,6 +130,14 @@ We don't try to cover everything ourselves. These are the skill packs and MCP se
 | Figma | [GLips/Figma-Context-MCP](https://github.com/GLips/Figma-Context-MCP) | Figma design data and image downloads for one-shot implementation. |
 | Context7 | [upstash/context7](https://github.com/upstash/context7) | Up-to-date, version-specific library documentation as context for coding agents. |
 
+## Credits
+
+Built on ideas from [Addy Osmani](https://github.com/addyosmani/agent-skills), [Matt Pocock](https://github.com/mattpocock/skills), and [Dex Horthy](https://github.com/humanlayer/skills). Thank you.
+
 ## Contributing
 
 Contributions welcome! See [Contributing Guide](CONTRIBUTING.md) for guidelines.
+
+## License
+
+[MIT](LICENSE) © Jung von Matt TECH.
