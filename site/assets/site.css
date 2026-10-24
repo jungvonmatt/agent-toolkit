@@ -339,33 +339,38 @@ pre {
   gap: var(--section-gap);
   margin-top: var(--content-gap);
 }
+/* The word takes its own width; the body fills the rest up to a cap, so commands fit on small desktops. */
 .step {
   display: grid;
-  grid-template-columns: repeat(12, 1fr);
-  gap: var(--gutter);
+  grid-template-columns: auto minmax(0, 1fr);
+  gap: var(--gutter) var(--content-gap);
   align-items: end;
 }
 .step-word {
-  grid-column: 1 / span 7;
+  grid-column: 1;
   font-size: clamp(72px, 13vw, 220px);
 }
 .step-body {
-  grid-column: 8 / span 5;
+  grid-column: 2;
+  justify-self: end;
+  width: min(100%, 640px);
   display: grid;
+  grid-template-columns: minmax(0, 1fr);
   gap: 16px;
 }
-.step-right .step-word { grid-column: 6 / span 7; grid-row: 1; text-align: right; }
-.step-right .step-body { grid-column: 1 / span 5; grid-row: 1; }
+.step-right { grid-template-columns: minmax(0, 1fr) auto; }
+.step-right .step-word { grid-column: 2; grid-row: 1; text-align: right; }
+.step-right .step-body { grid-column: 1; grid-row: 1; justify-self: start; }
 .step h3 { font-size: 22px; font-weight: var(--weight-regular); }
 .note { margin-top: var(--section-gap); font-size: 14px; }
 
 @media (max-width: 860px) {
   .step,
-  .step-right { grid-template-columns: 1fr; }
+  .step-right { grid-template-columns: minmax(0, 1fr); }
   .step-word,
   .step-body,
   .step-right .step-word,
-  .step-right .step-body { grid-column: 1; grid-row: auto; text-align: left; }
+  .step-right .step-body { grid-column: 1; grid-row: auto; text-align: left; justify-self: start; }
 }
 
 /* --- Skills --- */
