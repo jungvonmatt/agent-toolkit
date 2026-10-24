@@ -254,7 +254,7 @@ pre {
 .pipeline {
   display: grid;
   --flow-gap: 32px;
-  grid-template-columns: repeat(5, 1fr);
+  grid-template-columns: repeat(4, 1fr);
   gap: var(--flow-gap);
 }
 .stage {

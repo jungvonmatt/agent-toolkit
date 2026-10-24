@@ -56,7 +56,7 @@
     <section class="intro" data-theme="light" aria-labelledby="intro-title">
       <div class="narrow">
         <h2 id="intro-title" class="intro-title">One ticket in. One reviewed pull request out.</h2>
-        <p>Every skill does one job and hands a concrete artifact to the next one: a ticket, a plan, reviewed commits, a pull request description, a review verdict. You can chain the whole flow, or pick the single step you need today.</p>
+        <p>Every skill does one job and hands a concrete artifact to the next one: a ticket, a plan, reviewed commits, a review verdict. You can chain the whole flow, or pick the single step you need today.</p>
         <p>All skills are namespaced under <code>jvm-skills</code>, so they do not collide with other skill packs.</p>
       </div>
     </section>
@@ -92,13 +92,6 @@
         </li>
         <li class="stage">
           <span class="stage-num">04</span>
-          <h3 class="stage-word">Describe</h3>
-          <p class="stage-cmd"><code>pr-description</code></p>
-          <p class="stage-desc">Writes the PR from the diff, with evidence and merge danger.</p>
-          <p class="artifact"><span class="label-sm">Out</span> Pull request description</p>
-        </li>
-        <li class="stage">
-          <span class="stage-num">05</span>
           <h3 class="stage-word">Review</h3>
           <p class="stage-cmd"><code>pr-review</code><br><code>scheduled-pr-review</code></p>
           <p class="stage-desc">Severity-ranked findings, on demand or on a schedule.</p>
@@ -112,6 +105,7 @@
           <ul class="chips">
             <li><code>writing-tests</code> <span>behavior-first tests</span></li>
             <li><code>technical-writing</code> <span>comments &amp; docs</span></li>
+            <li><code>pr-description</code> <span>when you open a PR</span></li>
             <li><code>voiceover-check</code> <span>real screen reader, on request</span></li>
           </ul>
         </div>
@@ -161,10 +155,9 @@
         <li class="step step-right">
           <span class="step-word" aria-hidden="true">Ship</span>
           <div class="step-body">
-            <h3>4 · Describe and review</h3>
-            <p>Generate the PR description, then review for merge readiness — or let a scheduled task do a first pass over every open PR.</p>
-            <pre><code>/jvm-skills:pr-description
-/jvm-skills:pr-review</code></pre>
+            <h3>4 · Open the PR and review</h3>
+            <p>Ask for a pull request and its description is written automatically. Then review for merge readiness — or let a scheduled task do a first pass over every open PR.</p>
+            <pre><code>/jvm-skills:pr-review</code></pre>
           </div>
         </li>
       </ol>
@@ -180,7 +173,7 @@
         <li class="skill"><span class="skill-tag">Flow</span><h3><code>write-ticket</code></h3><p>Turns a raw idea, bug report, or feature request into a development-ready ticket and publishes it to your tracker.</p></li>
         <li class="skill"><span class="skill-tag">Flow</span><h3><code>start-ticket</code></h3><p>Fetches a ticket, pulls design specs, explores the codebase, pressure-tests the requirement, and writes a plan.</p></li>
         <li class="skill"><span class="skill-tag">Flow</span><h3><code>implement</code></h3><p>Executes a plan task by task, pausing for a human review of the diff before every commit.</p></li>
-        <li class="skill"><span class="skill-tag">Flow</span><h3><code>pr-description</code></h3><p>Writes a concise PR/MR description with a small visual, before/after evidence, and the merge danger.</p></li>
+        <li class="skill"><span class="skill-tag">Auto</span><h3><code>pr-description</code></h3><p>Writes a concise PR/MR description with a small visual, before/after evidence, and the merge danger.</p></li>
         <li class="skill"><span class="skill-tag">Flow</span><h3><code>pr-review</code></h3><p>Reviews a PR against a target branch with severity-ranked findings, ticket traceability, accessibility, and performance checks.</p></li>
         <li class="skill"><span class="skill-tag">Flow</span><h3><code>scheduled-pr-review</code></h3><p>Runs an unattended first-pass review over all open PRs/MRs from a scheduled task, round after round.</p></li>
         <li class="skill"><span class="skill-tag">Auto</span><h3><code>writing-tests</code></h3><p>Enforces behavior-first, mutation-sensitive tests that query by role or test ID, never by class name.</p></li>

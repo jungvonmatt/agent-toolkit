@@ -74,6 +74,8 @@ pr-review/
 
 ## Relationship to the other skills
 
-`pr-review` closes the loop after `implement` and `pr-description`:
+`pr-review` closes the loop after `implement`:
 
-**write-ticket → start-ticket → implement → pr-description → pr-review**
+**write-ticket → start-ticket → implement → pr-review**
+
+`pr-description` loads on its own when you open the pull request. `pr-review` treats the Merge Danger section it writes as a declared risk to verify.

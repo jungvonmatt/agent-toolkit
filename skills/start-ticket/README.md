@@ -54,4 +54,6 @@ start-ticket/
 
 `write-ticket` produces the ticket; `start-ticket` turns it into a plan; `implement` executes that plan. They form a pipeline:
 
-**write-ticket → start-ticket → implement → pr-description → pr-review**
+**write-ticket → start-ticket → implement → pr-review**
+
+`pr-description` loads on its own when you open the pull request.
