@@ -86,10 +86,10 @@ Follow [Keep a Changelog](https://keepachangelog.com/en/1.1.0/): `CHANGELOG.md`,
 
 An ADR records that a decision was made and why. It is not a feature description: the code, the tests, and the ticket record what the system does. Write one only when the decision is hard to reverse, surprising without context, **and** the result of a real trade-off. Follow the project's ADR template when one exists, else the ADR template of the `start-ticket` skill when it is installed. Otherwise:
 
-- **Shape:** a title that states the decision as a claim, then 1–3 sentences with the context, the decision, and the reason. Add Status, a ticket link, Considered options, or Consequences only when they carry weight. The number goes in the filename, such as `docs/adr/0007-page-the-export-api.md`; take it from the default branch, not the working branch.
+- **Shape:** a title that states the decision as a claim, then 1–3 sentences with the context, the decision, and the reason. Add Status, a ticket link, Considered options, or Consequences only when they carry weight. The number goes in the filename, such as `docs/adr/0007-page-the-export-api.md`. Take one more than the highest number on the default branch and in the working tree.
 - **Sentences:** the system is the subject, not "we". Back the reason with a constraint the reader can check: a repository fact, an API contract, or a dated measurement.
 
-Never edit an accepted ADR, and never add an "Amendments" section. Before you write an ADR, search the ADR directory for one on the same decision: supersede it when the decision changes, and write nothing when it still holds. When only behavior details change, write nothing.
+Never edit an accepted ADR, and never add an "Amendments" section. An ADR without a Status counts as accepted. Before you write an ADR, search the ADR directory for one on the same decision: supersede it when the decision changes, and write nothing when it still holds. When only behavior details change, write nothing.
 
 ## Checklist
 

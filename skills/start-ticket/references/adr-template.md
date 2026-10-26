@@ -44,7 +44,7 @@ The default outcome of a ticket is **no ADR**. Offer one to the user; write it o
 
 That is a complete ADR. Add these only when they carry weight; most ADRs need none of them:
 
-- `**Status:** proposed | accepted | deprecated | superseded by ADR-NNNN` — when the decision is likely to be revisited.
+- `**Status:** proposed | accepted | deprecated | superseded by ADR-NNNN` — when the decision is likely to be revisited. An ADR without a Status line counts as accepted.
 - `**Ticket:** {link}` — the provenance. Keep it out of the body.
 - `## Considered options` — only when a rejected option will be suggested again.
 - `## Consequences` — only when a downstream effect is not obvious.
@@ -54,7 +54,7 @@ That is a complete ADR. Add these only when they carry weight; most ADRs need no
 - **Look for an existing ADR first.** Search `docs/adr/` for a decision on the same topic. When one exists and its decision changes, supersede it. When it still holds, write nothing. Never write a second ADR next to it.
 - **Back the "why" with a checkable constraint**: a repository fact, an API contract, a documented limit, or a dated measurement. The reader can test it and disagree.
 - **No provenance in the body.** "The client asked for X" belongs to the ticket link.
-- **Never edit an accepted ADR.** No "Amendments" section. When the decision changes, write a new ADR and set the old one's status to `superseded by ADR-NNNN` — that status line is the only edit allowed. When only behavior details change, write nothing.
+- **Never edit an accepted ADR.** No "Amendments" section. When the decision changes, write a new ADR and add or set the old one's status line to `superseded by ADR-NNNN` — that status line is the only edit allowed. When only behavior details change, write nothing.
 - **Name code sparingly.** Every path and symbol in an ADR goes stale when the code moves. Name the boundary or the module, not the file and line.
 
 ## Filename and number
@@ -62,11 +62,14 @@ That is a complete ADR. Add these only when they carry weight; most ADRs need no
 Save to `docs/adr/`, created only when the first ADR is needed. Continue the filename
 convention already there; use `NNNN-kebab-title.md` when the directory is empty.
 
-Take the next number from the default branch, not from the working branch, because
-parallel branches pick the same "highest + 1":
+Take one more than the highest number on the default branch and in the working tree. The
+default branch holds the numbers that parallel branches already merged. The working tree
+holds the ADRs of this branch, committed or not, so two new ADRs never share a number:
 
 ```bash
-git fetch origin <default-branch> && git ls-tree --name-only origin/<default-branch> docs/adr/
+git fetch origin <default-branch>
+git ls-tree --name-only origin/<default-branch> docs/adr/
+ls docs/adr/
 ```
 
 Check again before the merge, after you rebase onto the default branch. If the number was

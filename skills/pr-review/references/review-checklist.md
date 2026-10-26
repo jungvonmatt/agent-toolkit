@@ -17,7 +17,7 @@ Use this checklist to keep the review comprehensive and consistent.
 
 ## Durable docs
 
-The core specialist reports these as P3 `architecture` findings. It reads the docs in two states. The target ref shows the decisions that exist today and which ADRs are accepted. The head SHA shows the docs as the PR leaves them.
+The core specialist reports these as P3 `architecture` findings. It reads the docs in two states. The target ref shows the decisions that exist today and which ADRs are accepted. The head SHA shows the docs as the PR leaves them. An ADR without a Status line counts as accepted, unless the project defines another default.
 
 When the diff adds or changes an ADR under `docs/adr/` or a glossary (`GLOSSARY.md`, `CONTEXT.md`, `docs/glossary.md`):
 
