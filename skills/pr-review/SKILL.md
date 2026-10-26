@@ -235,7 +235,7 @@ others from the diff profile:
 
 | Specialist subagent | Runs when | Scope brief (owns) |
 |---|---|---|
-| correctness + architecture + tests | always | spec match, edge/error paths, backward compat, structure, test adequacy, repository standards, declared risk |
+| correctness + architecture + tests | always | spec match, edge/error paths, backward compat, structure, test adequacy, repository standards, declared risk, durable docs (ADRs, glossary) |
 | `security-and-hardening` | auth, sessions, user input, uploads, secrets, external APIs | injection, authz, validation, secret exposure, boundary failure contracts |
 | `performance-optimization` / `webperf-*` | loading, rendering, assets, bundle, query signals | N+1, unbounded ops, bundle impact, layout thrash (static; runtime measurement is step 5) |
 | `a11y-debugging` | UI markup, forms, controls, focus, ARIA, contrast | semantics, accessible names, keyboard/focus, contrast (static; browser audit is step 5) |
@@ -255,6 +255,13 @@ Scope notes carried into the relevant briefs:
   permission changes) under a `two-way` claim, or an effect outside the stated
   blast radius, is a `correctness` finding (P2 by default, higher when the
   unstated risk itself is severe). A missing risk statement is not a finding.
+- The core specialist applies the "Durable docs" rules in
+  [`references/review-checklist.md`](references/review-checklist.md) to every
+  diff. It reads `docs/adr/` and the glossary at both pinned states, because
+  the packet does not carry them: the target ref for the existing decisions,
+  and the head SHA for the docs as the PR leaves them. ADR and glossary
+  problems are P3 `architecture` findings. A change that contradicts an
+  accepted ADR is P2.
 - For each external or dependency call introduced or relied on by the diff, the
   owning specialist inspects the callee's signature or source and confirms its
   failure mode. Do not infer that `await` guarantees rejection; helpers may
