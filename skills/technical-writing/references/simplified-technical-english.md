@@ -6,7 +6,7 @@
 
 ## Words
 
-1. **One term per concept, one meaning per term.** Take the term from the code or the UI. When the project keeps a glossary (`CONTEXT.md`, `GLOSSARY.md`), use its terms, and add a term you introduce.
+1. **One term per concept, one meaning per term.** Take the term from the code or the UI. When the project keeps a glossary (`GLOSSARY.md`, `CONTEXT.md`, `docs/glossary.md`), use its terms. Add a term to the glossary only when it is a domain concept of this project. A general programming concept or an implementation detail is not a glossary term. Define each new term in one or two sentences.
 2. **A verb for an action.** "Configure the cache", not "perform the configuration of the cache".
 3. **Three nouns in a row at most**, not counting a code or product name. Rewrite a longer stack with "of", "for", or "that": "the refresh interval for the session token", not "the session token refresh interval".
 4. **A one-word verb over a phrasal verb.** "Start", not "fire up". "Find", not "figure out". Terms of art stay: set up, log in, sign in, roll back, check out.

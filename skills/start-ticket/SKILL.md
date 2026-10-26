@@ -56,7 +56,7 @@ Establish the stack from repo evidence, not assumption, and adopt the matching e
 
 - Package manifest, lockfile (→ package manager), scripts (dev, test, lint, build, storybook)
 - Framework and language conventions, directory layout, path aliases
-- Existing agent context: `AGENTS.md`, `CLAUDE.md`, `CONTEXT.md`, `README.md`, `docs/adr/`
+- Existing agent context: `AGENTS.md`, `CLAUDE.md`, `README.md`, `docs/adr/`, and the domain glossary: `GLOSSARY.md`, `CONTEXT.md`, or `docs/glossary.md`. In a repo with several domains, `GLOSSARY-MAP.md` or `CONTEXT-MAP.md` points to one glossary per domain.
 - An existing project Definition of Done (in the files above, a `references/` checklist, or `docs/`) — reuse it if present; otherwise the baseline in [`references/definition-of-done.md`](references/definition-of-done.md) applies
 - Design-token / theme source, i18n locale files, test setup
 - Browser support policy for web UI: `browserslist` (in `package.json` or `.browserslistrc`) or a policy stated in the agent context files; else Baseline Widely available
