@@ -259,9 +259,15 @@ Scope notes carried into the relevant briefs:
   [`references/review-checklist.md`](references/review-checklist.md) to every
   diff. It reads `docs/adr/` and the glossary at both pinned states, because
   the packet does not carry them: the target ref for the existing decisions,
-  and the head SHA for the docs as the PR leaves them. ADR and glossary
-  problems are P3 `architecture` findings. A change that contradicts an
-  accepted ADR is P2.
+  and the head SHA for the docs as the PR leaves them. It does not open every
+  ADR. It lists the ADR titles (`git grep -n '^# ' <ref> -- docs/adr/`) and
+  their status (a `Status:` line or a `## Status` section), and it searches
+  the ADRs for the modules the diff changes (`git grep -l -i <module> <ref>
+  -- docs/adr/`). It opens only the ADRs that the diff changes, whose title
+  names a changed area, or that the search finds. It finds stale names with
+  `git grep -w <old-name>` at the head SHA, not by reading the docs in full.
+  ADR and glossary problems are P3 `architecture` findings. A change that
+  contradicts an accepted ADR is P2.
 - For each external or dependency call introduced or relied on by the diff, the
   owning specialist inspects the callee's signature or source and confirms its
   failure mode. Do not infer that `await` guarantees rejection; helpers may
