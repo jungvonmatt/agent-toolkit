@@ -15,6 +15,23 @@ Use this checklist to keep the review comprehensive and consistent.
 - Cite the rule's source file in every `standards` finding.
 - For a mechanical violation that no automated check catches, recommend the lint rule, hook, or CI job that would catch it.
 
+## Durable docs
+
+The core specialist reports these as P3 `architecture` findings. It reads the docs in two states. The target ref shows the decisions that exist today and which ADRs are accepted. The head SHA shows the docs as the PR leaves them. An ADR without a Status line counts as accepted, unless the project defines another default.
+
+When the diff adds or changes an ADR under `docs/adr/` or a glossary (`GLOSSARY.md`, `CONTEXT.md`, `docs/glossary.md`):
+
+- A new ADR that fails the three-part test (hard to reverse, surprising without context, a real trade-off), that describes how a feature behaves instead of why a decision was made, or that repeats the decision of an ADR on the target ref instead of superseding it. Recommend deleting it, cutting it to the decision and its reason, or turning it into a superseding ADR.
+- An edit to an ADR that is accepted on the target ref, other than its status line, such as an "Amendments" section. Recommend reverting the edit. When the decision itself changed, also recommend a superseding ADR.
+- Two different ADRs with the same number. Compare every ADR that the diff adds or renames with every other ADR on the target ref and at the head SHA. An ADR does not collide with itself: an edited ADR, or a renamed (`R` in the name-status list) ADR that keeps its number, is the same record.
+- A glossary entry that is an implementation detail or a general programming concept, not a domain term.
+
+For every diff, also when it does not touch the docs:
+
+- A doc under `docs/` or the glossary that still describes the current system with a path or symbol that the diff renames or removes. Read the doc at the head SHA. An ADR, a changelog, or a migration guide records history: an old name there is not stale, and an accepted ADR stays unedited.
+
+Check the diff against every ADR that covers a changed area and is accepted on the target ref or at the head SHA. The head SHA adds the ADRs that the PR itself accepts. A change that contradicts the ADR is a P2 `architecture` finding with a link to the ADR: either the code follows the ADR, or the PR supersedes the ADR with a new one. Only a superseding ADR at the head SHA releases the old ADR. A status change to `proposed` or `deprecated` in the same PR does not release it.
+
 ## Declared merge risk
 
 - When the PR/MR states a merge risk (door and blast radius), verify it against the diff.

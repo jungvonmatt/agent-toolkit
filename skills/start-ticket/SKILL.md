@@ -56,7 +56,7 @@ Establish the stack from repo evidence, not assumption, and adopt the matching e
 
 - Package manifest, lockfile (→ package manager), scripts (dev, test, lint, build, storybook)
 - Framework and language conventions, directory layout, path aliases
-- Existing agent context: `AGENTS.md`, `CLAUDE.md`, `CONTEXT.md`, `README.md`, `docs/adr/`
+- Existing agent context: `AGENTS.md`, `CLAUDE.md`, `README.md`, `docs/adr/`, and the domain glossary: `GLOSSARY.md`, `CONTEXT.md`, or `docs/glossary.md`. In a repo with several domains, `GLOSSARY-MAP.md` or `CONTEXT-MAP.md` points to one glossary per domain.
 - An existing project Definition of Done (in the files above, a `references/` checklist, or `docs/`) — reuse it if present; otherwise the baseline in [`references/definition-of-done.md`](references/definition-of-done.md) applies
 - Design-token / theme source, i18n locale files, test setup
 - Browser support policy for web UI: `browserslist` (in `package.json` or `.browserslistrc`) or a policy stated in the agent context files; else Baseline Widely available
@@ -98,7 +98,7 @@ Route the outputs:
 - Missing Expected Result / acceptance criteria, or unknowns you cannot resolve yourself → clarifying questions (Step 6).
 - Resolved points → the plan's decisions table, marked `[FIRM]` or `[TENTATIVE]`.
 - Edge cases → the per-task "Edge cases & fallbacks" lists.
-- A proposed alternative approach → the stress-test (Step 8) and, if architecturally significant, an ADR.
+- A proposed alternative approach → the stress-test (Step 8) and, only if it passes the ADR test in [`references/adr-template.md`](references/adr-template.md), an ADR.
 
 > If you find a wrong assumption, a gap in the requirement, or a better approach, surface it to the user and agree on the requirement — do not silently plan something other than what the ticket asks for, and do not drop any stated acceptance criterion.
 
@@ -204,9 +204,9 @@ If a claim can only be settled by content that failed to load (a blocked attachm
 
 ### 8. Stress-test (conditional)
 
-For tickets with real design decisions, explicitly invoke `grill-with-docs` by name (it is `disable-model-invocation: true`, so it will not self-trigger — it wraps `grilling` + `domain-modeling` and crystallizes decisions into ADRs and a glossary). Fall back to `grilling` only if `grill-with-docs` is unavailable. If neither skill is present, challenge each `[TENTATIVE]` decision and each proposed alternative from Step 4b yourself. Run the stress-test against the draft plan plus `CONTEXT.md` and existing `docs/adr/`.
+For tickets with real design decisions, explicitly invoke `grill-with-docs` by name (it is `disable-model-invocation: true`, so it will not self-trigger — it wraps `grilling` + `domain-modeling` and crystallizes decisions into ADRs and a glossary). Fall back to `grilling` only if `grill-with-docs` is unavailable. If neither skill is present, challenge each `[TENTATIVE]` decision and each proposed alternative from Step 4b yourself. Run the stress-test against the draft plan plus the domain glossary and existing `docs/adr/`.
 
-Fold results back in: flip resolved `[TENTATIVE]` decisions to `[FIRM]`, add surfaced edge cases, and record architecturally significant decisions as new ADRs. Follow [`references/adr-template.md`](references/adr-template.md) for the shape, the filename convention, and the sentence contract the body must satisfy. Record superseding relationships when a decision refines an existing ADR.
+Fold results back in: flip resolved `[TENTATIVE]` decisions to `[FIRM]` and add surfaced edge cases. The plan's decisions table is the record for this ticket; most tickets end with **no ADR**. Offer an ADR only for a decision that is hard to reverse, surprising without context, **and** the result of a real trade-off, and write it only after the user agrees. `grill-with-docs` applies the same test. Follow [`references/adr-template.md`](references/adr-template.md) for the test, the shape, and the number. Never add an amendment to an existing ADR: supersede it when its decision changes, and write nothing when only behavior details change.
 
 Skip for trivial tickets (copy tweaks, config bumps).
 
@@ -252,6 +252,7 @@ Next step:      execute the plan with the `implement` skill (`/jvm-skills:implem
 - A plan that names a token, attribute, constant, schema field, or symbol that was never confirmed to exist in the code (skipped Step 7b)
 - A task that touches more than 5 files (L or XL in the `planning-and-task-breakdown` rubric) — split it into a build step and a wire-up step
 - More than 8 tasks for a single ticket — the ticket may need splitting
+- An ADR that describes how a feature behaves, or an "Amendments" section added to an existing ADR
 
 ## Verification
 
@@ -269,4 +270,5 @@ Before presenting the plan summary:
 - [ ] The plan uses exact, project-root-relative file paths
 - [ ] The Definition of Done is cited from the project or the baseline reference
 - [ ] Skills were loaded only for what the ticket actually needs
+- [ ] Every new ADR passes the three-part test in `references/adr-template.md` and the user agreed to it
 - [ ] The plan is written in STE (one instruction per sentence, ≤ 20 words for procedures)

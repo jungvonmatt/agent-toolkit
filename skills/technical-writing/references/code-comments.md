@@ -31,7 +31,7 @@ An inline comment earns its place when it carries one of these:
 
 Shape:
 
-- One line. Three lines at most. A reason that needs more belongs in a doc comment, an ADR, or a better name.
+- One line. Three lines at most. A reason that needs more belongs in a doc comment or a better name. It belongs in an ADR only when the decision passes the [ADR test](documentation.md#adr).
 - Place it directly above the line it concerns.
 - Describe the code as it stands. Your edit, the session, and the author belong in version control.
 - Use words the identifiers do not already use.
@@ -95,7 +95,7 @@ Keep one voice per file. When a linter demands a tag (`require-param`, Javadoc o
 
 - Fix every comment and doc comment your change made false, in the same change. Code changes that leave comments inconsistent are about 1.5 times more likely to introduce a bug ([Radmanesh et al. 2024](https://arxiv.org/abs/2409.10781)).
 - Leave a colleague's comment that is still true as it is, even when you would phrase it differently.
-- Document a decision that spans modules once (in design notes or an ADR) and point to it from each site.
+- Document a decision that spans modules once and point to it from each site. Put it in an ADR only when it passes the [ADR test](documentation.md#adr), and in design notes otherwise.
 
 ## Revise: over-commenting patterns
 

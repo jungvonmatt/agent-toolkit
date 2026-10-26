@@ -36,7 +36,7 @@ Apply to every task before you check it off.
 
 **Documentation**
 - Public interfaces, APIs, and user-facing behavior are documented.
-- Decisions worth preserving are recorded (see the stress-test step and `docs/adr/`).
+- Decisions are recorded in the plan's decisions table. Only a decision that passes the three-part test in [`adr-template.md`](adr-template.md) also gets an ADR in `docs/adr/`.
 - Documentation describes the current state, not the change history.
 
 **Ship-readiness**
