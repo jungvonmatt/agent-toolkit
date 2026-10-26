@@ -64,12 +64,12 @@ Revert and hotfix frequency over the past year. A handful is normal. Reverts eve
 
 If the repository contains `package.json`, `tsconfig.json`, or `jsconfig.json`, run fallow for deeper code-level insights that git logs cannot reveal.
 
-Skip this step entirely for non-JS/TS repos. Fallow does not need to be pre-installed: `npx` fetches it into its cache on demand and it only reads the repository. Always run the commands. If a command itself fails (registry unreachable, invalid output), note code health as `unavailable — <exact reason>` and continue to synthesis.
+Skip this step entirely for non-JS/TS repos. Fallow does not need to be pre-installed: `npx` fetches it into its cache on demand. Pass `--no-cache` to every command: without it, Fallow writes a `.fallow/` cache folder into the repository. Always run the commands. If a command itself fails (registry unreachable, invalid output), note code health as `unavailable — <exact reason>` and continue to synthesis.
 
 ### 6a. Dead code and unused dependencies
 
 ```bash
-npx fallow dead-code --format json --quiet
+npx fallow dead-code --format json --quiet --no-cache
 ```
 
 Identify unused files, exports, types, and dependencies. Cross-reference against Step 1 (churn hotspots): a file with high churn AND unused exports is accumulating dead weight.
@@ -77,7 +77,7 @@ Identify unused files, exports, types, and dependencies. Cross-reference against
 ### 6b. Circular dependencies
 
 ```bash
-npx fallow dead-code --circular-deps --format json --quiet
+npx fallow dead-code --circular-deps --format json --quiet --no-cache
 ```
 
 Circular dependency chains that git history cannot detect. Each cycle is a coupling risk — changes to one module ripple unpredictably through the ring.
@@ -85,7 +85,7 @@ Circular dependency chains that git history cannot detect. Each cycle is a coupl
 ### 6c. Complexity hotspots
 
 ```bash
-npx fallow health --hotspots --format json --quiet
+npx fallow health --hotspots --format json --quiet --no-cache
 ```
 
 Files ranked by cyclomatic complexity and cognitive load. Cross-reference against Step 1 and Step 3: a file that is high-churn, bug-prone, AND complex is the single highest-priority refactoring target.
@@ -93,7 +93,7 @@ Files ranked by cyclomatic complexity and cognitive load. Cross-reference agains
 ### 6d. Code duplication
 
 ```bash
-npx fallow dupes --format json --quiet
+npx fallow dupes --format json --quiet --no-cache
 ```
 
 Near-duplicate code blocks. Duplication that git cannot see because the copies were introduced in separate commits by different authors.

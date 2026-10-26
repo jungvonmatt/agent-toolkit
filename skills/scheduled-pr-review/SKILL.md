@@ -300,7 +300,7 @@ Run it in full mode in the worktree, on the full PR diff, so it has the full con
 - to do the reading parts of the review right away, but to take the machine lock (owner `<run token>-<PR number>`, see "Machine lock") and wait for headroom (see "Headroom") before it installs the dependencies or starts the app, to start the app with `nice -n 10`, and to pass these instructions on to the part of `pr-review` that does the runtime checks;
 - to start the app on a free port, never on a port that is in use (for example `3000` of a running dev server), and never to use or stop a server that it did not start;
 - to stop the app after the runtime checks, and then to release the machine lock;
-- to run Fallow from the working folder of the session with `npx fallow audit --root "$worktree" --base "$new_base" --format json --quiet --explain`, after the install, and never to `cd` into the worktree for it.
+- to run Fallow from the working folder of the session with `npx fallow audit --root "$worktree" --base "$new_base" --format json --quiet --explain --no-cache`, after the install, and never to `cd` into the worktree for it. Without `--no-cache`, Fallow registers a worktree of the base in the main checkout and leaves it behind.
 
 The browser checks need a browser tool in the session, for example the Chrome DevTools MCP server. When the session has none, or the app does not start, record the runtime checks as "unavailable" with the reason. An HTTP request to the page is not a browser check: do not report it as one.
 
