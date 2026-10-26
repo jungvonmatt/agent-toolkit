@@ -443,10 +443,13 @@ do not re-derive or re-review their scopes; only spot-check blocking evidence
    evidence.
 5. **Order** the merged set P0 to P3. Do not let one axis's volume of nits bury
    another axis's real finding; a few high-severity findings lead.
+6. **Number** the ordered set `Issue 1`, `Issue 2`, … in one sequence across
+   all severities, so the author and other reviewers can point to one finding.
+   Never use `#<n>`: providers link it to an issue or PR.
 
 #### 7. Report
 
-Use [`references/reporting-template.md`](references/reporting-template.md). Report findings first, ordered P0 to P3, and include precise evidence, impact, and a practical recommendation for every finding. Distinguish measured runtime evidence from static inference. Include requirement traceability when PR/MR or ticket requirements were available. Omit empty specialist sections; record skipped checks and residual risk compactly.
+Use [`references/reporting-template.md`](references/reporting-template.md). Report findings first, ordered P0 to P3 and numbered `Issue 1`, `Issue 2`, …, and include precise evidence, impact, and a practical recommendation for every finding. Distinguish measured runtime evidence from static inference. Include requirement traceability when PR/MR or ticket requirements were available. Omit empty specialist sections; record skipped checks and residual risk compactly.
 
 Use these verdicts:
 
@@ -503,7 +506,7 @@ After the review is complete:
 
 - [ ] Every applicable specialist ran (as a subagent) or is documented as `skipped`/`unavailable — <reason>`
 - [ ] Every specialist was dispatched with the read-only contract and context packet, and returned a status
-- [ ] Findings were deduplicated by `(file, line, symbol)` and ordered P0 to P3
+- [ ] Findings were deduplicated by `(file, line, symbol)`, ordered P0 to P3, and numbered `Issue 1`, `Issue 2`, … in that order
 - [ ] The evidence of every P0/P1 finding was checked at its cited location before the verdict
 - [ ] All findings have severity, location, and a concrete suggestion
 - [ ] Runtime ran (Option A or B) or is recorded as `skipped`/`unavailable — <reason>`

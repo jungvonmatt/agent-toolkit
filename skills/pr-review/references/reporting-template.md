@@ -18,6 +18,19 @@ completed successfully.
 
 ## Findings (P0 to P3)
 
+Number the findings `Issue 1`, `Issue 2`, … in report order, one sequence
+across all severities, so a reader can point to one finding ("fix Issue 3
+first"). Do not restart the count per severity, and do not write `#3`: GitHub
+and GitLab turn `#3` into a link to issue or PR 3. Start each finding with a
+heading in this form:
+
+```markdown
+### Issue 1 · P1 · <Title>
+```
+
+Refer to findings by these numbers in the rest of the report, for example in
+Requirements Traceability or Open Questions.
+
 For each finding:
 
 - `Severity`: P0 | P1 | P2 | P3

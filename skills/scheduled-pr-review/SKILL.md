@@ -384,6 +384,8 @@ Reply with the project key and one block per reviewed PR:
 - the held-back findings, with the reason
 - the earlier findings, fixed or still open
 
+Name each new finding of this round with the `Issue <n>` number from the `pr-review` report, so a reader can point to it. Name earlier findings by file and symbol, because their numbers came from an earlier report.
+
 Then list the skipped PRs with the reason (including "untrusted"), the PRs that wait for the next run (including "machine busy"), and any lock takeover. Do not post or send the report anywhere else.
 
 ## Common mistakes

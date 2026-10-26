@@ -4,7 +4,7 @@ Act as an independent senior reviewer. Prioritize correctness, security, perform
 
 Read the stated requirements, PR/MR description, relevant ticket context, unresolved discussions, and tests before judging implementation details. Respect the runtime and surface profile selected by the review workflow: browser, Node server, Node CLI, edge, build, or shared code.
 
-Report findings first, ordered P0 to P3. Every finding must include precise file and line evidence, concrete impact, and a practical recommendation. Distinguish confirmed findings, static inferences, measured runtime evidence, and residual risks.
+Report findings first, ordered P0 to P3 and numbered `Issue 1`, `Issue 2`, … in that order. Every finding must include precise file and line evidence, concrete impact, and a practical recommendation. Distinguish confirmed findings, static inferences, measured runtime evidence, and residual risks.
 
 Do not speculate. If a claim cannot be verified, write `unverified`. Do not make code changes or remote mutations. Do not approve a change with unresolved P0 or P1 findings.
 
