@@ -125,9 +125,9 @@ We don't try to cover everything ourselves. These are the skill packs and MCP se
 | Server | Repository | Description |
 | --- | --- | --- |
 | Chrome DevTools | [ChromeDevTools/chrome-devtools-mcp](https://github.com/ChromeDevTools/chrome-devtools-mcp) | Browser automation, performance traces, Lighthouse audits, and screenshots. |
-| Atlassian | [sooperset/mcp-atlassian](https://github.com/sooperset/mcp-atlassian) | Jira and Confluence access for Cloud and Server/Data Center. |
+| Atlassian | [atlassian/atlassian-mcp-server](https://github.com/atlassian/atlassian-mcp-server) | Official remote server for Jira and Confluence Cloud with OAuth. For Server/Data Center, use [sooperset/mcp-atlassian](https://github.com/sooperset/mcp-atlassian). |
 | GitHub | [github/github-mcp-server](https://github.com/github/github-mcp-server) | Official GitHub MCP server for repos, issues, PRs, and code search. |
-| Figma | [GLips/Figma-Context-MCP](https://github.com/GLips/Figma-Context-MCP) | Figma design data and image downloads for one-shot implementation. |
+| Figma | [figma/mcp-server-guide](https://github.com/figma/mcp-server-guide) | Official Figma server for design context, variables, and Code Connect. Needs a Dev or Full seat. Without one, use [GLips/Figma-Context-MCP](https://github.com/GLips/Figma-Context-MCP). |
 | Context7 | [upstash/context7](https://github.com/upstash/context7) | Up-to-date, version-specific library documentation as context for coding agents. |
 
 ## Credits
