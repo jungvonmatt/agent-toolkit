@@ -4,7 +4,7 @@ Generates a pull/merge request description from the current branch diff. Writes 
 
 The description tells a reviewer three things before they open the diff:
 
-- **Shape** — one optional small visual of the change (call tree, component tree, file tree, Mermaid, or a `diff` sketch).
+- **Shape** — an optional small visual for each independent part of the change, at most three, each directly under the sentence it explains (call tree, component tree, file tree, Mermaid, or a `diff` sketch).
 - **Evidence** — before/after proof: existing screenshots, a test that now passes, CI results. A missing proof is stated as missing.
 - **Merge Danger** — whether a revert fully undoes the change (one-way or two-way door), and the blast radius.
 
@@ -37,7 +37,7 @@ The agent will:
 1. Analyse the diff, commits, and branch name.
 2. Detect and fetch linked ticket context (Jira, GitHub Issues, GitLab Issues, Linear).
 3. Use the project's PR/MR template and domain glossary if they exist, otherwise fall back to the default.
-4. Pick the smallest visual that shows the shape of the change, or skip it.
+4. Count the independent parts of the change and pick the smallest visual for each, or skip it.
 5. Collect existing evidence: tests in the diff, CI checks, the `implement` review packet, screenshots.
 6. Assess merge danger from diff signals (migrations, public API, persisted state, URLs, side effects).
 7. Output copy-ready Markdown in a fenced code block.

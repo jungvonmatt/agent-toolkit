@@ -65,15 +65,17 @@ Scan the repository for an existing PR/MR template:
 2. `.gitlab/merge_request_templates/*.md`
 3. `docs/pull_request_template.md`
 
-When a template exists, use its structure and checklist instead of the default. Add the Shape, Evidence, and Merge Danger sections from the default template only when the project template has no section for the same content.
+When a template exists, use its structure and checklist instead of the default. Add the Evidence and Merge Danger sections from the default template only when the project template has no section for the same content. Put shape visuals in the template's description or summary section, each under the sentence it explains.
 
 Also look for a domain glossary (`GLOSSARY.md`, `CONTEXT.md`, `docs/glossary.md`) and use its terms.
 
 ### 4. Choose the shape (optional)
 
-Decide whether one small visual shows the change faster than prose. Add a **Shape** section only when it shows something the 2–5 sentences cannot — control flow, a moved responsibility, a new component in a tree, a file-layout change. Skip it for one-file fixes, copy changes, dependency bumps, and config tweaks.
+Decide whether a small visual shows the change faster than prose. Add a visual only when it shows something the sentences cannot — control flow, a moved responsibility, a new component in a tree, a file-layout change. Skip it for one-file fixes, copy changes, dependency bumps, and config tweaks.
 
-Pick the smallest view that makes the key point:
+First, count the independent parts of the change. A part is independent when a reviewer can understand it without the other parts, for example a new pipeline step and an unrelated fix on a settings page. Most changes have one part.
+
+Pick the smallest view that makes the key point of each part:
 
 | Change | View |
 |---|---|
@@ -84,7 +86,9 @@ Pick the smallest view that makes the key point:
 | Interaction between components, services, or systems | Mermaid sequence or flow diagram |
 | A change to an existing shape | `diff` block of that shape — `+` for added nodes, `-` for removed nodes |
 
-A `diff` sketch is often the best choice, because it shows the existing shape and the change in one block:
+A `diff` sketch is often the best choice, because it shows the existing shape and the change in one block. Match the sketch to the kind of shape.
+
+Component tree:
 
 ```diff
  <ProductPage>
@@ -94,10 +98,44 @@ A `diff` sketch is often the best choice, because it shows the existing shape an
    <ProductDetails>
 ```
 
+Call tree:
+
+```diff
+ submitOrder
+   validateCart
++  reserveStock
+   createPayment
+-  sendConfirmation
++  queueConfirmation
+```
+
+File layout:
+
+```diff
+ src/
+ ├── checkout/
++│   └── reserve-stock.ts   # holds stock during payment
+-└── payment.ts
++└── payment/
++    ├── client.ts
++    └── webhook.ts
+```
+
+Control flow:
+
+```diff
+ on(save)
+-  write content
++  if content is unchanged
++    return cached result
++  write new content
+```
+
 Rules:
 
-- Use one visual. Use a second only when the change has two independent parts.
-- Keep it to about 15 lines. Keep only the calls, files, props, states, and boundaries the reviewer needs.
+- Use one visual for each independent part. Put each visual directly under the sentence in the description that it explains, so the reader does not jump between text and picture.
+- Use at most three visuals. A change with more independent parts is too large for one PR. List it under **Before merge** (step 7).
+- Keep each visual to about 15 lines. Keep only the calls, files, props, states, and boundaries the reviewer needs.
 - Every node must exist in the diff or in the code it touches. Do not draw planned or imagined parts.
 - Bitbucket does not render Mermaid. On Bitbucket, use a text tree or a `diff` sketch instead.
 - Do not use the visual as a file list — the diff view does that.
@@ -144,6 +182,7 @@ Verify these against the diff:
 - Tests exist for new logic (or a justification for their absence).
 - Linting and type checks are not disabled without justification.
 - New dependencies are intentional (not accidental additions).
+- The change has at most three independent parts (step 4). Suggest smaller PRs for a larger change.
 
 When the project template has a checklist, tick only the items the diff evidence supports and add a brief note to unticked items. When there is no project checklist, do not add a default checklist — list only the failed prerequisites under **Before merge** in the Merge Danger section. Omit **Before merge** when every prerequisite passes.
 
@@ -152,7 +191,7 @@ When the project template has a checklist, tick only the items the diff evidence
 Follow [`references/output-template.md`](references/output-template.md). Apply these rules:
 
 - **Description:** 2–5 sentences. Summarize the behavioral change and the reason. Reference the ticket if one exists. The reviewer has the diff — do not list files or repeat code-level details.
-- **Shape:** optional, from step 4.
+- **Shape:** optional visuals from step 4, inside the description. Each visual sits directly under the sentence it explains. Visuals do not count toward the 2–5 sentences.
 - **Evidence:** before and after, from step 5.
 - **Merge Danger:** door, blast radius, and failed prerequisites, from steps 6 and 7.
 - **How to Test:** actionable steps a reviewer can follow. End with an expected result. Cover the happy path and at least one edge case when relevant.
@@ -168,6 +207,8 @@ Wrap the entire Markdown output in a single fenced code block opened with four b
 | "Add a paragraph explaining the architectural context" | The reviewer has the diff. State the change in 2 sentences. Add a Shape visual when structure matters. |
 | "List every file that changed" | The diff view does that. Show the shape of the change instead. |
 | "Draw the whole architecture for context" | Draw only the nodes the change touches and their direct neighbors. |
+| "Collect all visuals in one section after the text" | The reader then has to match each picture to its sentence. Put each visual under the sentence it explains. |
+| "One visual is enough, even for two unrelated parts" | One picture of two parts mixes them. Use one visual for each independent part, at most three. |
 | "Describe what each function does" | The code does that. State what is different for the user or the system. |
 | "Add a summary of the ticket" | Link the ticket. Do not copy it. |
 | "Tests probably pass — write 'all tests pass'" | Report only results you or CI ran. Otherwise mark the check `not run`. |
@@ -180,7 +221,9 @@ Wrap the entire Markdown output in a single fenced code block opened with four b
 - A "Changes" section that lists files or repeats what the diff already shows
 - Description longer than 5 sentences
 - Sentences that start with "This PR" followed by marketing-style verbs ("enhances", "leverages", "streamlines")
-- A Shape visual with nodes that are not in the diff, or more than one visual for a small change
+- A shape visual with nodes that are not in the diff, or more visuals than independent parts
+- A visual that is far from the sentence it explains
+- More than three visuals in one description
 - Evidence that claims a passing result nobody ran ("all tests pass", "verified it works")
 - Merge Danger that says `two-way` for a migration, a removed public field, or a changed URL
 - A default checklist when the project has no template, or checklist items ticked without diff evidence
@@ -194,7 +237,7 @@ After the description is generated:
 
 - [ ] Every fact traces to the diff, commits, branch name, ticket context, or a result you saw
 - [ ] Description is ≤ 5 sentences
-- [ ] Shape is absent or one small visual whose every node exists in the diff
+- [ ] Shape is absent, or there is one small visual for each independent part (at most three), directly under the sentence it explains, with only nodes that exist in the diff
 - [ ] Evidence names concrete tests, outputs, or images — or states that none exists
 - [ ] Merge Danger states the door and the blast radius, and lists failed prerequisites
 - [ ] Each "How to Test" step is actionable and ends with an observable result
