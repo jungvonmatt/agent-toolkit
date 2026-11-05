@@ -102,13 +102,26 @@ Route the outputs:
 
 > If you find a wrong assumption, a gap in the requirement, or a better approach, surface it to the user and agree on the requirement — do not silently plan something other than what the ticket asks for, and do not drop any stated acceptance criterion.
 
+### 4c. Classify the complexity
+
+Classify the ticket from the evidence of Steps 1–4b, not from the wording of the ticket. The class sets how much of the remaining workflow the ticket needs. When the signals fit two classes, pick the higher class.
+
+| Class | Signals | Effect |
+|---|---|---|
+| `trivial` | A copy, config, or version change in one or two files. No behavior change. No consumer of a changed symbol. | One task. Do not load `planning-and-task-breakdown`. Skip Step 8. |
+| `focused` | One behavior change inside one module or feature. No change to shared code, a public contract, or a data model. | One phase with 1–3 tasks. Skip Step 8 when no `[TENTATIVE]` decision remains. |
+| `broad` | Several behavior changes, or a change to shared code, a public contract, or a data model. | The full workflow. |
+| `oversized` | Several independently shippable capabilities, or more than 8 tasks. | Ask in Step 6 whether to split the ticket. If it stays whole, load `spec-driven-development` (Phase 0 capability map) and make each capability a phase. |
+
+The impact analysis of Step 4 sets the floor. A one-line change to a symbol with consumers is at least `focused`. A change to a public contract is at least `broad`. Record the class and a one-line reason in the plan header.
+
 ### 5. Load matching skills
 
 Load only what the ticket type requires, and only skills that exist in the workspace.
 
 | Ticket involves… | Load |
 |---|---|
-| Any non-trivial change (plan output) | `planning-and-task-breakdown` |
+| Any class above `trivial` (Step 4c) | `planning-and-task-breakdown` |
 | Challenging assumptions / weighing a different approach | `spec-driven-development` (assumption-surfacing), `doubt-driven-development` |
 | Underspecified ticket (no clear acceptance criteria) | `interview-me` |
 | Ticket bundling several independently-shippable capabilities | `spec-driven-development` (Phase 0 capability map) |
@@ -125,6 +138,7 @@ Load only what the ticket type requires, and only skills that exist in the works
 | Routing / navigation | the project's router skill |
 | Security, auth, untrusted input | `security-and-hardening` |
 | Unfamiliar framework API or migration | `source-driven-development` |
+| A fact outside the repository: an upstream bug, a library version or release, a claim to verify | `research`; without it, read the primary source yourself. Cite a source you actually read for each finding. Route an unverified finding to a `[TENTATIVE]` decision or a Step 6 question |
 | Docs / prose in the change | `writing-guidelines` |
 | Multi-file / parallelizable | `subagent-driven-development` |
 
@@ -208,7 +222,7 @@ For tickets with real design decisions, explicitly invoke `grill-with-docs` by n
 
 Fold results back in: flip resolved `[TENTATIVE]` decisions to `[FIRM]` and add surfaced edge cases. The plan's decisions table is the record for this ticket; most tickets end with **no ADR**. Offer an ADR only for a decision that is hard to reverse, surprising without context, **and** the result of a real trade-off, and write it only after the user agrees. `grill-with-docs` applies the same test. Follow [`references/adr-template.md`](references/adr-template.md) for the test, the shape, and the number. Never add an amendment to an existing ADR: supersede it when its decision changes, and write nothing when only behavior details change.
 
-Skip for trivial tickets (copy tweaks, config bumps).
+Skip this step for the `trivial` class, and for the `focused` class when no `[TENTATIVE]` decision remains (Step 4c).
 
 ### 9. Summarize
 
@@ -217,6 +231,7 @@ Output compactly. Lead with what the user must answer or decide, so it is read f
 ```text
 Open questions: <list or none>
 Ticket:         <id> — <title>
+Complexity:     <trivial | focused | broad | oversized> — <one-line reason>
 Plan:           <path>
 Tasks:          N (+ final verification task)
 Skills used:    <list>
@@ -233,7 +248,7 @@ Next step:      execute the plan with the `implement` skill (`/jvm-skills:implem
 | "The ticket is clear — no questions needed" | The edge-case sweep in Step 4b catches 2–4 gaps per ticket on average. |
 | "Stress-testing is overkill for this ticket" | Skipping it means architectural assumptions go unchallenged until implementation. |
 | "I'll figure out edge cases during implementation" | Edge cases discovered mid-implementation cause scope changes and rework. |
-| "This is a simple change — one task is enough" | Simple changes touch shared code. Impact analysis reveals the real scope. |
+| "This is a simple change — one task is enough" | Simple changes touch shared code. The impact analysis sets the class in Step 4c, not the wording of the ticket. |
 | "Layer-by-layer is cleaner — all the types, then the service, then the UI" | Horizontal layers show nothing until the last task and force a restructure mid-execution. Slice vertically. |
 | "I can infer the tech stack" | Detect from evidence, not assumption. Wrong stack assumptions produce wrong patterns. |
 | "I explored the code already — the plan's names must be right" | Names drift while you draft. Step 7b re-checks every identifier against the code; that is what makes the plan ready without a second pass. |
@@ -247,6 +262,7 @@ Next step:      execute the plan with the `implement` skill (`/jvm-skills:implem
 - The riskiest slice ordered late instead of first
 - Tasks without edge cases listed or explicitly marked "none applicable"
 - Skipping Step 4b because "the ticket is well-written"
+- A `trivial` class for a change to a symbol with consumers, or a class below `broad` for a public contract change
 - A plan that invents requirements not in the ticket without flagging them to the user
 - Planning around ticket content that failed to load instead of stopping to request it, or burying that request at the end of a long reply
 - A plan that names a token, attribute, constant, schema field, or symbol that was never confirmed to exist in the code (skipped Step 7b)
@@ -259,6 +275,7 @@ Next step:      execute the plan with the `implement` skill (`/jvm-skills:implem
 Before presenting the plan summary:
 
 - [ ] Every acceptance criterion from the ticket maps to at least one task
+- [ ] The complexity class from Step 4c is in the plan header with its reason, and Steps 5 and 8 follow it
 - [ ] Every task is a vertical slice that ends in an observable outcome — no task is a lone horizontal layer
 - [ ] Tasks are grouped into phases, and every phase ends at a named checkpoint
 - [ ] The riskiest or most uncertain slice is ordered first

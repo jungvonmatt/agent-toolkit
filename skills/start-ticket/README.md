@@ -32,7 +32,7 @@ The agent will:
 2. Detect the project stack from repo evidence and adopt the matching engineer persona.
 3. Pull the design spec when the ticket links one (Figma, Zeplin, screenshots).
 4. Explore the codebase for impact and the closest existing pattern.
-5. Pressure-test the requirement — completeness, edge-case sweep, assumption check.
+5. Pressure-test the requirement — completeness, edge-case sweep, assumption check — and classify its complexity (`trivial`, `focused`, `broad`, or `oversized`), which sets how much of the remaining workflow the ticket needs.
 6. Ask only the clarifying questions it cannot answer itself.
 7. Write a vertically-sliced plan to `docs/plans/YYYY-MM-DD-<kebab-case-title>.md`, then verify every named identifier against the code.
 

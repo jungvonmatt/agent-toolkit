@@ -14,6 +14,7 @@ State each requirement directly; do not narrate who requested it. Replace report
 > **For the executor:** Use the `implement` skill (`/jvm-skills:implement`) to implement this plan task-by-task. It pauses before each commit for a working-tree review; add `auto` to run the whole plan in one approved pass.
 
 **Ticket:** [<id>](<url>)
+**Complexity:** `<trivial | focused | broad | oversized>` — <one-line reason from Step 4c>
 **Goal:** <1–2 sentence summary of what to build and why>
 **Tech stack:** <detected stack — framework, language, styling, key libs>
 **Browser support:** (web UI only) <`browserslist` query or project policy, else "Baseline Widely available (default)">
