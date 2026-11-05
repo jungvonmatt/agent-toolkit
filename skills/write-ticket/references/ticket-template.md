@@ -63,10 +63,11 @@ Write all prose in Simplified Technical English (ASD-STE100): one instruction pe
 - [ ] <Sub-task 1>
 - [ ] <Sub-task 2>
 
-### Blocked by / blocks (if applicable)
+### Blocked by / blocks / related (if applicable)
 
 - Blocked by: <ticket ID or description>
 - Blocks: <ticket ID or description>
+- Related: <ticket ID> — <possible duplicate or overlap, cause not confirmed>
 
 ---
 

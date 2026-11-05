@@ -27,9 +27,10 @@ Turn this into a proper ticket: "the search is slow when there are many filters"
 The agent will:
 
 1. Ask targeted questions to find weak spots in the description (missing edge cases, unclear roles, undefined error behavior).
-2. Derive the ticket type (`bug`, `task`, `story`, `spike`, `epic`) automatically.
-3. Produce a development-ready ticket in Markdown — clear enough for a developer to start without further questions.
-4. Optionally push the ticket to a provider on explicit request.
+2. Search the provider once for an open or closed ticket with the same problem, and ask before writing a duplicate.
+3. Derive the ticket type (`bug`, `task`, `story`, `spike`, `epic`) automatically.
+4. Produce a development-ready ticket in Markdown — clear enough for a developer to start without further questions.
+5. Optionally push the ticket to a provider on explicit request.
 
 ## Output
 

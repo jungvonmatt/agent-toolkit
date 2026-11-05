@@ -98,6 +98,26 @@ When a workspace is open, scan for:
 
 Record the detected provider for Step 9. Adapt the ticket's vocabulary, labels, and components to match the project.
 
+### 3b. Check for duplicates
+
+Before you refine a new ticket, check once that the provider has no ticket for the same problem. Keep the check cheap: one search, titles first.
+
+1. Take two or three key terms from the input: the error message, the feature name, or the symptom.
+2. Run one search over open **and** closed tickets. Limit it to 10 results with title and status only:
+
+   | Provider | Search |
+   |---|---|
+   | Jira | Atlassian MCP `searchJiraIssuesUsingJql` with `project = <KEY> AND text ~ "<terms>" ORDER BY updated DESC`, `maxResults: 10`, fields `summary,status` |
+   | GitHub | `gh issue list --state all --search "<terms>" --limit 10 --json number,title,state` |
+   | GitLab | `glab issue list --all --search "<terms>" --per-page 10` |
+   | Linear, Asana | The MCP search tool with the same terms and a limit of 10 |
+
+3. Open a candidate in full only when its title names the same symptom or outcome. Open no more than 3 candidates.
+4. Call a ticket a duplicate only when the cause or the outcome matches, not only the symptom text. Two tickets with the same error message can have different causes.
+5. When you find a duplicate, show it to the author and ask in the format of "How to ask questions": update the existing ticket, write a new ticket that links to it, or stop. Never edit or close the existing ticket without confirmation. When you are not sure, add the candidate as a related ticket instead.
+
+Skip the check when the input is an existing ticket to refine, or when no provider is available. When the search fails, say so in one line and continue.
+
 ### 4. Refine the requirements
 
 Before writing the ticket, review the gathered input for weak spots. Check each area and ask the author about gaps you find:
@@ -238,12 +258,15 @@ If no provider is detected and the author does not name one, ask which provider 
 - Acceptance criteria that cannot be verified by someone who did not write the ticket
 - A ticket that needs more than 7 acceptance criteria, needs "and" in the title, or bundles more than one demoable outcome — split it (Step 6b)
 - Author answers "I don't know" to expected-outcome questions and you proceed anyway
+- A new ticket published without the duplicate search of Step 3b, when a provider was available
+- A ticket called a duplicate because the error text matches, without a matching cause or outcome
 
 ## Verification
 
 After the ticket is finalized:
 
 - [ ] Every fact in the ticket traces to the author's input or an explicit confirmation
+- [ ] A new ticket was checked for duplicates (Step 3b), or the reason for the skip is stated
 - [ ] 3–7 acceptance criteria exist, including at least one happy-path and one edge-case or error-path criterion
 - [ ] Each acceptance criterion contains an observable verb (shows, returns, prevents, displays)
 - [ ] The ticket delivers one demoable outcome and stays within 7 acceptance criteria — or it is split into sub-tickets (Step 6b)
