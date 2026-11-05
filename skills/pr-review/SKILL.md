@@ -33,7 +33,8 @@ chat or session title when the host supports it. Use `Review <ticket-key>` when
 a ticket is available. Otherwise use the most stable available identifier:
 `Review PR #<number>`, `Review MR !<iid>`, `Review <change-id>`, or
 `Review <source-branch>`. Do not block or alter the review when the host has no
-session-title API.
+session-title API. When another skill runs the review inside its own session
+(for example `implement auto`), keep the title of that session.
 
 ## Core principles
 

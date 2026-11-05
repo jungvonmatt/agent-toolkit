@@ -70,7 +70,7 @@ Use this when the plan is trusted and you want to collapse the run into one pass
 
 1. **Require a plan.** Locate the plan under `docs/plans/` (the newest matching one, or the plan the argument names). If none exists, stop and tell the user to run `start-ticket` first — do not invent requirements.
 2. **Establish a clean baseline** as in the default mode. Per-task commits must not absorb unrelated local work, or the clean-rollback guarantee breaks.
-3. **Single checkpoint.** Present the plan's task list and wait for an unambiguous affirmative (`approve`, `go`, `yes`). Treat a hedged reply (`looks reasonable`, `I guess`) as **not** approved. This is the only routine human gate — after approval, run autonomously.
+3. **Single checkpoint.** Present the plan's task list and the target branch for the final review (the repository's default branch unless the user names another). Wait for an unambiguous affirmative (`approve`, `go`, `yes`). Treat a hedged reply (`looks reasonable`, `I guess`) as **not** approved. This is the only routine human gate — after approval, run autonomously.
 4. **Execute every task in order.** Use each task's `Depends on` note for order; otherwise follow the plan's task order. Skip any task whose acceptance checkboxes are all ticked — resume at the first task with an unticked one. For each task, run the full default loop above (steps 1–7), then tick its acceptance checkboxes and commit the work plus that tick per task **without pausing for review** — stage only the files that task touched plus the plan's tick (never `git add -A` blindly), and make one commit per task so any point is a clean rollback. Between tasks, do not stop to report: no summary that names the next task without starting it, no "Want me to continue?", no list of options that block nothing. Put the status note in the same message as the next action.
 5. **Still pause before the commit** at:
    - a checkpoint the plan marks as a **human review gate**,
@@ -82,11 +82,17 @@ Use this when the plan is trusted and you want to collapse the run into one pass
    - the plan is ambiguous, or a task needs a decision the plan does not cover,
    - a task is high-risk or irreversible — auth/permission changes, destructive data migrations, payments, deletions, deploys, anything touching secrets, or anything a `git revert` cannot undo → follow `doubt-driven-development` if present, otherwise stop and get explicit sign-off before continuing.
 
-   After the user resolves a blocker, they re-invoke `/implement auto` — it reads the plan and resumes at the first unticked task.
+   After the user resolves a blocker, they re-invoke `/implement auto` — it reads the plan and resumes at the first unticked task. When every task is ticked, it runs the final review again.
 7. **Verify each checkpoint.** At each phase checkpoint, confirm the observable outcome the plan names actually holds before moving to the next phase.
-8. **Summarize at the end** under three headings, in this order:
+8. **Review the result in a fresh context.** The author of a change does not judge its own work. After the last task, run `pr-review` in quick, local mode against the approved target branch, with the ticket from the plan header — for example `quick review of the local branch against main with ticket PROJ-123`. Its specialists see only the diff and the ticket, not the reasoning of this run.
+   - Fix each P0–P2 finding in the working tree. Re-verify with steps 5–7 of the default loop. Commit the fixes of the round in one commit, `fix(<scope>): address review round <N>`, and stage only the files the fixes touched.
+   - Do not fix a P3 finding; list it under **Found**. Do not fix an `unverified` finding, or a finding that contradicts the plan or the ticket or needs a decision; list it under **Blocked on you**. The stop rules above still apply to every fix.
+   - Do not dismiss or downgrade a finding because you wrote the code. Only the evidence check inside `pr-review` downgrades a finding.
+   - Review again after each fix round. Stop when no P0–P2 finding is left to fix, when the verdict is `Blocked`, or after 2 fix rounds. List every finding that is still open under **Blocked on you**.
+   - When `pr-review` is not available, skip the review and say so under **Blocked on you**. Do not review your own diff as a substitute.
+9. **Summarize at the end** under three headings, in this order:
    - **Blocked on you** — open decisions, approvals, and blockers the user must resolve (or `none`),
-   - **Changed** — tasks completed, commits made, tests added, checkpoints reached,
+   - **Changed** — tasks completed, commits made, tests added, checkpoints reached, and the review rounds with their verdicts,
    - **Found** — anything skipped, flagged, or discovered outside the plan's scope.
 
 ## Companion skills
@@ -103,6 +109,7 @@ Load only what the task needs, and only skills present in the workspace. Each de
 | A high-risk, irreversible, or security-sensitive task | `doubt-driven-development`, `security-and-hardening` |
 | Parallelizable, independent tasks | `subagent-driven-development` |
 | A commit or branch decision | `git-workflow-and-versioning` |
+| The final review of `auto` mode | `pr-review` (quick, local mode) |
 
 ## Common Rationalizations
 
@@ -114,6 +121,7 @@ Load only what the task needs, and only skills present in the workspace. Each de
 | "This task is bigger than the plan says — I'll just do it all" | A task that outgrew its slice is two tasks. Stay scoped; flag the drift to the user. |
 | "I can resolve this `[TENTATIVE]` myself" | A `[TENTATIVE]` the plan routes to the user is a decision, not a detail. Surface it. |
 | "auto mode means never stop" | auto still pauses at the plan's review gates, risk triggers, and any blocker. |
+| "Every task passed its checks — the final review is redundant" | The author of a change misses its own blind spots. The review reads only the diff and the ticket, with fresh specialists. |
 
 ## Red Flags
 
@@ -127,6 +135,8 @@ Load only what the task needs, and only skills present in the workspace. Each de
 - Scope creep — an "improvement" or refactor the task never asked for
 - A `[TENTATIVE]` decision silently resolved instead of confirmed with the user
 - Pushing through a broken build or failing test with a guess instead of a systematic root-cause pass (`debugging-and-error-recovery` when present)
+- A review finding dismissed or downgraded because you wrote the code
+- More than 2 fix rounds in one `auto` run, or a fix commit that no later review checked
 
 ## Verification
 

@@ -29,7 +29,7 @@ Run the whole plan in one pass, with a single up-front approval:
 ### Modes
 
 - **default** (`/implement`) — implement the next pending task, pause before the commit for a working-tree review, commit only after approval, then stop. One slice at a time.
-- **auto** (`/implement auto`) — one approval on the whole plan, then every task runs without stopping between them. The per-task human gate is removed; only the plan's own review gates, risk triggers, and blockers still pause before their commit.
+- **auto** (`/implement auto`) — one approval on the whole plan, then every task runs without stopping between them. The per-task human gate is removed; only the plan's own review gates, risk triggers, and blockers still pause before their commit. After the last task, `pr-review` checks the branch in quick, local mode. The run fixes P0–P2 findings and stops after 2 fix rounds.
 
 ## What it does
 
