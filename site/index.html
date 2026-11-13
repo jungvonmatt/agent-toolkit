@@ -214,7 +214,24 @@ claude plugin install jvm-skills@jvm-skills</code></pre>
 codex plugin add jvm-skills@jvm-skills</code></pre>
         </div>
       </div>
-      <p class="note">Some skills route to companion skills such as <a href="https://github.com/addyosmani/agent-skills">addyosmani/agent-skills</a> and <a href="https://github.com/mattpocock/skills">mattpocock/skills</a>. They work without them. See the <a href="https://github.com/jungvonmatt/agent-toolkit#companion-skills">README</a>.</p>
+      <div class="install-card install-companions">
+        <h3>Companion skills</h3>
+        <p>Recommended. Some skills route to these packs when they are present and work without them. See the <a href="https://github.com/jungvonmatt/agent-toolkit#companion-skills">README</a> for which skill loads what.</p>
+        <pre><code># Planning, spec-driven development, security, performance
+npx skills add addyosmani/agent-skills
+
+# Grilling, domain modeling, research
+npx skills add mattpocock/skills
+
+# Modern web platform: native features over hand-rolled code
+npx skills add GoogleChrome/modern-web-guidance
+
+# Chrome DevTools: a11y debugging, network, performance traces
+npx skills add ChromeDevTools/chrome-devtools-mcp
+
+# Web performance: Core Web Vitals, loading, interaction
+npx skills add nucliweb/webperf-snippets</code></pre>
+      </div>
     </section>
   </main>
 

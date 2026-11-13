@@ -414,7 +414,7 @@ pre {
   min-width: 0;
 }
 .install-card h3 { font-size: 22px; font-weight: var(--weight-regular); }
-.install .note { margin-top: var(--content-gap); }
+.install-companions { margin-top: var(--section-gap); }
 
 /* --- Footer --- */
 .site-footer {

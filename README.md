@@ -92,6 +92,9 @@ Some skills route to companion skills from external sources. They degrade gracef
 # General-purpose skills (planning, spec-driven-development, security, performance …)
 npx skills add addyosmani/agent-skills
 
+# Modern web platform guides (native features over hand-rolled code, Baseline support …)
+npx skills add GoogleChrome/modern-web-guidance
+
 # Chrome DevTools skills (a11y-debugging, network, performance traces …)
 npx skills add ChromeDevTools/chrome-devtools-mcp
 
@@ -103,6 +106,8 @@ npx skills add mattpocock/skills
 ```
 
 > **`start-ticket`** routes to `planning-and-task-breakdown`, and conditionally to `spec-driven-development`, `doubt-driven-development`, `interview-me`, `security-and-hardening`, and `performance-optimization` from `addyosmani/agent-skills`. Its stress-test step uses `grill-with-docs` (fallback: `grilling`) from `mattpocock/skills` when present, and it routes facts outside the repository to `research` from the same pack.
+>
+> **`start-ticket`**, **`implement`**, and **`voiceover-check`** use `modern-web-guidance` for web UI work when it is installed. **`pr-review`** runs it through `npx`, so it works without installing.
 
 ## Recommended Third-Party Sources
 
