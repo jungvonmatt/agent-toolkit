@@ -57,6 +57,23 @@ Check the diff against every ADR that covers a changed area and is accepted on t
 - In full mode, measure affected browser routes (trace for LCP, CLS, and INP of new interactions; network requests) as described in SKILL.md step 5. Compare with the target revision before claiming a regression.
 - For web UI changes, check `modern-web-guidance` for native features that replace hand-rolled code and for obsolete patterns.
 
+## Rendered UI, routes, and consent
+
+In full mode, run these browser checks from SKILL.md step 5 when their signal
+is present. They need the running app; the static specialists do not cover
+them.
+
+- Console: errors, and hydration mismatch warnings for a server-rendered app.
+- Layout and states: 320 CSS px and desktop width, the longest locale, the
+  states the app or its stories already produce (long names, missing image,
+  empty, loading, error), feedback on new actions, nothing reachable only on
+  hover, reduced motion for new animations.
+- Routes and SEO: a 4xx status code and the error page for a missing
+  resource, the rendered head (title, description, canonical, robots,
+  hreflang), and Lighthouse SEO and best-practices failures in touched areas.
+- Consent: no tracking request, third-party request, or non-essential cookie
+  before consent or after it is refused.
+
 ## Accessibility decision rule
 
 Run `a11y-debugging` only when the diff changes one of:
@@ -78,6 +95,19 @@ When running a11y checks, cover at least:
 - keyboard navigation and focus order
 - focus visibility and trapped focus
 - color contrast in touched UI areas
+
+When the diff touches the matching UI, also check these WCAG 2.2 criteria:
+
+| Diff touches | Check |
+|---|---|
+| Form fields, checkout, sign-in | `autocomplete` on personal-data fields (1.3.5); errors named in text next to their field (3.3.1) with a fix when one is known (3.3.3); no re-entry of data given earlier in the same flow (3.3.7); no cognitive test such as a puzzle or a transcription without an alternative, and paste allowed in password fields (3.3.8) |
+| Carousels, tickers, auto-playing media, timeouts | a pause or stop control for content that moves for more than 5 seconds (2.2.2); a way to extend a time limit (2.2.1) |
+| Sliders, swipe, drag and drop, multi-touch gestures | a single-pointer alternative without dragging (2.5.7) or a path gesture (2.5.1); the visible label is part of the accessible name (2.5.3) |
+| Selects, inputs, and controls that react on focus or change | no navigation or context change on focus (3.2.1) or on input without a warning (3.2.2) |
+| Tooltips, fly-outs, menus opened on hover or focus | dismissible with Escape, hoverable, and persistent until dismissed (1.4.13) |
+| Messages after an action (added to basket, filter results, errors) | announced through a status or live region without moving focus (4.1.3) |
+| States shown by color (sale price, stock, errors) | a second cue such as text or an icon (1.4.1) |
+| Repeated controls (one button per list item) | each has a distinct accessible name, for example with the item name |
 
 In full mode, verify keyboard, focus, and contrast in the browser and run a
 Lighthouse accessibility audit on affected routes (SKILL.md step 5). The static

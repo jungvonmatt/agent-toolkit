@@ -54,7 +54,8 @@ Report findings in severity order. Do not invent findings to fill a category.
 - Fallow verdict and introduced findings, when applicable
 - `modern-web-guidance` status and the guide IDs cited, for web UI signals
 - Runtime/browser checks and their result, when applicable, including the
-  browser accessibility audit and performance measurement statuses
+  statuses of the browser accessibility audit, performance measurement,
+  layout and states, routes and SEO, and consent before tracking
 - Every applicable specialist status: `passed`, `findings`, `skipped — <reason>`, or `unavailable — <reason>`
 - Skipped or unavailable checks with a concrete reason and residual risk
 - Target-ref and diff-source verification status

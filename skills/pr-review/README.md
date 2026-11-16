@@ -30,7 +30,7 @@ Modes and depths:
 
 - **PR/MR mode** — remote change metadata plus a local checkout for the primary diff.
 - **Local mode** — current checkout plus a required target branch and optional ticket context.
-- **Full** (default) — parallel specialist fan-out, runtime checks, aggregation. For UI changes, runtime includes a browser accessibility audit (keyboard, focus, contrast, Lighthouse) and performance measurement (LCP, CLS, INP, network) on affected routes.
+- **Full** (default) — parallel specialist fan-out, runtime checks, aggregation. For UI changes, runtime includes a browser accessibility audit (keyboard, focus, contrast, Lighthouse) and performance measurement (LCP, CLS, INP, network) on affected routes. It also checks layout at 320 px and with the longest locale, empty, loading, and error states, the status codes and document head of changed routes, and that nothing is tracked before consent.
 - **Quick** — parallel specialist fan-out and aggregation, runtime skipped.
 
 Web UI changes are also checked against
