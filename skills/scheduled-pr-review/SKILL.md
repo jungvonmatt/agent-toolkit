@@ -179,9 +179,9 @@ has_headroom() {
 
 ## Workflow
 
-Do step 1 for all open PRs. Then do steps 2 to 10 for each selected PR. PRs can run in parallel, but their heavy steps take turns through the machine lock.
+Do step 1 for all open PRs. Then do steps 2 to 10 for each selected PR, one PR after the other, in the main run. A PR is done when step 10 wrote its state; only then start the next one.
 
-When PRs run in parallel, each worker does steps 2 to 9 and returns its result: the head SHA, the findings with `posted` and the reason, and whether every post is done. Only the main run writes the state file (step 10), so two workers never overwrite each other's entry.
+Never hand a PR to a subagent. `pr-review` dispatches its specialists as subagents, and a subagent cannot dispatch subagents of its own. A worker subagent would run `pr-review` without its specialists, so the PRs of a busy run would get the weakest review.
 
 ### 1. Select the PRs
 
@@ -316,6 +316,7 @@ Also hold back a finding when one of these conditions is true:
 
 - It matches a stored finding with `posted: true`, or an existing comment on the PR (inline comments, general comments, and review bodies) from any author, bots included, open or resolved. Match on file, symbol, and problem, not on the line number, because lines move.
 - It only repeats a failed CI check. CI already shows the failure to the author.
+- Its evidence is not verified in this run. `pr-review` marks it `unverified`, or it rests on a source outside the PR diff and the worktree (an upstream repository, a web page, the docs of a package) that a subagent read and you did not. Read that source yourself and confirm the claim, or hold the finding back with the reason "unverified". A comment that the author cannot check against the code costs more trust than it earns.
 
 A stored finding with `posted: false` does not block anything. Evaluate it again in every round, because a later commit can move its line into the delta.
 
@@ -345,12 +346,20 @@ A round that posts no inline comment leaves no trace on the PR, so the author ca
 
 | Condition | Note |
 | --- | --- |
-| No earlier finding is still open (step 8), no check of step 4 failed, and the current user did not open the PR | Approve, with the note |
+| Every approval condition below holds | Approve, with the note |
 | Else | Comment, with the note. Do not approve. |
+
+Approval conditions:
+
+- No earlier finding is still open (step 8).
+- No check of step 4 failed.
+- The runtime checks of step 5 ran, or they do not apply because the diff changes nothing that the app renders or serves (for example only docs, tests, or tooling). "Unavailable" blocks the approval: an approval says the change works, and nobody saw it work.
+- No unresolved comment on the PR was posted at the current head by another review or a person, for example the inline findings of a standards review that ran just before this skill. Comments with this skill's marker are covered by step 8. Comments posted at an older head do not count: their fix may be in the head without the thread being resolved. The head of a comment is `position.head_sha` of a GitLab diff note and `commit_id` of a GitHub review comment; a general comment counts when it is newer than the head commit.
+- The current user did not open the PR.
 
 - Start the note with the result in one sentence, for example "Approved. The first-pass review found no P0–P2 issues on `<short sha>`."
 - Then list the held-back P3 findings as optional follow-ups that do not block the merge: the file, the symbol, and one short sentence each. Leave out the findings held back because another comment already has them.
-- For a comment note, also list the earlier findings that are still open and the failed checks.
+- For a comment note, also name each condition that blocked the approval: the earlier findings that are still open, the failed checks, the reason the runtime checks were unavailable, and the open comments of another review.
 - End the note with this hidden marker:
 
   ```text
@@ -401,9 +410,11 @@ Then list the skipped PRs with the reason (including "untrusted"), the PRs that 
 | Run lint and tests that CI already ran | Slow runs | Step 4 uses the CI results first |
 | Run the checks or the app of several PRs at the same time | The machine runs out of memory | Take the machine lock before each heavy step |
 | Start a heavy step while the machine is under memory pressure | The computer of the person at the machine slows down or swaps | Wait for headroom; after `headroom_wait`, leave the PR for the next run |
-| Let parallel PR workers write the state file | One worker overwrites the entry of another, and the next run repeats a review | Workers return their results; only the main run writes the state, one PR at a time |
+| Give each PR to a worker subagent | `pr-review` inside the worker cannot dispatch its specialists, so the review runs without them | Review the PRs one after the other in the main run |
 | Keep notes about runs in the agent memory | The memory grows with every run, and a later run trusts a note instead of the state | The state file and the report are the only record |
 | Run `npx` inside the PR worktree (`cd "$worktree" && npx fallow …`) | Claude Code's auto mode blocks it as code from an external source, and `npx` could run a binary from the PR | Run `npx fallow audit --root "$worktree"` from the working folder of the session |
+| Approve while the runtime checks were unavailable | The approval says the change works, but the app never ran | Approve only when the runtime checks ran or do not apply; else post a comment note with the reason |
+| Post a finding that a subagent drew from an outside source | The author gets a claim nobody in the run checked | Read the source yourself, or hold the finding back as "unverified" |
 | Review the diff yourself instead of calling `pr-review` | No review passes, no Fallow, no browser checks | Invoke `jvm-skills:pr-review` with the Skill tool in step 5 |
 | Let `pr-review` start VoiceOver | VoiceOver takes over the keyboard and speech of the person at the machine, and the run waits for a consent nobody gives | Tell `pr-review` the review is unattended; it records VoiceOver as `skipped — unattended` |
 | Keep a crashed run's lock forever | No PR gets reviewed again | The lock is a lease: a stale lock is taken over after 90 minutes |
