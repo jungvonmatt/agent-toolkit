@@ -52,7 +52,7 @@ Report findings in severity order. Do not invent findings to fill a category.
 - Review mode: `PR/MR` or `Local`
 - Diff source: `local checkout`, `verified local checkout`, `remote fallback`, or `local-only`
 - Fallow verdict and introduced findings, when applicable
-- `modern-web-guidance` status and the guide IDs cited, for web UI signals
+- `modern-web-guidance` status, the guide IDs cited, and gated guides, for web UI signals
 - Runtime/browser checks and their result, when applicable, including the
   statuses of the browser accessibility audit, performance measurement,
   layout and states, routes and SEO, and consent before tracking

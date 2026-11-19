@@ -29,6 +29,7 @@ Keep the packet short. It orients the reviewer; it is not a report.
 - Suite: <pass / N passed, 0 failed>
 - Build: <pass / fail>
 - Runtime: <what was checked and where — dev server, Storybook, the command>
+- Web guides: (web UI only) <`modern-web-guidance` IDs applied, each `gated: <id>`, or `unavailable — <reason>`>
 
 **Proposed commit:** `<type>(scope): <description>`
 

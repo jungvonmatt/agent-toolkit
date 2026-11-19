@@ -17,7 +17,7 @@ State each requirement directly; do not narrate who requested it. Replace report
 **Complexity:** `<trivial | focused | broad | oversized>` — <one-line reason from Step 4c>
 **Goal:** <1–2 sentence summary of what to build and why>
 **Tech stack:** <detected stack — framework, language, styling, key libs>
-**Browser support:** (web UI only) <`browserslist` query or project policy, else "Baseline Widely available (default)">
+**Browser support:** (web UI only) <`.mwgrc` baseline, `browserslist` query, or project policy, else "Baseline Widely available (default)">
 
 **Design references:** (if any)
 - [<description> (node <id>)](<url>)
@@ -109,7 +109,7 @@ Task 1 ──→ Task 2 ──→ Task 4
 
 **Files:** `<relative/path>`, `<test path>`, `<story path if applicable>`
 **Size:** S | M  (1–5 files — split anything larger into a build step and a wire-up step)
-**Web guides:** (web UI only) <`modern-web-guidance` guide IDs, e.g. `optimize-image-priority`>
+**Web guides:** (web UI only) <`modern-web-guidance` guide IDs, e.g. `optimize-image-priority`; `gated: <id>` for a gated guide>
 **Why:** <1 sentence>
 > **Depends on:** Task N  ← only if applicable
 

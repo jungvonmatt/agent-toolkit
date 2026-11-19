@@ -50,7 +50,7 @@ Read the plan and pick the first task with an unticked acceptance checkbox. Befo
 3. **Write a failing test** for the expected behavior (RED) — when the behavior is well-defined. For exploratory UI slices, verify manually first, then add targeted tests.
 4. **Implement** the minimum code to pass the test and satisfy the task (GREEN).
 5. **Run the full test suite** to catch regressions, then **run the build** to verify compilation.
-6. **Verify at runtime** against the design and the task's edge cases (dev server / Storybook / the runnable command). Resolve any `[TENTATIVE]` decision the task settles.
+6. **Verify at runtime** against the design and the task's edge cases (dev server / Storybook / the runnable command). For web UI, also hold the code against the rules and fallbacks of every guide you retrieved. Resolve any `[TENTATIVE]` decision the task settles.
 7. **Confirm both bars:** every task acceptance criterion is met, and the Definition of Done (Correctness + Quality at minimum) is cleared.
 8. **Pause before the commit — the human gate.** Leave every change in the working tree (staged or unstaged, **not committed**). Present a concise review packet — follow [`references/review-packet.md`](references/review-packet.md):
    - the task title and its acceptance criteria,
@@ -104,7 +104,8 @@ Load only what the task needs, and only skills present in the workspace. Each de
 | Any multi-file slice (the core loop) | `incremental-implementation` |
 | Well-defined behavior, bug fix, or logic | `test-driven-development` + the project's test-runner skill |
 | Authoring or refactoring tests | `writing-tests` |
-| HTML/CSS/client-side JS | `modern-web-guidance` — before writing the code, `retrieve` the task's **Web guides** IDs, or run `search` → `retrieve` when the task lists none. Apply fallbacks per the plan's **Browser support**. If the command fails, say so in the review packet; do not guess guide content |
+| HTML/CSS/client-side JS | `modern-web-guidance` through [`references/modern-web-guidance.md`](references/modern-web-guidance.md) — before writing the code, `retrieve` the task's **Web guides** IDs, or run `search` → `retrieve` when the task lists none. Apply fallbacks per the plan's **Browser support**. List the guides, gated guides, or failure in the review packet |
+| Chrome extension (Manifest V3, `chrome.*` APIs, Chrome Web Store) | `chrome-extensions` |
 | A failing test or broken build with no obvious fix | `debugging-and-error-recovery` |
 | A high-risk, irreversible, or security-sensitive task | `doubt-driven-development`, `security-and-hardening` |
 | Parallelizable, independent tasks | `subagent-driven-development` |

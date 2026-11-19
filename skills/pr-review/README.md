@@ -35,8 +35,9 @@ Modes and depths:
 
 Web UI changes are also checked against
 [`modern-web-guidance`](https://github.com/GoogleChrome/modern-web-guidance)
-for native platform features and obsolete patterns. It runs through `npx`, so
-it does not need to be installed.
+for native platform features and obsolete patterns, by search and by a
+`legacy-scan` of the changed files. It runs a pinned version through `npx`
+with telemetry off, so it does not need to be installed.
 
 In an attended full review, changes to names, roles, focus, dialogs, live
 announcements, or screen-reader navigation trigger a targeted

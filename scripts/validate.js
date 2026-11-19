@@ -244,6 +244,38 @@ function checkReadme(pluginName, skills) {
   for (const skill of listed) if (!skills.includes(skill)) fail(file, `Skills table lists unknown skill "${skill}"`);
 }
 
+// Skills install one by one, so each skill that runs modern-web-guidance carries its own copy of the
+// reference. The copies must stay identical, and every command must pin the same exact version.
+function checkModernWebGuidance() {
+  const copies = walk(path.join(root, 'skills'), '.md').filter((file) => path.basename(file) === 'modern-web-guidance.md');
+  const byText = Map.groupBy(copies, read);
+  // The text most copies share is the reference; blame only the copies that drifted from it.
+  const [canonical] = [...byText.values()].sort((a, b) => b.length - a.length);
+  for (const file of copies) {
+    if (!canonical.includes(file)) fail(file, `differs from ${rel(canonical[0])}; keep every copy identical`);
+  }
+
+  const files = [...walk(path.join(root, 'skills'), '.md'), path.join(root, 'README.md')];
+  let pinned = null;
+  for (const file of files) {
+    const text = read(file);
+    for (const match of text.matchAll(/\b(?:npx|pnpx|bunx|npm exec)\s+(?:(?:-y|--yes)\s+)?modern-web-guidance(?=[\s`"')\]]|$)/gm)) {
+      fail(file, 'pin modern-web-guidance to an exact version, for example "modern-web-guidance@1.2.3"', lineAt(text, match.index));
+    }
+    for (const match of text.matchAll(/modern-web-guidance@([^\s`"')\]]+)/g)) {
+      const version = match[1];
+      // A plugin@marketplace name such as modern-web-guidance@googlechrome is no version.
+      if (/^[a-z][a-z0-9-]*$/i.test(version) && !/^(latest|next)$/i.test(version)) continue;
+      const line = lineAt(text, match.index);
+      if (!/^\d+\.\d+\.\d+$/.test(version)) fail(file, `pin modern-web-guidance to an exact version, not "@${version}"`, line);
+      else if (!pinned) pinned = { version, file, line };
+      else if (version !== pinned.version) {
+        fail(file, `modern-web-guidance@${version} does not match @${pinned.version} in ${rel(pinned.file)}:${pinned.line}`, line);
+      }
+    }
+  }
+}
+
 const NUMBER_WORDS = ['Zero', 'One', 'Two', 'Three', 'Four', 'Five', 'Six', 'Seven', 'Eight', 'Nine', 'Ten',
   'Eleven', 'Twelve', 'Thirteen', 'Fourteen', 'Fifteen', 'Sixteen', 'Seventeen', 'Eighteen', 'Nineteen', 'Twenty'];
 
@@ -282,6 +314,7 @@ function main() {
   checkCommands(pluginName, skills);
   checkReadme(pluginName, skills);
   checkSite(pluginName, skills);
+  checkModernWebGuidance();
 
   if (errors.length) {
     console.error(`✖ ${errors.length} problem${errors.length === 1 ? '' : 's'}:\n${errors.map((error) => `  ${error}`).join('\n')}`);
