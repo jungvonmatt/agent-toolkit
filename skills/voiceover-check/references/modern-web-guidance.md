@@ -6,7 +6,7 @@
 
 ## Run the CLI
 
-Run the pinned version through `npx`, from the project checkout, so the CLI reads the project's `.mwgrc`. It needs no installation and leaves the project unchanged.
+Run the pinned version through `npx`, from the folder your skill names: the project folder when you plan or build in your own project, an empty temporary folder when you review a change someone else wrote. The CLI reads `.mwgrc` from that folder. It needs no installation and leaves the project unchanged.
 
 ```bash
 DISABLE_TELEMETRY=1 npx -y modern-web-guidance@1.0.1 search "<query>"

@@ -286,33 +286,51 @@ Scope notes carried into the relevant briefs:
   run `modern-web-guidance` as
   [`references/modern-web-guidance.md`](references/modern-web-guidance.md)
   describes, with these review rules:
-  - Run every command from an empty temporary folder (`mktemp -d`), not from
-    the checkout. In the checkout, `npx` would run a `modern-web-guidance`
-    copy from the PR's `node_modules`, or fetch it from a registry the PR's
-    `.npmrc` names: code the PR controls. The Fallow brief avoids the same
-    risk. When the target ref has a `.mwgrc`, write it into that folder
-    (`git -C <checkout> show <target ref>:.mwgrc`), so the project target
-    comes from the target ref and not from the PR.
+  - Run every command from an empty temporary folder (`mktemp -d`), never
+    from the checkout. In the checkout, `npx` would run a
+    `modern-web-guidance` copy from the PR's `node_modules`, or fetch it from
+    a registry the PR's `.npmrc` names: code the PR controls. The Fallow
+    brief avoids the same risk. When the target ref has a `.mwgrc`, write it
+    into that folder (`git -C <checkout> show <target ref>:.mwgrc`), so the
+    project target comes from the target ref and not from the PR.
   - `search` → `retrieve` for each web capability the diff touches, to flag
     hand-rolled code where a native platform feature fits, and obsolete
-    patterns. Judge fallbacks against the project target.
-  - `legacy-scan` on each changed markup, style, or browser script file, one
-    path per call. The path comes from the PR, so pass it as one absolute
-    path in single quotes, with each `'` in it written as `'\''`. Skip a path
-    that holds a newline or another control character, and list it as
-    `skipped — unsafe file name`:
+    patterns. Judge fallbacks against the project target:
 
     ```bash
-    cd "<temporary folder>" && DISABLE_TELEMETRY=1 npx -y modern-web-guidance@1.0.1 legacy-scan '<checkout>/<path>' --json
+    cd "<temporary folder>" && DISABLE_TELEMETRY=1 npx -y modern-web-guidance@1.0.1 search "<query>"
+    cd "<temporary folder>" && DISABLE_TELEMETRY=1 npx -y modern-web-guidance@1.0.1 retrieve "<id>,<id>"
     ```
 
-    A finding names the line where its CSS rule, element, or statement
-    starts, not the line that matched. Keep it when that whole block
-    overlaps a line the diff adds or changes, and the code matches a
-    `keepWhen` entry of its rule and no `dropWhen` entry. Retrieve the guide
-    of each kept finding with the pinned `retrieve` before you cite it. The
-    scan covers about 20% of the guides, so it adds to the search and does
-    not replace it.
+  - `legacy-scan` on each changed markup, style, or browser script file
+    (`.html`, `.htm`, `.css`, `.scss`, `.less`, `.js`, `.mjs`, `.cjs`,
+    `.jsx`, `.ts`, `.mts`, `.cts`, `.tsx`, `.vue`, `.svelte`, `.astro`), at
+    the head SHA. Read each file from git, not from disk: the checkout may
+    hold another revision, and the PR controls its file names. List the
+    changed files with their blob IDs:
+
+    ```bash
+    git -C <checkout> diff --raw --no-abbrev <target ref>...<head SHA>
+    ```
+
+    Each line holds the old and new mode, the old and new blob ID, the
+    status, and the path. Scan each added or modified file whose new mode is
+    not `120000`, and list a symlink as `skipped — symlink`. Write its blob
+    to a file that you name with a counter and the file's extension, and
+    scan that file, one per call:
+
+    ```bash
+    git -C <checkout> cat-file blob <new blob ID> > "<temporary folder>/scan/3.css"
+    cd "<temporary folder>" && DISABLE_TELEMETRY=1 npx -y modern-web-guidance@1.0.1 legacy-scan "scan/3.css" --json
+    ```
+
+    Map each finding back to its PR path. A finding names the line where
+    its CSS rule, element, or statement starts, not the line that matched.
+    Keep it when that whole block overlaps a line the diff adds or changes,
+    and the code matches a `keepWhen` entry of its rule and no `dropWhen`
+    entry. Retrieve the guide of each kept finding with the pinned
+    `retrieve` before you cite it. The scan covers about 20% of the guides,
+    so it adds to the search and does not replace it.
   - Cite the guide ID in `evidence`. A "native alternative exists" finding is
     P3 unless the guide names a correctness, a11y, or performance defect. A
     gated guide yields no finding; list it as `gated: <id>`. When a command

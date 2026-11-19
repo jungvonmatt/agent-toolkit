@@ -6,7 +6,7 @@
   "license": "MIT",
   "private": true,
   "scripts": {
-    "test": "node --test scripts/voiceover-focus.test.js && node scripts/validate.js && node scripts/run-evals.js --min-rank1 85",
+    "test": "node --test scripts/voiceover-focus.test.js scripts/validate.test.js && node scripts/validate.js && node scripts/run-evals.js --min-rank1 85",
     "eval:model": "node scripts/run-evals.js --runner copilot",
     "eval:behavior": "claude plugin eval . --no-publish"
   },

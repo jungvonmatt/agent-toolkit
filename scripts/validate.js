@@ -246,33 +246,54 @@ function checkReadme(pluginName, skills) {
 
 // Skills install one by one, so each skill that runs modern-web-guidance carries its own copy of the
 // reference. The copies must stay identical, and every command must pin the same exact version.
-function checkModernWebGuidance() {
-  const copies = walk(path.join(root, 'skills'), '.md').filter((file) => path.basename(file) === 'modern-web-guidance.md');
-  const byText = Map.groupBy(copies, read);
-  // The text most copies share is the reference; blame only the copies that drifted from it.
-  const [canonical] = [...byText.values()].sort((a, b) => b.length - a.length);
-  for (const file of copies) {
-    if (!canonical.includes(file)) fail(file, `differs from ${rel(canonical[0])}; keep every copy identical`);
-  }
+// The two checks take { file, text } documents and return { file, line, message } problems.
 
-  const files = [...walk(path.join(root, 'skills'), '.md'), path.join(root, 'README.md')];
-  let pinned = null;
-  for (const file of files) {
-    const text = read(file);
-    for (const match of text.matchAll(/\b(?:npx|pnpx|bunx|npm exec)\s+(?:(?:-y|--yes)\s+)?modern-web-guidance(?=[\s`"')\]]|$)/gm)) {
-      fail(file, 'pin modern-web-guidance to an exact version, for example "modern-web-guidance@1.2.3"', lineAt(text, match.index));
+// The text most copies share is the reference; blame only the copies that drifted from it.
+function guidanceCopyProblems(copies) {
+  const [canonical = []] = [...Map.groupBy(copies, (copy) => copy.text).values()].sort((a, b) => b.length - a.length);
+  return copies
+    .filter((copy) => !canonical.includes(copy))
+    .map((copy) => ({ file: copy.file, message: `differs from ${canonical[0].file}; keep every copy identical` }));
+}
+
+// A runner call that names the package with no version at all.
+const UNPINNED_RUN = /\b(?:npx|pnpx|bunx|pnpm\s+dlx|yarn\s+dlx|npm\s+exec)(?:\s+(?:-y|--yes|-p|--package|--))*\s+(?:--package=)?modern-web-guidance(?![\w@-])/g;
+// A plugin@marketplace name such as modern-web-guidance@googlechrome is no version.
+const GUIDANCE_MARKETPLACES = new Set(['googlechrome']);
+
+// Returns the version after "@", or null for a marketplace name. A trailing sentence mark is no part of it.
+function pinnedVersion(raw) {
+  const version = raw.replace(/[.,;:!?]+$/, '');
+  return GUIDANCE_MARKETPLACES.has(version) ? null : version;
+}
+
+function guidancePinProblems(docs) {
+  const problems = [];
+  let first = null;
+  for (const { file, text } of docs) {
+    for (const match of text.matchAll(UNPINNED_RUN)) {
+      problems.push({ file, line: lineAt(text, match.index), message: 'pin modern-web-guidance to an exact version, for example "modern-web-guidance@1.2.3"' });
     }
     for (const match of text.matchAll(/modern-web-guidance@([^\s`"')\]]+)/g)) {
-      const version = match[1];
-      // A plugin@marketplace name such as modern-web-guidance@googlechrome is no version.
-      if (/^[a-z][a-z0-9-]*$/i.test(version) && !/^(latest|next)$/i.test(version)) continue;
+      const version = pinnedVersion(match[1]);
       const line = lineAt(text, match.index);
-      if (!/^\d+\.\d+\.\d+$/.test(version)) fail(file, `pin modern-web-guidance to an exact version, not "@${version}"`, line);
-      else if (!pinned) pinned = { version, file, line };
-      else if (version !== pinned.version) {
-        fail(file, `modern-web-guidance@${version} does not match @${pinned.version} in ${rel(pinned.file)}:${pinned.line}`, line);
+      if (version === null) continue;
+      if (!/^\d+\.\d+\.\d+$/.test(version)) problems.push({ file, line, message: `pin modern-web-guidance to an exact version, not "@${version}"` });
+      else if (!first) first = { version, file, line };
+      else if (version !== first.version) {
+        problems.push({ file, line, message: `modern-web-guidance@${version} does not match @${first.version} in ${first.file}:${first.line}` });
       }
     }
+  }
+  return problems;
+}
+
+function checkModernWebGuidance() {
+  const docs = [...walk(path.join(root, 'skills'), '.md'), path.join(root, 'README.md')]
+    .map((file) => ({ file: rel(file), text: read(file) }));
+  const copies = docs.filter((doc) => path.basename(doc.file) === 'modern-web-guidance.md');
+  for (const problem of [...guidanceCopyProblems(copies), ...guidancePinProblems(docs)]) {
+    fail(path.join(root, problem.file), problem.message, problem.line);
   }
 }
 
@@ -325,4 +346,4 @@ function main() {
 
 if (require.main === module) main();
 
-module.exports = { frontmatter };
+module.exports = { frontmatter, guidanceCopyProblems, guidancePinProblems };
