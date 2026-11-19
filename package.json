@@ -1,12 +1,12 @@
 {
   "name": "@jungvonmatt/agent-toolkit",
   "homepage": "https://jvm.tech",
-  "version": "1.5.0",
+  "version": "1.6.0",
   "description": "Reusable Agent skills, rules, prompts, and workflows for AI-assisted development.",
   "license": "MIT",
   "private": true,
   "scripts": {
-    "test": "node --test scripts/voiceover-focus.test.js && node scripts/validate.js && node scripts/run-evals.js --min-rank1 85",
+    "test": "node --test scripts/voiceover-focus.test.js scripts/validate.test.js && node scripts/validate.js && node scripts/run-evals.js --min-rank1 85",
     "eval:model": "node scripts/run-evals.js --runner copilot",
     "eval:behavior": "claude plugin eval . --no-publish"
   },

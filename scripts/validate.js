@@ -244,6 +244,59 @@ function checkReadme(pluginName, skills) {
   for (const skill of listed) if (!skills.includes(skill)) fail(file, `Skills table lists unknown skill "${skill}"`);
 }
 
+// Skills install one by one, so each skill that runs modern-web-guidance carries its own copy of the
+// reference. The copies must stay identical, and every command must pin the same exact version.
+// The two checks take { file, text } documents and return { file, line, message } problems.
+
+// The text most copies share is the reference; blame only the copies that drifted from it.
+function guidanceCopyProblems(copies) {
+  const [canonical = []] = [...Map.groupBy(copies, (copy) => copy.text).values()].sort((a, b) => b.length - a.length);
+  return copies
+    .filter((copy) => !canonical.includes(copy))
+    .map((copy) => ({ file: copy.file, message: `differs from ${canonical[0].file}; keep every copy identical` }));
+}
+
+// A runner call that names the package with no version at all.
+const UNPINNED_RUN = /\b(?:npx|pnpx|bunx|pnpm\s+dlx|yarn\s+dlx|npm\s+exec)(?:\s+(?:-y|--yes|-p|--package|--))*\s+(?:--package=)?modern-web-guidance(?![\w@-])/g;
+// A plugin@marketplace name such as modern-web-guidance@googlechrome is no version.
+const GUIDANCE_MARKETPLACES = new Set(['googlechrome']);
+
+// Returns the version after "@", or null for a marketplace name. A trailing sentence mark is no part of it.
+function pinnedVersion(raw) {
+  const version = raw.replace(/[.,;:!?]+$/, '');
+  return GUIDANCE_MARKETPLACES.has(version) ? null : version;
+}
+
+function guidancePinProblems(docs) {
+  const problems = [];
+  let first = null;
+  for (const { file, text } of docs) {
+    for (const match of text.matchAll(UNPINNED_RUN)) {
+      problems.push({ file, line: lineAt(text, match.index), message: 'pin modern-web-guidance to an exact version, for example "modern-web-guidance@1.2.3"' });
+    }
+    for (const match of text.matchAll(/modern-web-guidance@([^\s`"')\]]+)/g)) {
+      const version = pinnedVersion(match[1]);
+      const line = lineAt(text, match.index);
+      if (version === null) continue;
+      if (!/^\d+\.\d+\.\d+$/.test(version)) problems.push({ file, line, message: `pin modern-web-guidance to an exact version, not "@${version}"` });
+      else if (!first) first = { version, file, line };
+      else if (version !== first.version) {
+        problems.push({ file, line, message: `modern-web-guidance@${version} does not match @${first.version} in ${first.file}:${first.line}` });
+      }
+    }
+  }
+  return problems;
+}
+
+function checkModernWebGuidance() {
+  const docs = [...walk(path.join(root, 'skills'), '.md'), path.join(root, 'README.md')]
+    .map((file) => ({ file: rel(file), text: read(file) }));
+  const copies = docs.filter((doc) => path.basename(doc.file) === 'modern-web-guidance.md');
+  for (const problem of [...guidanceCopyProblems(copies), ...guidancePinProblems(docs)]) {
+    fail(path.join(root, problem.file), problem.message, problem.line);
+  }
+}
+
 const NUMBER_WORDS = ['Zero', 'One', 'Two', 'Three', 'Four', 'Five', 'Six', 'Seven', 'Eight', 'Nine', 'Ten',
   'Eleven', 'Twelve', 'Thirteen', 'Fourteen', 'Fifteen', 'Sixteen', 'Seventeen', 'Eighteen', 'Nineteen', 'Twenty'];
 
@@ -282,6 +335,7 @@ function main() {
   checkCommands(pluginName, skills);
   checkReadme(pluginName, skills);
   checkSite(pluginName, skills);
+  checkModernWebGuidance();
 
   if (errors.length) {
     console.error(`✖ ${errors.length} problem${errors.length === 1 ? '' : 's'}:\n${errors.map((error) => `  ${error}`).join('\n')}`);
@@ -292,4 +346,4 @@ function main() {
 
 if (require.main === module) main();
 
-module.exports = { frontmatter };
+module.exports = { frontmatter, guidanceCopyProblems, guidancePinProblems };

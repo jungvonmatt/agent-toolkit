@@ -107,7 +107,9 @@ npx skills add mattpocock/skills
 
 > **`start-ticket`** routes to `planning-and-task-breakdown`, and conditionally to `spec-driven-development`, `doubt-driven-development`, `interview-me`, `security-and-hardening`, and `performance-optimization` from `addyosmani/agent-skills`. Its stress-test step uses `grill-with-docs` (fallback: `grilling`) from `mattpocock/skills` when present, and it routes facts outside the repository to `research` from the same pack.
 >
-> **`start-ticket`**, **`implement`**, and **`voiceover-check`** use `modern-web-guidance` for web UI work when it is installed. **`pr-review`** runs it through `npx`, so it works without installing.
+> **`start-ticket`**, **`implement`**, **`pr-review`**, and **`voiceover-check`** run the `modern-web-guidance` CLI for web UI work through `npx`, at a pinned version and with telemetry off, so they work without installing it (Node.js 22 or later). Installing the pack adds its guidance to web work outside these skills, and its `chrome-extensions` skill, which `start-ticket` and `implement` load for browser extensions. To raise the pinned version, change it in every `references/modern-web-guidance.md` and in `skills/pr-review/SKILL.md`; `npm test` reports any place you miss.
+>
+> In Claude Code, install `modern-web-guidance` from its own marketplace and turn on auto-update: `/plugin marketplace add GoogleChrome/modern-web-guidance`, then `/plugin install modern-web-guidance@googlechrome`. Installs from `claude-plugins-official` stopped updating at v0.0.194 on Oct 12, 2026: uninstall that copy and install it from the `googlechrome` marketplace.
 
 ## Recommended Third-Party Sources
 
