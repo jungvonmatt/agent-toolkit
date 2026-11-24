@@ -256,8 +256,9 @@ function guidanceCopyProblems(copies) {
     .map((copy) => ({ file: copy.file, message: `differs from ${canonical[0].file}; keep every copy identical` }));
 }
 
-// A runner call that names the package with no version at all.
-const UNPINNED_RUN = /\b(?:npx|pnpx|bunx|pnpm\s+dlx|yarn\s+dlx|npm\s+exec)(?:\s+(?:-y|--yes|-p|--package|--))*\s+(?:--package=)?modern-web-guidance(?![\w@-])/g;
+// A runner call that names the package with no version at all. The shell strips quotes, so a quoted
+// name is unpinned too.
+const UNPINNED_RUN = /\b(?:npx|pnpx|bunx|pnpm\s+dlx|yarn\s+dlx|npm\s+exec)(?:\s+(?:-y|--yes|-p|--package|--))*\s+(?:--package=)?["']?modern-web-guidance(?![\w@-])/g;
 // A plugin@marketplace name such as modern-web-guidance@googlechrome is no version.
 const GUIDANCE_MARKETPLACES = new Set(['googlechrome']);
 

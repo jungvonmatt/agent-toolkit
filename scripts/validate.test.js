@@ -8,8 +8,11 @@ const pinProblems = (...texts) =>
     (problem) => `${problem.file}:${problem.line} ${problem.message}`,
   );
 
-test('accepts one exact version, also before a sentence mark', () => {
-  assert.deepEqual(pinProblems('`npx -y modern-web-guidance@1.0.1 search "x"`', 'Raise modern-web-guidance@1.0.1.'), []);
+test('accepts one exact version, also quoted or before a sentence mark', () => {
+  assert.deepEqual(
+    pinProblems('`npx -y modern-web-guidance@1.0.1 search "x"`', 'npx -y "modern-web-guidance@1.0.1" search "x"', 'Raise modern-web-guidance@1.0.1.'),
+    [],
+  );
 });
 
 test('accepts the plugin marketplace name and the skills installer', () => {
@@ -35,6 +38,8 @@ test('flags each runner call without a version', () => {
     'yarn dlx modern-web-guidance search "x"',
     'npm exec -- modern-web-guidance search "x"',
     'npx --package=modern-web-guidance modern-web search "x"',
+    'npx --yes "modern-web-guidance" search "dialog focus"',
+    "npx --package='modern-web-guidance' modern-web search \"x\"",
   ];
   assert.equal(pinProblems(calls.join('\n')).length, calls.length);
 });

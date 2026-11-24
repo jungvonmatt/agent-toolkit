@@ -290,9 +290,12 @@ Scope notes carried into the relevant briefs:
     from the checkout. In the checkout, `npx` would run a
     `modern-web-guidance` copy from the PR's `node_modules`, or fetch it from
     a registry the PR's `.npmrc` names: code the PR controls. The Fallow
-    brief avoids the same risk. When the target ref has a `.mwgrc`, write it
-    into that folder (`git -C <checkout> show <target ref>:.mwgrc`), so the
-    project target comes from the target ref and not from the PR.
+    brief avoids the same risk. Always write a `.mwgrc` into that folder:
+    the target ref's file when it has one
+    (`git -C <checkout> show <target ref>:.mwgrc`), otherwise `{}`. The
+    project target then comes from the target ref, not from the PR. Without
+    a `.mwgrc` in the folder, the CLI falls back to `~/.mwgrc`, the
+    reviewer's own settings.
   - `search` → `retrieve` for each web capability the diff touches, to flag
     hand-rolled code where a native platform feature fits, and obsolete
     patterns. Judge fallbacks against the project target:
@@ -314,14 +317,16 @@ Scope notes carried into the relevant briefs:
     ```
 
     Each line holds the old and new mode, the old and new blob ID, the
-    status, and the path. Scan each added or modified file whose new mode is
-    not `120000`, and list a symlink as `skipped — symlink`. Write its blob
-    to a file that you name with a counter and the file's extension, and
-    scan that file, one per call:
+    status, and the path. A rename (`R…`) or copy (`C…`) line holds the old
+    and the new path; use the new one. Scan every record except a deletion
+    (`D`) and a new mode of `120000`, and list a symlink as
+    `skipped — symlink`. Write the new blob straight into the temporary
+    folder, to a file that you name with a counter and the file's extension,
+    and scan that file, one per call:
 
     ```bash
-    git -C <checkout> cat-file blob <new blob ID> > "<temporary folder>/scan/3.css"
-    cd "<temporary folder>" && DISABLE_TELEMETRY=1 npx -y modern-web-guidance@1.0.1 legacy-scan "scan/3.css" --json
+    git -C <checkout> cat-file blob <new blob ID> > "<temporary folder>/3.css"
+    cd "<temporary folder>" && DISABLE_TELEMETRY=1 npx -y modern-web-guidance@1.0.1 legacy-scan "3.css" --json
     ```
 
     Map each finding back to its PR path. A finding names the line where
