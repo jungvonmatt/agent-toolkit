@@ -55,7 +55,7 @@ Check the diff against every ADR that covers a changed area and is accepted on t
 - Check rendering risks: layout thrashing, large DOM updates, heavy synchronous work.
 - Distinguish measured performance evidence from static inference and record skipped measurements.
 - In full mode, measure affected browser routes (trace for LCP, CLS, and INP of new interactions; network requests) as described in SKILL.md step 5. Compare with the target revision before claiming a regression.
-- For web UI changes, check `modern-web-guidance` (search and `legacy-scan`) for native features that replace hand-rolled code and for obsolete patterns.
+- For web UI changes, search `modern-web-guidance` for native features that replace hand-rolled code and for obsolete patterns. Add its `legacy-scan` only when the request or the project asks for it.
 
 ## Rendered UI, routes, and consent
 

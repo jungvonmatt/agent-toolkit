@@ -305,37 +305,28 @@ Scope notes carried into the relevant briefs:
     cd "<temporary folder>" && DISABLE_TELEMETRY=1 npx -y modern-web-guidance@1.0.1 retrieve "<id>,<id>"
     ```
 
-  - `legacy-scan` on each changed markup, style, or browser script file
-    (`.html`, `.htm`, `.css`, `.scss`, `.less`, `.js`, `.mjs`, `.cjs`,
-    `.jsx`, `.ts`, `.mts`, `.cts`, `.tsx`, `.vue`, `.svelte`, `.astro`), at
-    the head SHA. Read each file from git, not from disk: the checkout may
-    hold another revision, and the PR controls its file names. List the
-    changed files with their blob IDs:
+  - **Optional:** `legacy-scan`, a deterministic check for old web patterns
+    in the changed files. Run it only when the review request asks for it,
+    or when the project's agent context files from step 1 ask for it on web
+    PRs. Otherwise return `legacy-scan: skipped — not requested`. It never
+    blocks `Ready`. `scripts/legacy-scan.mjs` does the git and temporary-file
+    work: it scans each changed web file at the head SHA, renames included
+    and symlinks skipped, from its own temporary folder with the target
+    ref's `.mwgrc`. Call it with its absolute path in this skill's folder:
 
     ```bash
-    git -C <checkout> diff --raw --no-abbrev <target ref>...<head SHA>
+    node <this skill's folder>/scripts/legacy-scan.mjs --checkout <checkout> --base <target ref> --head <head SHA>
     ```
 
-    Each line holds the old and new mode, the old and new blob ID, the
-    status, and the path. A rename (`R…`) or copy (`C…`) line holds the old
-    and the new path; use the new one. Scan every record except a deletion
-    (`D`) and a new mode of `120000`, and list a symlink as
-    `skipped — symlink`. Write the new blob straight into the temporary
-    folder, to a file that you name with a counter and the file's extension,
-    and scan that file, one per call:
-
-    ```bash
-    git -C <checkout> cat-file blob <new blob ID> > "<temporary folder>/3.css"
-    cd "<temporary folder>" && DISABLE_TELEMETRY=1 npx -y modern-web-guidance@1.0.1 legacy-scan "3.css" --json
-    ```
-
-    Map each finding back to its PR path. A finding names the line where
-    its CSS rule, element, or statement starts, not the line that matched.
-    Keep it when that whole block overlaps a line the diff adds or changes,
-    and the code matches a `keepWhen` entry of its rule and no `dropWhen`
-    entry. Retrieve the guide of each kept finding with the pinned
-    `retrieve` before you cite it. The scan covers about 20% of the guides,
-    so it adds to the search and does not replace it.
+    It prints JSON. `status` is `ok`, `skipped`, or `unavailable` with a
+    `reason`; return the last two as the `legacy-scan:` status. Each entry
+    in `findings` holds the PR `path`, the `line` where its CSS rule,
+    element, or statement starts, the rule's `keepWhen` and `dropWhen`, and
+    the `changedLines` of its file. Keep a finding when the block that
+    starts on its line overlaps a changed line, and the code matches a
+    `keepWhen` entry and no `dropWhen` entry. Retrieve its guide with the
+    pinned `retrieve` before you cite it. The scan covers about 20% of the
+    guides, so it adds to the search and does not replace it.
   - Cite the guide ID in `evidence`. A "native alternative exists" finding is
     P3 unless the guide names a correctness, a11y, or performance defect. A
     gated guide yields no finding; list it as `gated: <id>`. When a command
@@ -637,7 +628,7 @@ After the review is complete:
 - [ ] Runtime ran (Option A or B) or is recorded as `skipped`/`unavailable — <reason>`
 - [ ] In full mode, the browser accessibility audit and performance measurement ran for applicable UI changes or are recorded as `skipped`/`unavailable — <reason>`
 - [ ] In full mode, the layout and states, routes and SEO, and consent checks ran when their signals are present, or are recorded as `skipped`/`unavailable — <reason>`
-- [ ] For web UI signals, `modern-web-guidance` search and `legacy-scan` ran, and the report holds its status, the cited guide IDs, and any gated guides
+- [ ] For web UI signals, the `modern-web-guidance` search ran, and the report holds its status, the cited guide IDs, and any gated guides; `legacy-scan` ran when requested, else is recorded as `skipped — not requested`
 - [ ] The verdict follows precedence: Blocked > Needs changes > Unverified > Ready
 - [ ] `Ready` was issued only when every required check completed successfully
 - [ ] No code, comments, tickets, or merge state were modified

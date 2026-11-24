@@ -82,8 +82,9 @@ If your scope produced no findings, return one status line instead:
 When your brief includes the `modern-web-guidance` flow, also return one
 `web-guidance:` status line (`passed`, `findings`, `skipped — <reason>`, or
 `unavailable — <reason>`) listing the guide IDs you retrieved and each
-`gated: <id>`. Report its findings, from search and from `legacy-scan`, under
-the axis the guide concerns (`a11y`, `performance`, or `architecture` for
+`gated: <id>`, and one `legacy-scan:` status line (`passed`, `findings`, or
+`skipped`/`unavailable — <reason>`). Report the findings of both under the
+axis the guide concerns (`a11y`, `performance`, or `architecture` for
 native-alternative findings), with the guide ID in `evidence`.
 
 ## Deduplication expectation

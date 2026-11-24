@@ -35,9 +35,13 @@ Modes and depths:
 
 Web UI changes are also checked against
 [`modern-web-guidance`](https://github.com/GoogleChrome/modern-web-guidance)
-for native platform features and obsolete patterns, by search and by a
-`legacy-scan` of the changed files. It runs a pinned version through `npx`
-with telemetry off, so it does not need to be installed.
+for native platform features and obsolete patterns. It runs a pinned version
+through `npx` with telemetry off, so it does not need to be installed.
+
+An optional `legacy-scan` of the changed web files runs only when you ask for
+it in the review request, or when the project's `AGENTS.md` or `CLAUDE.md`
+asks for it on web PRs, for example: `pr-review: run the legacy-scan on web
+PRs`. `scripts/legacy-scan.mjs` does the work in one command.
 
 In an attended full review, changes to names, roles, focus, dialogs, live
 announcements, or screen-reader navigation trigger a targeted
