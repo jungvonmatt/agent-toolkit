@@ -9,8 +9,10 @@
 // holds the base ref's .mwgrc, or {} when the base has none. The PR's packages and npm settings and the
 // reviewer's ~/.mwgrc therefore take no part. The folder is deleted afterwards.
 //
-// The report's status is "ok", "skipped" (no changed web file), or "unavailable" (with a reason). The
-// script exits with 2 only when its arguments are wrong.
+// The report's status is "ok", "skipped" (no changed web file to scan), or "unavailable" (with a reason).
+// "submitted" lists the files handed to the scanner; the scanner can still skip one without saying so, so
+// a report with no findings does not prove that every file was checked. The script exits with 2 only
+// when its arguments are wrong.
 
 import { execFileSync } from 'node:child_process';
 import { mkdtempSync, readFileSync, realpathSync, rmSync, writeFileSync } from 'node:fs';
@@ -26,6 +28,10 @@ const WEB_EXTENSIONS = new Set([
 ]);
 const SKIPPED_MODES = new Map([['120000', 'symlink'], ['160000', 'submodule']]);
 const BUFFER = 64 * 1024 * 1024;
+// The pinned scanner skips a file over 1,000,000 bytes without saying so, so the helper lists it as skipped.
+const SCANNER_MAX_BYTES = 1_000_000;
+const COVERAGE = 'The scanner can skip a submitted file or match without saying so: past its 5,000-file limit, '
+  + 'or on very long lines such as minified code. No finding does not prove that every file was checked.';
 
 // The shared reference pins the version, so raising the pin there also raises it here.
 export function pinnedVersion(reference = new URL('../references/modern-web-guidance.md', import.meta.url)) {
@@ -121,17 +127,24 @@ function reason(error) {
   return lines.find((line) => line && !/^npm (notice|warn)/i.test(line)) ?? 'unknown error';
 }
 
-// Writes each file's head blob into the folder under a counter name and returns name -> { path, changedLines }.
+// Writes each file's head blob into the folder under a counter name. Returns the staged files
+// (name -> { path, changedLines }) and the files over the scanner's size limit.
 function stageFiles(folder, scan, { checkout, base, head }) {
   const range = `${base}...${head}`;
-  return new Map(
-    scan.map((record, index) => {
-      const name = `${index + 1}${path.extname(record.path).toLowerCase()}`;
-      writeFileSync(path.join(folder, name), git(checkout, ['cat-file', 'blob', record.newBlob]));
-      const patch = git(checkout, ['diff', '-U0', '-M', '--no-color', '--no-ext-diff', '--no-textconv', range, '--', record.oldPath, record.path], { encoding: 'utf8' });
-      return [name, { path: record.path, changedLines: changedLines(patch) }];
-    }),
-  );
+  const files = new Map();
+  const oversized = [];
+  for (const record of scan) {
+    const blob = git(checkout, ['cat-file', 'blob', record.newBlob]);
+    if (blob.length > SCANNER_MAX_BYTES) {
+      oversized.push({ path: record.path, reason: `over the scanner's size limit of ${SCANNER_MAX_BYTES} bytes` });
+      continue;
+    }
+    const name = `${files.size + 1}${path.extname(record.path).toLowerCase()}`;
+    writeFileSync(path.join(folder, name), blob);
+    const patch = git(checkout, ['diff', '-U0', '-M', '--no-color', '--no-ext-diff', '--no-textconv', range, '--', record.oldPath, record.path], { encoding: 'utf8' });
+    files.set(name, { path: record.path, changedLines: changedLines(patch) });
+  }
+  return { files, oversized };
 }
 
 export function scanPullRequest(refs, { runScanner = runLegacyScan, version = pinnedVersion() } = {}) {
@@ -141,21 +154,22 @@ export function scanPullRequest(refs, { runScanner = runLegacyScan, version = pi
   }
   const raw = git(checkout, ['diff', '--raw', '-z', '--no-abbrev', '-M', `${base}...${head}`], { encoding: 'utf8' });
   const { scan, skipped } = selectFiles(parseRawDiff(raw));
-  const report = { status: 'ok', base, head, version, scanned: [], skipped, findings: [] };
-  if (scan.length === 0) return { ...report, status: 'skipped', reason: 'no changed web files' };
+  const empty = { status: 'skipped', base, head, version, submitted: [], skipped, findings: [] };
+  if (scan.length === 0) return { ...empty, reason: 'no changed web files' };
 
   const folder = mkdtempSync(path.join(tmpdir(), 'legacy-scan-'));
   try {
     writeFileSync(path.join(folder, '.mwgrc'), baseMwgrc(checkout, base));
-    const files = stageFiles(folder, scan, refs);
-    const scanned = [...files.values()];
+    const { files, oversized } = stageFiles(folder, scan, refs);
+    const report = { ...empty, submitted: [...files.values()], skipped: [...skipped, ...oversized] };
+    if (files.size === 0) return { ...report, reason: "no changed web file within the scanner's size limit" };
     let result;
     try {
       result = runScanner(folder, version);
     } catch (error) {
-      return { ...report, status: 'unavailable', reason: `legacy-scan failed: ${reason(error)}`, scanned };
+      return { ...report, status: 'unavailable', reason: `legacy-scan failed: ${reason(error)}` };
     }
-    return { ...report, scanned, findings: mapFindings(result, files), note: result.note };
+    return { ...report, status: 'ok', findings: mapFindings(result, files), coverage: COVERAGE, scannerNote: result.note };
   } finally {
     rmSync(folder, { recursive: true, force: true });
   }

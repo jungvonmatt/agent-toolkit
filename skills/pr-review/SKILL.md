@@ -325,8 +325,12 @@ Scope notes carried into the relevant briefs:
     the `changedLines` of its file. Keep a finding when the block that
     starts on its line overlaps a changed line, and the code matches a
     `keepWhen` entry and no `dropWhen` entry. Retrieve its guide with the
-    pinned `retrieve` before you cite it. The scan covers about 20% of the
-    guides, so it adds to the search and does not replace it.
+    pinned `retrieve` before you cite it. `submitted` lists the files it
+    handed to the scanner, and `skipped` lists the rest with a reason. The
+    scanner can still skip a submitted file without saying so, so report
+    what was submitted, not that every file was checked. The scan covers
+    about 20% of the guides, so it adds to the search and does not replace
+    it.
   - Cite the guide ID in `evidence`. A "native alternative exists" finding is
     P3 unless the guide names a correctness, a11y, or performance defect. A
     gated guide yields no finding; list it as `gated: <id>`. When a command

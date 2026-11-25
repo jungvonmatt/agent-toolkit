@@ -51,7 +51,7 @@ test('scans the head version of a changed file while the base is checked out', a
   const report = scanPullRequest(refs, { runScanner: stubScanner(seen), version: '1.2.3' });
   assert.equal(report.status, 'ok');
   assert.equal(seen.files['1.css'], `.a {}\n${legacyRule}`);
-  assert.deepEqual(report.scanned, [{ path: 'a.css', changedLines: [[2, 6]] }]);
+  assert.deepEqual(report.submitted, [{ path: 'a.css', changedLines: [[2, 6]] }]);
 });
 
 test('follows a renamed and edited file to its new path', async (t) => {
@@ -64,7 +64,7 @@ test('follows a renamed and edited file to its new path', async (t) => {
     },
   });
   const report = scanPullRequest(refs, { runScanner: stubScanner(), version: '1.2.3' });
-  assert.deepEqual(report.scanned, [{ path: 'new.css', changedLines: [[37, 41]] }]);
+  assert.deepEqual(report.submitted, [{ path: 'new.css', changedLines: [[37, 41]] }]);
 });
 
 test('skips symlinks, deletions, and files that are not web files', async (t) => {
@@ -79,7 +79,7 @@ test('skips symlinks, deletions, and files that are not web files', async (t) =>
     },
   });
   const report = scanPullRequest(refs, { runScanner: stubScanner(), version: '1.2.3' });
-  assert.deepEqual(report.scanned.map((file) => file.path), ['kept.vue']);
+  assert.deepEqual(report.submitted.map((file) => file.path), ['kept.vue']);
   assert.deepEqual(report.skipped, [{ path: 'link.css', reason: 'symlink' }]);
 });
 
@@ -88,7 +88,7 @@ test('keeps a hostile file name out of every shell', async (t) => {
   const name = "x$(touch PWNED)it's.css";
   const { dir, refs } = fixture(t, { change: ({ dir }) => writeFileSync(path.join(dir, name), legacyRule) });
   const report = scanPullRequest(refs, { runScanner: stubScanner(), version: '1.2.3' });
-  assert.deepEqual(report.scanned.map((file) => file.path), [name]);
+  assert.deepEqual(report.submitted.map((file) => file.path), [name]);
   assert.equal(existsSync(path.join(dir, 'PWNED')), false);
   assert.equal(existsSync(path.join(process.cwd(), 'PWNED')), false);
 });
@@ -132,7 +132,31 @@ test('maps each finding back to its PR path with the rule rubric and changed lin
       changedLines: [[1, 5]],
     },
   ]);
-  assert.equal(report.note, 'covers part of the guides');
+  assert.equal(report.scannerNote, 'covers part of the guides');
+  assert.match(report.coverage, /No finding does not prove that every file was checked/);
+});
+
+test("lists a file over the scanner's size limit as skipped, and submits one at the limit", async (t) => {
+  const { scanPullRequest } = await load();
+  const { refs } = fixture(t, {
+    change: ({ dir }) => {
+      writeFileSync(path.join(dir, 'at-limit.css'), 'a'.repeat(1_000_000));
+      writeFileSync(path.join(dir, 'too-big.css'), 'a'.repeat(1_000_001));
+    },
+  });
+  const seen = {};
+  const report = scanPullRequest(refs, { runScanner: stubScanner(seen), version: '1.2.3' });
+  assert.deepEqual(report.submitted.map((file) => file.path), ['at-limit.css']);
+  assert.deepEqual(report.skipped, [{ path: 'too-big.css', reason: "over the scanner's size limit of 1000000 bytes" }]);
+  assert.deepEqual(Object.keys(seen.files).sort(), ['.mwgrc', '1.css']);
+});
+
+test('reports skipped and runs no scanner when every web file is over the size limit', async (t) => {
+  const { scanPullRequest } = await load();
+  const { refs } = fixture(t, { change: ({ dir }) => writeFileSync(path.join(dir, 'too-big.css'), 'a'.repeat(1_000_001)) });
+  const report = scanPullRequest(refs, { runScanner: () => assert.fail('the scanner must not run'), version: '1.2.3' });
+  assert.equal(report.status, 'skipped');
+  assert.equal(report.reason, "no changed web file within the scanner's size limit");
 });
 
 test('reports skipped and runs no scanner when no web file changed', async (t) => {
