@@ -331,6 +331,11 @@ Scope notes carried into the relevant briefs:
     what was submitted, not that every file was checked. The scan covers
     about 20% of the guides, so it adds to the search and does not replace
     it.
+  - Before recommending a fix, check nearby code and shared components for
+    an existing implementation that follows the guide and fits the same
+    browser support target. If one fits, cite its file and line in the
+    `recommendation` and explain what to reuse. If none fits, recommend a
+    concrete fix from the guide.
   - Cite the guide ID in `evidence`. A "native alternative exists" finding is
     P3 unless the guide names a correctness, a11y, or performance defect. A
     gated guide yields no finding; list it as `gated: <id>`. When a command
