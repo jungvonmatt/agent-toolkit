@@ -59,7 +59,7 @@ Establish the stack from repo evidence, not assumption, and adopt the matching e
 - Existing agent context: `AGENTS.md`, `CLAUDE.md`, `README.md`, `docs/adr/`, and the domain glossary: `GLOSSARY.md`, `CONTEXT.md`, or `docs/glossary.md`. In a repo with several domains, `GLOSSARY-MAP.md` or `CONTEXT-MAP.md` points to one glossary per domain.
 - An existing project Definition of Done (in the files above, a `references/` checklist, or `docs/`) — reuse it if present; otherwise the baseline in [`references/definition-of-done.md`](references/definition-of-done.md) applies
 - Design-token / theme source, i18n locale files, test setup
-- Browser support policy for web UI: `browserslist` (in `package.json` or `.browserslistrc`) or a policy stated in the agent context files; else Baseline Widely available
+- Browser support for web UI: the project target as [`references/modern-web-guidance.md`](references/modern-web-guidance.md) ranks it — `baseline` in `.mwgrc`, then `browserslist` or a stated policy, else Baseline Widely available
 
 Record the plan output directory: `docs/plans/` if it exists, otherwise ask before creating one.
 
@@ -125,7 +125,8 @@ Load only what the ticket type requires, and only skills that exist in the works
 | Challenging assumptions / weighing a different approach | `spec-driven-development` (assumption-surfacing), `doubt-driven-development` |
 | Underspecified ticket (no clear acceptance criteria) | `interview-me` |
 | Ticket bundling several independently-shippable capabilities | `spec-driven-development` (Phase 0 capability map) |
-| HTML/CSS/client-side JS | `modern-web-guidance` — run its `search` → `retrieve` flow for the planned UI patterns; record the guide IDs per task in the plan |
+| HTML/CSS/client-side JS | `modern-web-guidance` through [`references/modern-web-guidance.md`](references/modern-web-guidance.md) — `search` → `retrieve` for the planned UI patterns; record the guide IDs per task in the plan, and `gated: <id>` for each gated guide |
+| Chrome extension (Manifest V3, `chrome.*` APIs, Chrome Web Store) | `chrome-extensions` |
 | UI / new component | the project's framework skill (Vue → `vue` / `nuxt`; React → `vercel-react-best-practices`), `web-design-guidelines` |
 | React / Next.js performance or data fetching | `vercel-react-best-practices` |
 | React component API design (prop proliferation, compound components, render props, context) | `vercel-composition-patterns` |
@@ -153,6 +154,8 @@ Ask **only** what you cannot answer from the ticket, design, or codebase. Max 6 
 - The local dev URL (used later for browser verification).
 
 Then lead with the gaps surfaced in Step 4b: unstated edge cases, shaky assumptions the codebase contradicts, and any alternative approach worth confirming. Probe areas: scope boundaries (breakpoints, locales, roles), i18n keys, API scope (new endpoint vs. extend existing), interaction details absent from the design, and any "the ticket says X but the code suggests Y" conflict.
+
+When the plan has web UI tasks, `.mwgrc` has no `baseline`, and the project states a Baseline target (a `browserslist` query such as `baseline widely available` or `baseline 2024`, or a written Baseline policy), ask whether to record that target with `set-baseline` from [`references/modern-web-guidance.md`](references/modern-web-guidance.md). Every agent then gets the same fallback advice.
 
 Wait for answers before writing the plan.
 

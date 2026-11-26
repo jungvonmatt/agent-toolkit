@@ -128,13 +128,8 @@ Use the same impact levels as the `accessibility` skill:
 
 ## Fix guidance
 
-When the `modern-web-guidance` skill is present, find the fix there and name the guide in the finding. Search first and retrieve the IDs it returns; do not guess IDs:
+Find the fix with `modern-web-guidance` and name the guide in the finding. [modern-web-guidance.md](modern-web-guidance.md) has the pinned commands and the query rules. Search first and retrieve the IDs it returns.
 
-```bash
-npx -y modern-web-guidance@latest search "announce form errors only after user interaction"
-npx -y modern-web-guidance@latest retrieve "<id>"
-```
-
-Useful searches: "announce form errors only after user interaction", "modal dialog inert background", "accessible live region announcements", "toast notifications", "dialog close and focus".
+Useful searches: "announce form errors after interaction", "modal dialog inert background", "accessible live region announcements", "toast notifications", "dialog close and focus".
 
 Prefer its error-handling guide over patterns that put `aria-invalid="true"` in the markup or nest `role="alert"` inside an `aria-live` region. Those patterns cause "invalid" before any input and double announcements.
